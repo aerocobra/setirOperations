@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+	<data>
+		<!-- parent = "base.menu_sale_config" -->
+		<!-- parent = "base.menu_sale_config" -->
+		<menuitem id="operations.menu_base_operations"
+			name = "Operaciones"
+		/>
+		<menuitem id="menu_operations"
+			name = "Operaciones"
+			parent = "menu_operations_base"
+		/>
+	</data>
+</openerp>
