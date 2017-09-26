@@ -1,14 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
 	<data>
-		<!-- parent = "base.menu_sale_config" -->
-		<!-- parent = "base.menu_sale_config" -->
-		<menuitem id="operations.menu_base_operations"
+		<!-- Operaciones -->
+		<menuitem
+			id="menu_operations_root"
 			name = "Operaciones"
+			sequence = "10"
 		/>
-		<menuitem id="menu_operations"
+		<!-- Operaciones/Operaciones -->
+		<menuitem id="menu_operations_operations"
 			name = "Operaciones"
-			parent = "menu_operations_base"
+			parent = "menu_operations_root"
+		/>
+		<!-- Operaciones/Operaciones/Operaciones -->
+		<act_window id="action_setir_operation"
+			name = "Operaciones"
+			res_model = "setir.operation"
+			view_mode = "tree,form"	
+		/>
+		<menuitem id="menu_setir_operation"
+			name = "Operaciones"
+			parent = "menu_operations"
+			sequence = "20"
+			action="action_setir_operation"
+		/>
+		<!-- Operaciones/Configuracion -->
+		<menuitem id="menu_operations_cfg"
+			name = "Configuración"
+			parent = "menu_operations_root"
+		/>
+		<!-- Operaciones/Configuracion/Medios de pago -->
+		<menuitem id="menu_operations_config_pm"
+			name = "Medios de Pago"
+			parent = "menu_operations_cfg"
+		/>
+		<!-- Operaciones/Configuracion/Medios de Pago/Estados -->
+		<act_window id="action_setir_operation_cfg_pm_states"
+			name = "Estados"
+			res_model = "setir.pm.state"
+			view_mode = "tree,form"	
+		/>
+		<menuitem id="menu_setir_operation_cfg_pm_states"
+			name = "Estados"
+			parent = "menu_operations_config_pm"
+			sequence = "20"
+			action="action_setir_operation_cfg_pm_states"
 		/>
 	</data>
 </openerp>
