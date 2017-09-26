@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#setirSale.py
+#setirOperation.py
 import openerp.addons.decimal_precision as dp
 from openerp import api, fields, models
 from openerp import tools
@@ -13,4 +13,4 @@ from openerp import exceptions
 class setirOperation ( models.Model):
     _name = "setir.operation"
 
-    x_strName   = fields.Char ( string = "Operación")
+    x_strName   = fields.Char ( string = "Operaciï¿½n")

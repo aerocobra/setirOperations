@@ -2,9 +2,9 @@
 # © 2017 Igor V. Kartashov
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 {
-    "name": 'SETIR Operatopn',
+    "name": 'SETIR Operation',
     "version": "9.0.1.0",
-    "summary": "módulo ventas para SETIR",
+    "summary": "módulo operaciones para SETIR",
     "description": """
             		i-vk
             		v9.0.1.0
@@ -24,7 +24,7 @@
     "data": [
 		"views/setirOperations.xml",
         #"data/data.xml",
-        "security/ir.model.access.csv",
+        #"security/ir.model.access.csv",
         ],
     "installable": True,
     "application": True,
