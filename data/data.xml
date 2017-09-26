@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+<!-- noupdate no fuinciona bien, despues de instalar comentar esto para que npo crea la categoria existente otra vez -->
+	<!-- ESTADOS -->
+	<data noupdate="1">
+		<record model="setir.pm.state" id="pms1">
+			<field name="name">Espera</field>
+			<field name="strDescription">Pendiente activación</field>
+		</record>
+		<record model="setir.pm.state" id="pms2">
+			<field name="name">Activado</field>
+			<field name="strDescription">Activo, pagos peaje permitidos</field>
+		</record>
+		<record model="setir.pm.state" id="pms3">
+			<field name="name">Bloqueado</field>
+			<field name="strDescription">Activo, pagos peaje bloqueados</field>
+		</record>
+		<record model="setir.pm.state" id="pms4">
+			<field name="name">Baja</field>
+			<field name="strDescription">Desactivado sin posibilidad de volver a activar</field>
+		</record>
+	</data>
+	<!-- CAUSAS BAJA -->
+	<data noupdate="1">
+		<record model="setir.pm.unsubscribe.reason" id="pmur1">
+			<field name="name">Baja voluntaria</field>
+		</record>
+		<record model="setir.pm.unsubscribe.reason" id="pmur2">
+			<field name="name">Caducidad</field>
+		</record>
+		<record model="setir.pm.unsubscribe.reason" id="pmur3">
+			<field name="name">Cambio proveedor</field>
+		</record>
+		<record model="setir.pm.unsubscribe.reason" id="pmur4">
+			<field name="name">Defectuoso</field>
+		</record>
+		<record model="setir.pm.unsubscribe.reason" id="pmur5">
+			<field name="name">Sustituición</field>
+		</record>
+		<record model="setir.pm.unsubscribe.reason" id="pmur6">
+			<field name="name">Pérdida</field>
+		</record>
+		<record model="setir.pm.unsubscribe.reason" id="pmur7">
+			<field name="name">Garantía reisgo no confirmada</field>
+		</record>
+		<record model="setir.pm.unsubscribe.reason" id="pmur8">
+			<field name="name">Morosidad</field>
+		</record>
+		<record model="setir.pm.unsubscribe.reason" id="pmur9">
+			<field name="name">Cese actividad</field>
+		</record>
+		<record model="setir.pm.unsubscribe.reason" id="pmur10">
+			<field name="name">Otro</field>
+		</record>
+	</data>
+	<!-- CAUSAS BLOQUEO -->
+	<data noupdate="1">
+		<record model="setir.pm.block.reason" id="pmbr1">
+			<field name="name">Garantía reisgo no confirmada</field>
+		</record>
+		<record model="setir.pm.block.reason" id="pmbr2">
+			<field name="name">Morosidad</field>
+		</record>
+		<record model="setir.pm.block.reason" id="pmbr3">
+			<field name="name">Otro</field>
+		</record>
+	</data>
+</openerp>
