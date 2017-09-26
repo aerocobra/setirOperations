@@ -8,13 +8,12 @@
     "description": """
             		i-vk
             		v9.0.1.0
-            		
             		Operaciones para SETIR
                 	""",
     "author": "Igor V. Kartashov",
     "license": "AGPL-3",
     "website": "http://crm.setir.es",
-    "category": "Sale",
+    "category": "Operations",
     "depends": [
 				'base',
 				'crm',
@@ -23,7 +22,9 @@
                 'mail',
 				],
     "data": [
-		#"views/setirSaleOrderForm.xml",
+		"views/setirOperations.xml",
+        #"data/data.xml",
+        "security/ir.model.access.csv",
         ],
     "installable": True,
     "application": True,
