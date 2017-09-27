@@ -23,8 +23,8 @@
 				],
     "data": [
 		"views/setirOperations.xml",
-        #"data/data.xml",
-        #"security/ir.model.access.csv",
+        "data/data.xml",
+        "security/ir.model.access.csv",
         ],
     "installable": True,
     "application": True,

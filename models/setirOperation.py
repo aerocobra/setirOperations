@@ -11,15 +11,20 @@ from openerp.tools import float_is_zero, float_compare, DEFAULT_SERVER_DATETIME_
 from openerp import exceptions
 
 class setirOperation ( models.Model):
-	_name	= "setir.operation"
+	_name    = "setir.operation"
 
-	name	= fields.Char ( string = "Operación")
+	name    = fields.Char ( string = u"Operación")
+	
+	idCustomer	= fields.Many2one	(	comodel_name	= "res.partner",
+										string			= "Cliente"
+									)
 
+	
 class setirPMState ( models.Model):
 	_name = "setir.pm.state"
 
 	name            = fields.Char ( string = "Estado")
-	strDescription  = fields.Char ( string = "Descripción")
+	strDescription  = fields.Char ( string = u"Descripción")
 
 class setirPMUnsubscribeReason ( models.Model):
 	_name = "setir.pm.unsubscribe.reason"
@@ -36,10 +41,9 @@ class setirPMStateHistory ( models.Model):
 	
 	idState	= fields.Many2one ( string			= "Estado",
 								comodel_name	= "setir.pm.state")
-	dtState	= fields.DateTime (	string	= "Fecha")	
+	dtState	= fields.Datetime (	string	= "Fecha")	
 
 class setirPMManagement ( models.Model):
 	_name = "setir.pm.management"
 
 	name    = fields.Char ( string = "Gestión")
-	

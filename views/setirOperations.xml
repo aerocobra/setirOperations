@@ -2,8 +2,7 @@
 <openerp>
 	<data>
 		<!-- Operaciones -->
-		<menuitem
-			id="menu_operations_root"
+		<menuitem id="menu_operations_root"
 			name = "Operaciones"
 			sequence = "10"
 		/>
@@ -20,7 +19,7 @@
 		/>
 		<menuitem id="menu_setir_operation"
 			name = "Operaciones"
-			parent = "menu_operations"
+			parent = "menu_operations_operations"
 			sequence = "20"
 			action="action_setir_operation"
 		/>
@@ -45,6 +44,30 @@
 			parent = "menu_operations_config_pm"
 			sequence = "20"
 			action="action_setir_operation_cfg_pm_states"
+		/>
+		<!-- Operaciones/Configuracion/Medios de Pago/Razones baja -->
+		<act_window id="action_setir_operation_cfg_pm_unsubscribe_reasons"
+			name = "Razones de baja"
+			res_model = "setir.pm.unsubscribe.reason"
+			view_mode = "tree,form"	
+		/>
+		<menuitem id="menu_setir_operation_cfg_pm_unsubscribe_reasons"
+			name = "Estados"
+			parent = "menu_operations_config_pm"
+			sequence = "20"
+			action="action_setir_operation_cfg_pm_unsubscribe_reasons"
+		/>
+		<!-- Operaciones/Configuracion/Medios de Pago/Razones bloqueo -->
+		<act_window id="action_setir_operation_cfg_pm_block_reasons"
+			name = "Razones de bloqueo"
+			res_model = "setir.pm.block.reason"
+			view_mode = "tree,form"	
+		/>
+		<menuitem id="menu_setir_operation_cfg_pm_block_reasons"
+			name = "Estados"
+			parent = "menu_operations_config_pm"
+			sequence = "20"
+			action="action_setir_operation_cfg_pm_block_reasons"
 		/>
 	</data>
 </openerp>
