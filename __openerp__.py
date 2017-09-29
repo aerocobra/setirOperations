@@ -23,6 +23,7 @@
 				],
     "data": [
 		"views/setirOperations.xml",
+        "views/setirOperationForm.xml",
         "data/data.xml",
         "security/ir.model.access.csv",
         ],

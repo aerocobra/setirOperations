@@ -52,7 +52,7 @@
 			view_mode = "tree,form"	
 		/>
 		<menuitem id="menu_setir_operation_cfg_pm_unsubscribe_reasons"
-			name = "Estados"
+			name = "Razones de baja"
 			parent = "menu_operations_config_pm"
 			sequence = "20"
 			action="action_setir_operation_cfg_pm_unsubscribe_reasons"
@@ -64,10 +64,20 @@
 			view_mode = "tree,form"	
 		/>
 		<menuitem id="menu_setir_operation_cfg_pm_block_reasons"
-			name = "Estados"
+			name = "Razones de bloqueo"
 			parent = "menu_operations_config_pm"
 			sequence = "20"
 			action="action_setir_operation_cfg_pm_block_reasons"
 		/>
+	</data>
+	<data>
+		<record id="operation_seq" model="ir.sequence">
+			<field name="name">Operación SETIR</field>
+			<field name="code">setir.operation.name.sequence</field>
+			<field name="prefix">C-%(range_year)s-%(month)s-%(day)s-[</field>
+			<field name="suffix">]</field>
+			<field name="padding">3</field>
+			<field name="number_increment">1</field>
+		</record>
 	</data>
 </openerp>
