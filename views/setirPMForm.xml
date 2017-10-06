@@ -1,6 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
 	<data>
+		<record id="setirPMTree" model="ir.ui.view">
+			<field name="name">setirPMTree</field>
+			<field name="model">setir.pm</field>
+			<field name="priority">2</field>
+			<field name="arch" type="xml">
+				<tree string="Medios de pago">
+					<field name="strPAN"/>
+					<field name="ePMType"/>
+					<field name="strSN" invisible ="1"/>
+					<field name="strPN"/>
+					<field name="idCountry"/>
+					<field name="idOperation" invisible ="1"/>
+					<field name="idCustomer"/>
+					<field name="idProvider"/>
+					<field name="idProductPM"/>
+					<field name="idAssociatedTollProduct"/>
+					<field name="dtSignUp" invisible ="1"/>
+					<field name="dateExpiration" invisible ="1"/>	
+					<field name="eRegisterState"/>
+					<field name="dtUnsubscribe" invisible ="1"/>
+					<field name="idsPMSate"/>
+					<field name="idsPMManagement"/>
+				</tree>
+			</field>
+		</record>
+	</data>
+	<data>
 		<record id="setirPMForm" model="ir.ui.view">
 			<field name="name">setirPMForm</field>
 			<field name="model">setir.pm</field>
@@ -8,11 +35,58 @@
 			<field name="arch" type="xml">
 				<form string="Medio de pago">
 					<sheet>
-	                    <div class="oe_title">
-	                        <h1>
-	                            <field name="name" readonly="1"/>
-	                        </h1>
-	                    </div>
+						<group  col="2" colspan="6">
+							<group>
+								<field name="ePMType"/>
+								<field name="strPAN"/>
+								<field name="strSecondaryPAN"/>
+								<field name="strSN"/>
+								<field name="strSecondarySN"/>
+								<field name="dtSignUp"/>
+								<field name="dateExpiration"/>
+							</group>
+							<group>	
+								<field name="strPN"/>
+								<field name="idCountry"/>
+								<field name="idOperation"/>
+								<field name="idCustomer"/>
+								<field name="idProvider"/>
+								<field name="idProductPM"/>
+								<field name="idAssociatedTollProduct"/>
+							</group>
+							<group>
+								<field name="eRegisterState"/>
+								<field name="dtUnsubscribe"/>
+								<field name="idUnsubscribeReason"/>
+							</group>
+						</group>
+						<group col="6">
+							<group string="Estdo" cols="2">
+								<field name="idsPMSate"/>
+								<field name="dtLastPMState"/>
+								<field name="idBlockReason"/>
+								<field name="idsPMStateHistory">
+									<tree string="Historial estados" limit="3">
+										<field name="idState"/>
+										<field name="dtState"/>
+									</tree>
+								</field>
+							</group>
+							<group string="Gestión" cols="4" colspan="4">
+								<field name="idsPMManagement"/>
+								<field name="dtLastPMManagement"/>
+								<field name="eLastSender"/>
+								<field name="eLastReceiver"/>
+								<field name="idsPMManagementHist">
+									<tree string="Historial gestiones" limit="3">
+										<field name="idManagement"/>
+										<field name="dtManagemen"/>
+										<field name="eSender"/>
+										<field name="eReceiver"/>
+									</tree>
+								</field>
+							</group>
+						</group>
 					</sheet>
 					<div class="oe_chatter">
 						<field name="message_follower_ids" widget="mail_followers"/>

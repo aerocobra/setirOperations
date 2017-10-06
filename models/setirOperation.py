@@ -289,6 +289,9 @@ class setirOperation ( models.Model):
 
 class setirPM ( models.Model):
 	_name = "setir.pm"
+	_inherit		= ['mail.thread', 'ir.needaction_mixin']
+	_description	= "Medio de pago"
+	_order = 'idCustomer desc, dtSignUp desc'
 
 	idOperation		= fields.Many2one	(
 											string			= u"Operación",
@@ -298,12 +301,12 @@ class setirPM ( models.Model):
 	idCustomer		= fields.Many2one	(
 											string			= "Cliente",
 											comodel_name	= "res.partner",
-											domain			= "[('id', '=', idOperation.idCustomer)]"
+											domain			= "[('customer', '=', True)]"
 										)
 	idProvider		= fields.Many2one	(
 											string			= "Proveedor",
 											comodel_name	= "res.partner",
-											domain			= "[('id', 'in', idOperation.idsProvider)]"
+											domain			= "[('supplier', '=', True)]"
 										)
 	
 	idProductPM		= fields.Many2one	(
@@ -321,12 +324,18 @@ class setirPM ( models.Model):
 														('tarjeta', 'tarjeta')]
 										)
 	strPAN			= fields.Char		(	string			= "PAN")
-	strSN			= fields.Char		(	string			= "SN")
-	strPN			= fields.Char		(	string			= u"Matrícula asociada")
+	strSecondaryPAN	= fields.Char		(	string			= "PAN Secundario")
 
-	dateSignUp		= fields.Date		(	string			= u"Fecha alta")
+	strPN			= fields.Char		(	string			= u"Matrícula asociada")
+	idCountry		= fields.Many2one	(	string			= u"País",
+											comodel_name	= "res.country"
+										)
+	strSN			= fields.Char		(	string			= "SN")
+	strSecondarySN	= fields.Char		(	string			= "SN Secundario")
+
+	dtSignUp		= fields.Datetime	(	string			= u"Fecha alta")
 	dateExpiration	= fields.Date		(	string			= u"Fecha expiración")	
-	dateUnsubscribe	= fields.Date		(	string			= u"Fecha baja")
+	dtUnsubscribe	= fields.Datetime	(	string			= u"Fecha baja")
 
 	#estdos de registro PM
 	eRegisterState	= fields.Selection	(	string		= "Estado registro",
@@ -356,7 +365,7 @@ class setirPM ( models.Model):
 												column2			= "history_id"
 												)
 	#estados de gestión PM
-	idsPMManagenet		= fields.Many2one		(
+	idsPMManagement		= fields.Many2one		(
 												string			= u"Estado gestión",
 												comodel_name	= "setir.pm.management"
 												)
@@ -376,13 +385,13 @@ class setirPM ( models.Model):
 												string		= "Destinatario",
 												selection	= VALS
 											)
-	idsPMManagementHist	= fields.Many2one		(
+	idsPMManagementHist	= fields.Many2many	(
 												string			= "Historial gestiones medio de pago",
 												comodel_name	= "setir.pm.management.history", 
 												relation		= "rel_pm_management_history",
 												column1			= "pm_id",
 												column2			= "history_id"
-												)
+											)
 
 class setirPMState ( models.Model):
 	_name = "setir.pm.state"

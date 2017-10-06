@@ -1,6 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
 <!-- noupdate no fuinciona bien, despues de instalar comentar esto para que npo crea la categoria existente otra vez -->
+	<!-- GESTIONES -->
+	<data noupdate="1">
+		<record model="setir.pm.management" id="pmm1">
+			<field name="name">Solicitado</field>
+		</record>
+		<record model="setir.pm.management" id="pmm2">
+			<field name="name">Enviado</field>
+		</record>
+		<record model="setir.pm.management" id="pmm3">
+			<field name="name">Recibido</field>
+		</record>
+		<record model="setir.pm.management" id="pmm4">
+			<field name="name">Instalado</field>
+		</record>
+		<record model="setir.pm.management" id="pmm5">
+			<field name="name">Perdido</field>
+		</record>
+		<record model="setir.pm.management" id="pmm6">
+			<field name="name">Defectuoso</field>
+		</record>
+	</data>
 	<!-- ESTADOS -->
 	<data noupdate="1">
 		<record model="setir.pm.state" id="pms1">
