@@ -1,6 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
 	<data>
+		<!-- remove inherited geo loc fields -->
+		<record model="ir.ui.view" id="partnerInvoicingType_form">
+			<field name="name">partnerInvoicingType_form</field>
+			<field name="model">res.partner</field>
+			<field name="inherit_id" ref="account.view_partner_property_form"/>
+			<field name="arch" type="xml">
+				<group name="accounting_entries" position="after">
+					<group name="invoicing_type" string="Tipo facturación peaje" attrs="{'invisible': [('supplier','!=', True)]}"  col="4" colspan="2">
+						<field name="idInvoicingType" widget="Many2one" options="{'no_create': True}"/>
+						<field name="strInvoicngTypeDescription" readonly="1"/>
+					</group>
+				</group>
+			</field>
+		</record>
+	</data>
+	<data>
+		<record id="setirInvoicingTypeTree" model="ir.ui.view">
+			<field name="name">setirInvoicingTypeTree</field>
+			<field name="model">setir.invoicing.type</field>
+			<field name="priority">2</field>
+			<field name="arch" type="xml">
+				<tree string="Tipos facturación">
+					<field name="name"/>
+					<field name="strDescription"/>
+				</tree>
+			</field>
+		</record>
+	</data>
+	<data>
 		<record id="setirOperationTree" model="ir.ui.view">
 			<field name="name">setirOperationTree</field>
 			<field name="model">setir.operation</field>
@@ -26,26 +55,30 @@
 	                            <field name="name" readonly="1"/>
 	                        </h1>
 	                    </div>
-	                    <group col="6" colspan="2">
-		                    <group>
+	                    <group col="4" colspan="2">
+	                    	<group>
+	                    		<separator string="Datos generales" colspan="2"/>
 								<field name="idCustomer"/>
 								<field name="fRiskApproved"/>
-								<field name="idResonsible"/>
+								<field name="idResonsibleGen"/>
 								<field name="bActive"/>
 								<field name="dateSignUp"/>
 								<field name="dateUnsubscribe" attrs="{'invisible': [('bActive','=', True)]}"/>
 								<field name="idUnsubscribeReason" attrs="{'invisible': [('bActive','=', True)]}"/>
-		                    </group>
-		                    <group>
+								<separator string="Responsables" colspan="2"/>
+								<field name="idResonsibleToll"/>
+								<field name="idResonsibleTax"/>
+							</group>
+		                    <group string="Pedidos">
 								<field name="idsOrder" options="{'no_create': True, 'limit': 10}" nolabel="1" readonly="0">
 									<tree string="Pedidos de venta" limit="5">
 										<field name="id" invisible="1"/>
 										<field name="name"/>
-										<field name="state"/>
+										<field name="state" invisible="1"/>
 									</tree>
 								</field>
 		                    </group>
-		                    <group>
+		                    <group string="Proveedores">
 								<field name="idsProvider" options="{'no_create': True}" nolabel="1" readonly="0">
 									<tree string="Proveedores" limit="5">
 										<field name="id" invisible="1"/>
@@ -56,8 +89,85 @@
 	                    </group>
 						<notebook>
 							<page string="Peaje">
+								<field name="idsLineToll" options="{'no_create': True}" nolabel="1" readonly="0">
+									<tree string="Peajes contartados" limit="5">
+										<field name="strPackTemplate"/>
+										<field name="strSupplierProductName"/>
+										<field name="idOperation"/>
+										<field name="bActive"/>
+										<field name="idProvider"/>
+										<field name="idProduct"/>
+										<field name="strCategory"/>
+										<field name="idProductUOM"/>
+										<field name="fQtyContracted"/>
+										<field name="fPriceUnit"/>
+										<field name="fCostUnit"/>
+									</tree>
+								</field>
 							</page>
 							<page string="Medios de pago">
+								<field name="idsLinePM" options="{'no_create': True}" nolabel="1" readonly="0">
+									<tree string="Peajes contartados" limit="5">
+										<field name="strPackTemplate"/>
+										<field name="idOperation"/>
+										<field name="bActive"/>
+										<field name="idProvider"/>
+										<field name="idProduct"/>
+										<field name="strCategory"/>
+										<field name="idProductUOM"/>
+										<field name="fQtyContracted"/>
+										<field name="fPriceUnit"/>
+										<field name="fCostUnit"/>
+									</tree>
+								</field>
+							</page>
+							<page string="Impuestos">
+								<field name="idsLineTax" options="{'no_create': True}" nolabel="1" readonly="0">
+									<tree string="Peajes contartados" limit="5">
+										<field name="strPackTemplate"/>
+										<field name="idOperation"/>
+										<field name="bActive"/>
+										<field name="idProvider"/>
+										<field name="idProduct"/>
+										<field name="strCategory"/>
+										<field name="idProductUOM"/>
+										<field name="fQtyContracted"/>
+										<field name="fPriceUnit"/>
+										<field name="fCostUnit"/>
+									</tree>
+								</field>
+							</page>
+							<page string="Combustible">
+								<field name="idsLineFuel" options="{'no_create': True}" nolabel="1" readonly="0">
+									<tree string="Peajes contartados" limit="5">
+										<field name="strPackTemplate"/>
+										<field name="idOperation"/>
+										<field name="bActive"/>
+										<field name="idProvider"/>
+										<field name="idProduct"/>
+										<field name="strCategory"/>
+										<field name="idProductUOM"/>
+										<field name="fQtyContracted"/>
+										<field name="fPriceUnit"/>
+										<field name="fCostUnit"/>
+									</tree>
+								</field>
+							</page>
+							<page string="Otros">
+								<field name="idsLineOther" options="{'no_create': True}" nolabel="1" readonly="0">
+									<tree string="Peajes contartados" limit="5">
+										<field name="strPackTemplate"/>
+										<field name="idOperation"/>
+										<field name="bActive"/>
+										<field name="idProvider"/>
+										<field name="idProduct"/>
+										<field name="strCategory"/>
+										<field name="idProductUOM"/>
+										<field name="fQtyContracted"/>
+										<field name="fPriceUnit"/>
+										<field name="fCostUnit"/>
+									</tree>
+								</field>
 							</page>
 							<page string="Notas internas">
 								<field name="strComment"/>

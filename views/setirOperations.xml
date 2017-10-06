@@ -23,6 +23,18 @@
 			sequence = "20"
 			action="action_setir_operation"
 		/>
+		<!-- Operaciones/Operaciones/Medios de pago -->
+		<act_window id="action_setir_pm"
+			name = "Medios de pago"
+			res_model = "setir.pm"
+			view_mode = "tree,form"	
+		/>
+		<menuitem id="menu_setir_pm"
+			name = "Medios de pago"
+			parent = "menu_operations_operations"
+			sequence = "20"
+			action="action_setir_pm"
+		/>
 		<!-- Operaciones/Configuracion -->
 		<menuitem id="menu_operations_cfg"
 			name = "Configuración"
@@ -32,6 +44,18 @@
 		<menuitem id="menu_operations_config_pm"
 			name = "Medios de Pago"
 			parent = "menu_operations_cfg"
+		/>
+		<!-- Operaciones/Configuracion/Medios de Pago/Gestiones -->
+		<act_window id="action_setir_operation_cfg_pm_management"
+			name = "Gestiones"
+			res_model = "setir.pm.management"
+			view_mode = "tree,form"	
+		/>
+		<menuitem id="menu_setir_operation_cfg_pm_management"
+			name = "Gestiones"
+			parent = "menu_operations_config_pm"
+			sequence = "20"
+			action="action_setir_operation_cfg_pm_management"
 		/>
 		<!-- Operaciones/Configuracion/Medios de Pago/Estados -->
 		<act_window id="action_setir_operation_cfg_pm_states"
@@ -68,6 +92,23 @@
 			parent = "menu_operations_config_pm"
 			sequence = "20"
 			action="action_setir_operation_cfg_pm_block_reasons"
+		/>
+		<!-- Operaciones/Configuracion/Facturacion -->
+		<menuitem id="menu_operations_cfg_invoicing"
+			name = "Facturacion"
+			parent = "menu_operations_cfg"
+		/>
+		<!-- Operaciones/Configuracion/Medios de Pago/Estados -->
+		<act_window id="action_setir_operation_cfg_invoicing_types"
+			name = "Tipos de facturacion"
+			res_model = "setir.invoicing.type"
+			view_mode = "tree,form"	
+		/>
+		<menuitem id="menu_setir_operation_cfg_invoicing_types"
+			name = "Tipos de facturacion"
+			parent = "menu_operations_cfg_invoicing"
+			sequence = "20"
+			action="action_setir_operation_cfg_invoicing_types"
 		/>
 	</data>
 	<data>
