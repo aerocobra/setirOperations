@@ -9,6 +9,7 @@ from openerp import SUPERUSER_ID
 from openerp.exceptions import UserError
 from openerp.tools import float_is_zero, float_compare, DEFAULT_SERVER_DATETIME_FORMAT
 from openerp import exceptions
+from setirDefinitions import import *
 
 class setirPartnerOperation ( models.Model):
 	_inherit		= "res.partner"
@@ -132,7 +133,6 @@ class setirSaleOrderOperation ( models.Model):
 		for id in listOther:
 			operation.idsLineOther		= [(4, id, False)]
 
-
 class setirOperationLine ( models.Model):
 	_name			= "setir.operation.line"
 	_description	= u"Línea de operación"
@@ -159,12 +159,11 @@ class setirOperationLine ( models.Model):
 	fPriceUnit		= fields.Float (	string			= "Precio unidad")
 	fCostUnit		= fields.Float (	string			= "Coste unidad")
 	
-
 class setirOperation ( models.Model):
 	_name			= "setir.operation"
 	_inherit		= ['mail.thread', 'ir.needaction_mixin']
 	_description	= u"Operación"
-	_order = 'name desc, idCustomer desc'
+	_order			= 'name desc, idCustomer desc'
 
 	name			= fields.Char ( string	= u"Operación",
 									default	= lambda self: _('New'))
@@ -175,7 +174,7 @@ class setirOperation ( models.Model):
 											inverse			= "fillOrdersProviders"
 										)
 
-	fRiskApproved		= fields.Float ( string = 'Riesgo aprobado')
+	fRiskApproved		= fields.Float ( 	string			= 'Riesgo aprobado')
 	
 	idResonsibleGen		= fields.Many2one (
 											string			= "Responsable General",
@@ -190,12 +189,12 @@ class setirOperation ( models.Model):
 											comodel_name	= "res.users" 
 											)
 
-	bActive				= fields.Boolean ( string = "Operación activa")
+	bActive				= fields.Boolean ( string = u"Operación activa")
 
-	dateSignUp			= fields.Date ( string = "Fecha Alta")
-	dateUnsubscribe		= fields.Date ( string = "Fecha Baja")
+	dateSignUp			= fields.Date ( 	string = "Fecha Alta")
+	dateUnsubscribe		= fields.Date ( 	string = "Fecha Baja")
 	idUnsubscribeReason	= fields.Many2one	(
-											string			= "Razón de baja",
+											string			= u"Razón de baja",
 											comodel_name	= "setir.pm.unsubscribe.reason"
 											)
 
@@ -215,7 +214,7 @@ class setirOperation ( models.Model):
 												string			= "Proveedores"
 											)
 
-	strComment			= fields.Text ( string = 'Notas internas')
+	strComment			= fields.Text 		( 	string = 'Notas internas')
 	
 	idsLineToll			= fields.Many2many (	string			= "Peajes",
 												comodel_name	= "setir.operation.line", 
@@ -247,13 +246,14 @@ class setirOperation ( models.Model):
 												domain			= "[('idOperation','=', id),('strCategory', '=', 'combustible')]"
 											)
 	idsLineOther			= fields.Many2many (	string			= "Medios de pago",
-												comodel_name	= "setir.operation.line",
-												relation		= "rel_operation_other",
-												column1			= "operation_id",
-												column2			= "line_id",
-												domain			= "[('idOperation','=', id),('strCategory', 'not in',\
-																	 ['peaje','medio de pago','impuesto', 'combustible'])]"
-											)
+													comodel_name	= "setir.operation.line",
+													relation		= "rel_operation_other",
+													column1			= "operation_id",
+													column2			= "line_id",
+													domain			= "[('idOperation','=', id),('strCategory', 'not in',\
+																		 ['peaje','medio de pago','impuesto', 'combustible'])]"
+												)
+
 
 	@api.onchange ('idCustomer')
 	def fillOrdersProviders ( self):
@@ -287,159 +287,3 @@ class setirOperation ( models.Model):
 
 		return result
 
-class setirPM ( models.Model):
-	_name = "setir.pm"
-	_inherit		= ['mail.thread', 'ir.needaction_mixin']
-	_description	= "Medio de pago"
-	_order = 'idCustomer desc, dtSignUp desc'
-
-	idOperation		= fields.Many2one	(
-											string			= u"Operación",
-											comodel_name	= "setir.operation"
-										)
-
-	idCustomer		= fields.Many2one	(
-											string			= "Cliente",
-											comodel_name	= "res.partner",
-											domain			= "[('customer', '=', True)]"
-										)
-	idProvider		= fields.Many2one	(
-											string			= "Proveedor",
-											comodel_name	= "res.partner",
-											domain			= "[('supplier', '=', True)]"
-										)
-	
-	idProductPM		= fields.Many2one	(
-											string			= "Medio de pago",
-											comodel_name	= "product.product"
-										)
-
-	idAssociatedTollProduct	= fields.Many2one	(
-											string			= "Producto peaje asociado",
-											comodel_name	= "product.product"
-										)
-	ePMType			= fields.Selection	(
-										string		= "Tipo",
-										selection	= [('obu','obu'),
-														('tarjeta', 'tarjeta')]
-										)
-	strPAN			= fields.Char		(	string			= "PAN")
-	strSecondaryPAN	= fields.Char		(	string			= "PAN Secundario")
-
-	strPN			= fields.Char		(	string			= u"Matrícula asociada")
-	idCountry		= fields.Many2one	(	string			= u"País",
-											comodel_name	= "res.country"
-										)
-	strSN			= fields.Char		(	string			= "SN")
-	strSecondarySN	= fields.Char		(	string			= "SN Secundario")
-
-	dtSignUp		= fields.Datetime	(	string			= u"Fecha alta")
-	dateExpiration	= fields.Date		(	string			= u"Fecha expiración")	
-	dtUnsubscribe	= fields.Datetime	(	string			= u"Fecha baja")
-
-	#estdos de registro PM
-	eRegisterState	= fields.Selection	(	string		= "Estado registro",
-											selection	= [('alta', 'alta'),
-															('baja', 'baja')]	
-										)
-	idUnsubscribeReason	= fields.Many2one	(
-											string			= "Causa de baja",
-											comodel_name	= "setir.pm.unsubscribe.reason"
-											)
-	
-	#estados de propio PM
-	idsPMSate			=	fields.Many2one	(
-											string			= "Estado medio de pago",
-											comodel_name	= "setir.pm.state"
-											)
-	dtLastPMState		= fields.Datetime	( string		= "Fecha estado")
-	idBlockReason		= fields.Many2one	(
-											string			= "Causa de bloqueo",
-											comodel_name	= "setir.pm.block.reason"
-											)
-	idsPMStateHistory	=	fields.Many2many	(
-												string			= "Historial estados medio de pago",
-												comodel_name	= "setir.pm.state.history", 
-												relation		= "rel_pm_state_history",
-												column1			= "pm_id",
-												column2			= "history_id"
-												)
-	#estados de gestión PM
-	idsPMManagement		= fields.Many2one		(
-												string			= u"Estado gestión",
-												comodel_name	= "setir.pm.management"
-												)
-	dtLastPMManagement	= fields.Datetime		( string		= "Fecha estado")
-
-	VALS = [
-			('cliente', 'cliente'),
-			('proveedor', 'proveedor'),
-			('setir', 'setir')
-			] 
-
-	eLastSender			= fields.Selection	(
-												string		= "Remitente",
-												selection	= VALS
-											)
-	eLastReceiver		= fields.Selection	(
-												string		= "Destinatario",
-												selection	= VALS
-											)
-	idsPMManagementHist	= fields.Many2many	(
-												string			= "Historial gestiones medio de pago",
-												comodel_name	= "setir.pm.management.history", 
-												relation		= "rel_pm_management_history",
-												column1			= "pm_id",
-												column2			= "history_id"
-											)
-
-class setirPMState ( models.Model):
-	_name = "setir.pm.state"
-
-	name            = fields.Char	( string = "Estado")
-	strDescription  = fields.Char	( string = u"Descripción")
-
-class setirPMStateHistory ( models.Model):
-	_name = "setir.pm.state.history"
-	
-	idState	= fields.Many2one ( string			= "Estado",
-								comodel_name	= "setir.pm.state")
-	dtState	= fields.Datetime (	string	= "Fecha")	
-
-class setirPMUnsubscribeReason ( models.Model):
-	_name = "setir.pm.unsubscribe.reason"
-
-	name            = fields.Char ( string = "Razón baja")
-
-class setirPMBlockReason ( models.Model):
-	_name = "setir.pm.block.reason"
-
-	name            = fields.Char ( string = "Razón bloqueo")
-
-
-class setirPMManagement ( models.Model):
-	_name = "setir.pm.management"
-
-	name		= fields.Char		( string = "Gestión")
-
-class setirPMManagementHistory ( models.Model):
-	_name = "setir.pm.management.history"
-
-	idManagement	= fields.Many2one ( string			= "Gestión",
-										comodel_name	= "setir.pm.management")
-	dtManagemen	= fields.Datetime 	(	string	= "Fecha")	
-
-	VALS = [
-			('cliente', 'cliente'),
-			('proveedor', 'proveedor'),
-			('setir', 'setir')
-			] 
-
-	eSender		= fields.Selection	(
-									string		= "Remitente",
-									selection	= VALS
-									)
-	eReceiver	= fields.Selection	(
-									string		= "Destinatario",
-									selection	= VALS
-									)
