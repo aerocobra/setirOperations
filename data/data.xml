@@ -91,23 +91,23 @@
 		<record model="setir.invoicing.type" id="sit1">
 			<field name="name">tipo A</field>
 			<field name="strDescription">SETIR factura todo</field>
-			<field name="eConsumos">F</field>
-			<field name="eCoste">F</field>
-			<field name="eBeneficio">F</field>
+			<field name="eConsumos">factura</field>
+			<field name="eCoste">factura</field>
+			<field name="eBeneficio">factura</field>
 		</record>
 		<record model="setir.invoicing.type" id="sit2">
 			<field name="name">tipo B</field>
 			<field name="strDescription">Proveedor factura todo</field>
-			<field name="eConsumos">S</field>
-			<field name="eCoste">S</field>
-			<field name="eBeneficio">S</field>
+			<field name="eConsumos">suplido</field>
+			<field name="eCoste">suplido</field>
+			<field name="eBeneficio">suplido</field>
 		</record>
 		<record model="setir.invoicing.type" id="sit3">
 			<field name="name">tipo C</field>
 			<field name="strDescription">Proveedor factura consumos y su comisión, SETIR factura su comisión</field>
-			<field name="eConsumos">S</field>
-			<field name="eCoste">S</field>
-			<field name="eBeneficio">F</field>
+			<field name="eConsumos">suplido</field>
+			<field name="eCoste">suplido</field>
+			<field name="eBeneficio">suplido</field>
 		</record>
 	</data>
 </openerp>

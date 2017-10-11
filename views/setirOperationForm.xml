@@ -91,7 +91,7 @@
 							<page string="Peaje">
 								<field name="idsLineToll" options="{'no_create': True}" nolabel="1" readonly="0">
 									<tree string="Peajes contartados" limit="5">
-										<field name="strPackTemplate"/>
+										<field name="idAssocPackTmpl"/>
 										<field name="strSupplierProductName"/>
 										<field name="idOperation"/>
 										<field name="bActive"/>
@@ -106,9 +106,10 @@
 								</field>
 							</page>
 							<page string="Medios de pago">
+								<button name="createPM" string="crear PM" type="object"/>
 								<field name="idsLinePM" options="{'no_create': True}" nolabel="1" readonly="0">
 									<tree string="Peajes contartados" limit="5">
-										<field name="strPackTemplate"/>
+										<field name="idAssocPackTmpl"/>
 										<field name="idOperation"/>
 										<field name="bActive"/>
 										<field name="idProvider"/>
@@ -124,7 +125,7 @@
 							<page string="Impuestos">
 								<field name="idsLineTax" options="{'no_create': True}" nolabel="1" readonly="0">
 									<tree string="Peajes contartados" limit="5">
-										<field name="strPackTemplate"/>
+										<field name="idAssocPackTmpl"/>
 										<field name="idOperation"/>
 										<field name="bActive"/>
 										<field name="idProvider"/>
@@ -140,7 +141,7 @@
 							<page string="Combustible">
 								<field name="idsLineFuel" options="{'no_create': True}" nolabel="1" readonly="0">
 									<tree string="Peajes contartados" limit="5">
-										<field name="strPackTemplate"/>
+										<field name="idAssocPackTmpl"/>
 										<field name="idOperation"/>
 										<field name="bActive"/>
 										<field name="idProvider"/>
@@ -156,7 +157,7 @@
 							<page string="Otros">
 								<field name="idsLineOther" options="{'no_create': True}" nolabel="1" readonly="0">
 									<tree string="Peajes contartados" limit="5">
-										<field name="strPackTemplate"/>
+										<field name="idAssocPackTmpl"/>
 										<field name="idOperation"/>
 										<field name="bActive"/>
 										<field name="idProvider"/>

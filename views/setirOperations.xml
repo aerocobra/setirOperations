@@ -121,4 +121,25 @@
 			<field name="number_increment">1</field>
 		</record>
 	</data>
+	<data>
+		<record model="ir.actions.server" id="cretaePM_for">
+		    <field name="name">create-pm</field>
+		    <field name="type">ir.actions.server</field>
+		    <field name="model_id" ref="model_setir_operation"/>
+		    <field name="state">code</field>
+		    <field name="code">
+			    if context.get('active_model') == 'setir.operation' and context.get('active_ids'):
+	                action = env['setir.operation'].browse(context['active_ids']).createPM()
+		    </field>
+		</record>
+		<record id="cretaePM_of" model="ir.values">
+		    <field name="name">create_pm</field>
+		    <field name="action_id" ref="cretaePM_for"/>
+		    <field name="value" eval="'ir.actions.server,' + str(ref('cretaePM_for'))"/>
+		    <field name="key">action</field>
+		    <field name="model_id" ref="model_setir_operation"/>
+		    <field name="model">setir.operation</field>
+		    <field name="key2">client_action_multi</field>
+		</record>
+	</data>
 </openerp>

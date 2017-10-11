@@ -9,7 +9,7 @@ from openerp import SUPERUSER_ID
 from openerp.exceptions import UserError
 from openerp.tools import float_is_zero, float_compare, DEFAULT_SERVER_DATETIME_FORMAT
 from openerp import exceptions
-from setirDefinitions import import *
+from setirDefinitions import *
 
 class setirPartnerOperation ( models.Model):
 	_inherit		= "res.partner"
@@ -25,14 +25,12 @@ class setirInvocingType ( models.Model):
 	name			= fields.Char (			string		= u"Tipo Facturación")
 	strDescription	= fields.Char (			string		= u"Descripción")
 
-	VALS = [('F', 'Factura'), ('S', 'Suplido')]
-
 	eConsumos		= fields.Selection (	string		= "Consumos", 
-											selection	= VALS)
+											selection	= INVOICING_TYPE)
 	eCoste			= fields.Selection (	string		= "Coste",
-											selection	= VALS)
+											selection	= INVOICING_TYPE)
 	eBeneficio		= fields.Selection (	string		= "Beneficio",
-											selection	= VALS)
+											selection	= INVOICING_TYPE)
 
 class setirSaleOrderOperation ( models.Model):
 	_inherit		= "sale.order"
@@ -73,6 +71,8 @@ class setirSaleOrderOperation ( models.Model):
 			vals['idProvider']		= self.x_eProvider
 			vals['idProduct']		= orderLine.product_id.id
 			vals['strPackTemplate']	= self.template_id.name
+			vals['idAssocPackTmpl']	= self.template_id.id
+			
 			vals['idProductUOM']	= orderLine.product_uom.id
 			vals['fQtyContracted']	= orderLine.product_uom_qty
 			vals['fPriceUnit']		= orderLine.price_unit
@@ -99,7 +99,7 @@ class setirSaleOrderOperation ( models.Model):
 			#NOTE: strCategory ' is related field
 			if operationLine.strCategory == "peaje":
 				listToll.append ( operationLine.id)
-			elif operationLine.strCategory == "medio de pago":
+			elif operationLine.strCategory in ["obu", "tarjeta"]:
 				listPM.append ( operationLine.id)
 			elif operationLine.strCategory == "impuesto":
 				listTax.append ( operationLine.id)
@@ -150,7 +150,10 @@ class setirOperationLine ( models.Model):
 	strCategory		= fields.Char (		string			= u"Categoría",
 										related			= "idProduct.categ_id.name")
 
-	strPackTemplate			= fields.Char (	string		= "Pack")
+	idAssocPackTmpl	= fields.Many2one	(
+											string			= "Pack peaje asociado",
+											comodel_name	= "sale.quote.template"
+										)
 	strSupplierProductName	= fields.Char (	string		= "NPP")
 
 	idProductUOM	= fields.Many2one ( string			= "UOM",
@@ -287,3 +290,42 @@ class setirOperation ( models.Model):
 
 		return result
 
+	@api.multi
+	def createPM (self):
+		for operationLine in self.idsLinePM:
+			if operationLine.strCategory == dict(PM_TYPE)["obu"] or operationLine.strCategory == dict(PM_TYPE)["tarjeta"]:
+				for i in range ( int (operationLine.fQtyContracted)):
+					self.registerPM ( operationLine.idProvider.id, operationLine.idProduct.id, operationLine.idAssocPackTmpl.id)
+			
+	#cree registros vacios de los PM vendidios 
+	@api.one
+	def registerPM (self, idProvider, idProductPM, idAssocPackTmpl):
+		vals = {}
+		vals['idOperation']				= self.id
+		vals['idCustomer']				= self.idCustomer.id
+		vals['idProvider']				= idProvider
+		vals['idProductPM']				= idProductPM
+		vals['idAssocPackTmpl']			= idAssocPackTmpl
+		strCategory						= self.env['product.product'].search([('id', '=', idProductPM)])[0].categ_id.name
+		vals['ePMType']					= strCategory
+
+		#strPAN 
+		#strSecondaryPAN
+		#strPN
+		#idCountry
+		#strSN
+		#strSecondarySN
+		vals['dtSignUp']				= fields.Datetime.now()
+		#dateExpiration	
+		#dtUnsubscribe
+		vals['eRegisterState']			= "alta"
+		
+		idsPMSate						= self.env['setir.pm.state'].search([('name', '=', 'Espera')])[0].id	
+
+		#estados de gestión PM
+		idsPMManagement					= self.env['setir.pm.management'].search([('name', '=', 'Solicitado')])[0].id
+		
+		pm	= self.env['setir.pm'].create ( vals)
+		
+		pm.addPMStateHistory ( idsPMSate)
+		pm.addPMManagementHistory (idsPMManagement, dict(ACTORS)['setir'], dict(ACTORS)['setir'])

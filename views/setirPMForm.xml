@@ -16,7 +16,7 @@
 					<field name="idCustomer"/>
 					<field name="idProvider"/>
 					<field name="idProductPM"/>
-					<field name="idAssociatedTollProduct"/>
+					<field name="idAssocPackTmpl"/>
 					<field name="dtSignUp" invisible ="1"/>
 					<field name="dateExpiration" invisible ="1"/>	
 					<field name="eRegisterState"/>
@@ -35,52 +35,47 @@
 			<field name="arch" type="xml">
 				<form string="Medio de pago">
 					<sheet>
-						<group  col="2" colspan="6">
+						<group>
 							<group>
-								<field name="ePMType"/>
-								<field name="strPAN"/>
-								<field name="strSecondaryPAN"/>
-								<field name="strSN"/>
-								<field name="strSecondarySN"/>
-								<field name="dtSignUp"/>
-								<field name="dateExpiration"/>
-							</group>
-							<group>	
-								<field name="strPN"/>
-								<field name="idCountry"/>
 								<field name="idOperation"/>
 								<field name="idCustomer"/>
-								<field name="idProvider"/>
-								<field name="idProductPM"/>
-								<field name="idAssociatedTollProduct"/>
-							</group>
-							<group>
 								<field name="eRegisterState"/>
-								<field name="dtUnsubscribe"/>
-								<field name="idUnsubscribeReason"/>
+								<field name="dtSignUp"/>
+								<field name="dateExpiration"/>
+								<field name="dtUnsubscribe" attrs="{'invisible': [('eRegisterState','=', 'alta')]}"/>
+								<field name="idUnsubscribeReason" attrs="{'invisible': [('eRegisterState','=', 'alta')]}"/>
+								<field name="idProvider"/>
+								<field name="idAssocPackTmpl"/>
+							</group>
+							<group>	
+								<field name="ePMType"/>
+								<field name="strPAN"/>
+								<field name="strSecondaryPAN" invisible="1"/>
+								<field name="strSN"/>
+								<field name="strSecondarySN" invisible="1"/>
+								<field name="strPN"/>
+								<field name="idCountry"/>
+								<field name="idProductPM"/>
 							</group>
 						</group>
-						<group col="6">
-							<group string="Estdo" cols="2">
+						<group>
+							<group string="Estado">
 								<field name="idsPMSate"/>
-								<field name="dtLastPMState"/>
-								<field name="idBlockReason"/>
-								<field name="idsPMStateHistory">
+								<field name="strPMState" invisible="1"/>
+								<field name="idBlockReason" attrs="{'invisible': [('strPMState','!=', 'Bloqueado')]}"/>
+								<field name="idsPMStateHistory"  nolabel="1" col="2" colspan="4">
 									<tree string="Historial estados" limit="3">
 										<field name="idState"/>
 										<field name="dtState"/>
 									</tree>
 								</field>
 							</group>
-							<group string="Gestión" cols="4" colspan="4">
+							<group string="Gestión">
 								<field name="idsPMManagement"/>
-								<field name="dtLastPMManagement"/>
-								<field name="eLastSender"/>
-								<field name="eLastReceiver"/>
-								<field name="idsPMManagementHist">
+								<field name="idsPMManagementHist" nolabel="1" col="2" colspan="4">
 									<tree string="Historial gestiones" limit="3">
 										<field name="idManagement"/>
-										<field name="dtManagemen"/>
+										<field name="dtManagement"/>
 										<field name="eSender"/>
 										<field name="eReceiver"/>
 									</tree>
