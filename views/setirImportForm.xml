@@ -1,22 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
+	<!-- IMPORT-->
 	<data>
-		<record id="setirOperationForm" model="ir.ui.view">
-			<field name="name">setirOperationForm</field>
-			<field name="model">setir.operation</field>
+		<!-- search view for the report-->
+		<record model="ir.ui.view" id="setirImportSearch">
+			<field name="name">setirImportSearch</field>
+			<field name="model">setir.import</field>
+			<field name="arch" type="xml">
+				<search>
+					<separator/>
+					<filter name="Medios de pago" domain="[('eImportType', '=','medio_pago')]"/>
+					<filter name="Facturación" domain="[('eImportType', '=','facturacion')]"/>
+					<separator/>
+				</search>
+			</field>
+		</record>
+	</data>
+	<data>
+		<!-- tree -->
+		<record id="setirImportTree" model="ir.ui.view">
+			<field name="name">setirImportTree</field>
+			<field name="model">setir.import</field>
+			<field name="arch" type="xml">
+				<tree string="Importación">
+					<field name="dtLastImport"/>
+					<field name="eMonth"/>
+					<field name="name"/>
+					<field name="eImportType"/>
+					<field name="idProvider"/>
+				</tree>
+			</field>
+		</record>
+		<!-- form -->
+		<record id="setirImportForm" model="ir.ui.view">
+			<field name="name">setirImportForm</field>
+			<field name="model">setir.import</field>
 			<field name="priority">4</field>
 			<field name="arch" type="xml">
-				<form string="Operation">
+				<form string="Importación">
+					<header>
+						<button name="setirOperations.btn_action_import_wizard_pm" type="action" string="Importar Medios de pago" class="oe_highlight"
+						attrs="{'invisible': ['|',('eImportType', '!=', 'medio_pago'), ('name', '=', 'Nuevo')]}"
+						/>
+						<button name="setirOperations.btn_action_import_wizard_invoice" type="action" string="Importar Facturación" class="oe_highlight"
+						attrs="{'invisible': ['|',('eImportType', '!=', 'facturacion'), ('name', '=', 'Nuevo')]}"/>
+					</header>
 					<sheet>
 	                    <div class="oe_title">
 	                        <h1>
 	                            <field name="name" readonly="1"/>
 	                        </h1>
 	                    </div>
-						<!-- label autofocus="autofocus" for="file_export6">Archivo:</label -->
-						<!--  input accept=".csv, .xls, .xlsx, .ods" class="oe_import_file" id-attf-id="file_#{_id}" name="fileB" filename="strFilename" type="file"/ -->
-						<field class="oe_import_file" name="binaryFile" filename="strFile" type="file"/>
-						<field name="strFile"/>
+	                    <group col="4" colspan="2">
+							<field name="eImportType" attrs="{'readonly': [('name', '!=', 'Nuevo')]}"/>
+		                    <field name="idProvider"/>
+		                    <field name="eMonth"/>
+							<field name="dtLastImport"/>
+						</group>
+						<group  col="4" colspan="4">
+							<field name="idsImportHistory" nolabel="1" readonly="1">
+								<tree editable="bottom">
+									<field name="dtImport"/>
+									<field name="strFileImported"/>
+								</tree>
+								<form col="4" colspan="4">
+									<field name="idImport"/>
+									<field name="dtImport"/>
+									<field name="strFileImported"/>
+									<field name="strImportInfo"/>
+								</form>
+							</field>
+	                    </group>
 					</sheet>
 					<div class="oe_chatter">
 						<field name="message_follower_ids" widget="mail_followers"/>
@@ -25,5 +79,217 @@
 				</form>
 			</field>
 		</record>
+		<!--  action -->
+		<record model="ir.actions.act_window" id="btn_action_import_wizard_pm">
+			<field name="name">Importación de medios de pago</field>
+			<field name="src_model">setir.import</field>
+			<field name="res_model">setir.import.wizard.pm</field>
+			<field name="view_mode">form</field>
+			<field name="target">new</field>
+			<field name="key2"></field>
+		</record>		
+		<record model="ir.actions.act_window" id="btn_action_import_wizard_invoice">
+			<field name="name">Importación de facturación</field>
+			<field name="src_model">setir.import</field>
+			<field name="res_model">setir.import.wizard.invoice</field>
+			<field name="view_mode">form</field>
+			<field name="target">new</field>
+			<field name="key2"></field>
+		</record>		
 	</data>
+	<!-- IMPORT WIZARD PM -->
+	<data>
+		<!--  form -->
+		<record id="setirImportWizardPMForm" model="ir.ui.view">
+			<field name="name">setirImportWizardPMForm</field>
+			<field name="model">setir.import.wizard.pm</field>
+			<field name="arch" type="xml">
+				<form string="Wizard importación medios de pago">
+					<sheet>
+	                    <div class="oe_title">
+	                        <h1>
+	                            <field name="name" readonly="1"/>
+	                        </h1>
+	                    </div>
+ 	                    <group colspan="4">
+							<field name="strFile2Import" readonly="1"/>
+							<field name="bSaveImport" invisible="1"/>
+	                    </group>
+	                    <group>
+	                    	<field name="idsPM2Import" nolabel="1">
+								<tree editable="bottom" colspan="4">
+									<field name="b2Import"/>
+									<field name="eImportAction"/>
+									<field name="nID2Update"/>
+									<field name="idOperation" invisible="1"/>
+									<field name="idCustomer"/>
+									<field name="idProvider"/>
+									<field name="idProductPM"/>
+									<field name="idAssocPackTmpl" invisible="1"/>
+									<field name="ePMType"/>
+									<field name="strPAN"/>
+									<field name="name" invisible="1"/>
+									<field name="strSecondaryPAN" invisible="1"/>
+									<field name="strPN"/>
+									<field name="idCountry"/>
+									<field name="strSN" invisible="1"/>
+									<field name="strSecondarySN" invisible="1"/>
+									<field name="dtSignUp" invisible="1"/>
+									<field name="dtCreation" invisible="1"/>
+									<field name="dateExpiration" invisible="1"/>	
+									<field name="dtUnsubscribe" invisible="1"/>
+									<field name="eRegisterState" invisible="1"/>
+									<field name="idUnsubscribeReason" invisible="1"/>
+									<field name="idsPMSate"/>
+									<field name="strPMState" invisible="1"/>
+									<field name="idBlockReason" invisible="1"/>
+									<field name="idsPMStateHistory" invisible="1"/>	
+									<field name="idsPMManagement" invisible="1"/>
+									<field name="idsPMManagementHist" invisible="1"/>
+								</tree>
+	                    	</field>
+	                    </group>
+	                    <group>
+							<field name="strData"  nolabel="1"/>
+						</group>
+					</sheet>
+					<footer>
+	                    <button name="checkFile" string="Comporbar" type="object"  class="oe_highlight"/>
+						<button name="importFile" string="Importar" type="object" attrs="{'invisible': [('strFile2Import','=', False)]}"  class="oe_highlight"/>
+						<button name="saveImport" string="Guardar" type="object" attrs="{'invisible': ['|',('strFile2Import','=', False), ('bSaveImport', '=', False)]}"  class="oe_highlight"/>
+						<button string="Cerrar" class="btn-default" special="cancel"/>
+					</footer>
+				</form>
+			</field>
+		</record>
+	</data>
+	<!-- IMPORT MAP -->
+	<data>
+		<!-- tree -->
+		<record id="setirImportMapTree" model="ir.ui.view">
+			<field name="name">setirImportMapTree</field>
+			<field name="model">setir.import.map</field>
+			<field name="arch" type="xml">
+				<tree>
+					<field name="name"/>
+					<field name="idProvider"/>
+					<field name="eImportType"/>
+				</tree>
+			</field>
+		</record>
+		<!-- form -->
+		<record id="setirImportMapForm" model="ir.ui.view">
+			<field name="name">setirImportMapForm</field>
+			<field name="model">setir.import.map</field>
+			<field name="priority">4</field>
+			<field name="arch" type="xml">
+				<form string="Mapeo campos">
+					<header>
+						<button name="setProviderFields" string="Mostar los campos de proveedor" type="object" help="Solo para lalista vacía"/>
+						<button name="clearNonCorrespondence" string="Quitar no correspndencias" type="object" help="Solo donde campos base vacíos"/>
+					</header>
+					<sheet>
+	                    <div class="oe_title">
+	                        <h1>
+	                            <field name="name"/>
+	                        </h1>
+	                    </div>
+	                    <group col="6" colspan="2">
+							<field name="idProvider" options="{'no_create': True}"/>
+							<field name="strProvider" invisible="1"/>
+							<field name="eImportType"/>
+						</group>
+						<group col="4" colspan="2">
+							<field name="idsMapLine" nolabel="1" readonly="0">
+								<tree editable="bottom">
+									<field name="idImportMap" invisible="1"/>
+									<field name="strProvider" invisible="1"/>
+									<field name="strImportType" invisible="1"/>
+									<field name="idFieldProvider" options="{'no_create': True}"/>
+									<field name="idFieldBase" options="{'no_create': True}"/>
+								</tree>
+								<form>
+									<group  col="4" colspan="2">
+										<field name="idImportMap" invisible="1"/>
+										<field name="strProvider" invisible="1"/>
+										<field name="strImportType" invisible="1"/>
+										<field name="idFieldProvider" options="{'no_create': True}"/>
+										<field name="idFieldBase" options="{'no_create': True}"/>
+									</group>
+								</form>
+							</field>
+						</group>
+					</sheet>
+					<div class="oe_chatter">
+						<field name="message_follower_ids" widget="mail_followers"/>
+						<field name="message_ids" widget="mail_thread"/>
+					</div>
+				</form>
+			</field>
+		</record>
+	</data>	
+	<!-- CAMPOS BASE -->
+	<data>
+		<!-- tree -->
+		<record id="setirImportBaseTree" model="ir.ui.view">
+			<field name="name">setirImportBaseTree</field>
+			<field name="model">setir.import.base</field>
+			<field name="arch" type="xml">
+				<tree>
+					<field name="eImportType"/>
+					<field name="name"/>
+				</tree>
+			</field>
+		</record>
+		<!-- form -->
+		<record id="setirImportBaseForm" model="ir.ui.view">
+			<field name="name">setirImportBaseForm</field>
+			<field name="model">setir.import.base</field>
+			<field name="priority">4</field>
+			<field name="arch" type="xml">
+				<form string="Campos base">
+					<sheet>
+	                    <group col="4" colspan="2">
+							<field name="eImportType"/>
+                            <field name="name"/>
+						</group>
+					</sheet>
+				</form>
+			</field>
+		</record>
+	</data>	
+	<!-- CAMPOS PROVEEDOR -->
+	<data>
+		<!-- tree -->
+		<record id="setirImportProviderTree" model="ir.ui.view">
+			<field name="name">setirImportProviderTree</field>
+			<field name="model">setir.import.provider</field>
+			<field name="arch" type="xml">
+				<tree>
+					<field name="idProvider"/>
+					<field name="eImportType"/>
+					<field name="name"/>
+					<field name="strDescription"/>
+				</tree>
+			</field>
+		</record>
+		<!-- form -->
+		<record id="setirImportProviderForm" model="ir.ui.view">
+			<field name="name">setirImportProviderForm</field>
+			<field name="model">setir.import.provider</field>
+			<field name="priority">4</field>
+			<field name="arch" type="xml">
+				<form string="Campos proveedor">
+					<sheet>
+	                    <group col="4" colspan="2">
+							<field name="idProvider"/>
+							<field name="eImportType"/>
+                            <field name="name"/>
+							<field name="strDescription"/>
+						</group>
+					</sheet>
+				</form>
+			</field>
+		</record>
+	</data>	
 </openerp>

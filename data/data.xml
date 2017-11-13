@@ -22,25 +22,6 @@
 			<field name="name">Defectuoso</field>
 		</record>
 	</data>
-	<!-- ESTADOS -->
-	<data noupdate="1">
-		<record model="setir.pm.state" id="pms1">
-			<field name="name">Espera</field>
-			<field name="strDescription">Pendiente activación</field>
-		</record>
-		<record model="setir.pm.state" id="pms2">
-			<field name="name">Activado</field>
-			<field name="strDescription">Activo, pagos peaje permitidos</field>
-		</record>
-		<record model="setir.pm.state" id="pms3">
-			<field name="name">Bloqueado</field>
-			<field name="strDescription">Activo, pagos peaje bloqueados</field>
-		</record>
-		<record model="setir.pm.state" id="pms4">
-			<field name="name">Baja</field>
-			<field name="strDescription">Desactivado sin posibilidad de volver a activar</field>
-		</record>
-	</data>
 	<!-- CAUSAS BAJA -->
 	<data noupdate="1">
 		<record model="setir.pm.unsubscribe.reason" id="pmur1">
@@ -108,6 +89,147 @@
 			<field name="eConsumos">suplido</field>
 			<field name="eCoste">suplido</field>
 			<field name="eBeneficio">suplido</field>
+		</record>
+	</data>
+	<!-- PARAMETROS CFG -->
+	<data noupdate="0">
+		<record model="ir.config_parameter" id="ip1">
+			<field name="key">path_root</field>
+			<field name="value">/home/datos</field>
+		</record>
+		<record model="ir.config_parameter" id="ip2">
+			<field name="key">path_invoicing</field>
+			<field name="value">facturacion</field>
+		</record>
+		<record model="ir.config_parameter" id="ip3">
+			<field name="key">path_invoices</field>
+			<field name="value">facturas</field>
+		</record>
+		<record model="ir.config_parameter" id="ip4">
+			<field name="key">path_consumtions</field>
+			<field name="value">detalle</field>
+		</record>
+		<record model="ir.config_parameter" id="ip5">
+			<field name="key">path_payment_media</field>
+			<field name="value">obu</field>
+		</record>
+	</data>
+	<!-- IMPORTACION CAMOPOS BASE -->
+	<data noupdate="0">
+		<record model="setir.import.base" id="icb1">
+			<field name="eImportType">medio_pago</field>
+			<field name="name">nombre_cliente</field>
+		</record>
+		<record model="setir.import.base" id="icb01">
+			<field name="eImportType">medio_pago</field>
+			<field name="name">nif_cliente</field>
+		</record>
+		<record model="setir.import.base" id="icb2">
+			<field name="eImportType">medio_pago</field>
+			<field name="name">codigo_cliente_setir</field>
+		</record>
+		<record model="setir.import.base" id="icb3">
+			<field name="eImportType">medio_pago</field>
+			<field name="name">codigo_cliente_proveedor</field>
+		</record>
+		<record model="setir.import.base" id="icb4">
+			<field name="eImportType">medio_pago</field>
+			<field name="name">nombre_proveedor</field>
+		</record>
+		<record model="setir.import.base" id="icb5">
+			<field name="eImportType">medio_pago</field>
+			<field name="name">codigo_proveedor_setir</field>
+		</record>
+		<record model="setir.import.base" id="icb6">
+			<field name="eImportType">medio_pago</field>
+			<field name="name">codigo_proveedor_proveedor</field>
+		</record>
+		<record model="setir.import.base" id="icb7">
+			<field name="eImportType">medio_pago</field>
+			<field name="name">tipo</field>
+		</record>
+		<record model="setir.import.base" id="icb8">
+			<field name="eImportType">medio_pago</field>
+			<field name="name">pan</field>
+		</record>
+		<record model="setir.import.base" id="icb9">
+			<field name="eImportType">medio_pago</field>
+			<field name="name">pan_secundario</field>
+		</record>
+		<record model="setir.import.base" id="icb10">
+			<field name="eImportType">medio_pago</field>
+			<field name="name">matricula_asociada</field>
+		</record>
+		<record model="setir.import.base" id="icb11">
+			<field name="eImportType">medio_pago</field>
+			<field name="name">pais_de_matricula</field>
+		</record>
+		<record model="setir.import.base" id="icb12">
+			<field name="eImportType">medio_pago</field>
+			<field name="name">numero_serie</field>
+		</record>
+		<record model="setir.import.base" id="icb13">
+			<field name="eImportType">medio_pago</field>
+			<field name="name">numero_serie_secundario</field>
+		</record>
+		<record model="setir.import.base" id="icb14">
+			<field name="eImportType">medio_pago</field>
+			<field name="name">fecha_alta</field>
+		</record>
+		<record model="setir.import.base" id="icb15">
+			<field name="eImportType">medio_pago</field>
+			<field name="name">fecha_creacion</field>
+		</record>
+		<record model="setir.import.base" id="icb16">
+			<field name="eImportType">medio_pago</field>
+			<field name="name">fecha_expiracion</field>
+		</record>	
+		<record model="setir.import.base" id="icb17">
+			<field name="eImportType">medio_pago</field>
+			<field name="name">fecha_baja</field>
+		</record>
+		<record model="setir.import.base" id="icb18">
+			<field name="eImportType">medio_pago</field>
+			<field name="name">estado_registro</field>
+		</record>
+		<record model="setir.import.base" id="icb19">
+			<field name="eImportType">medio_pago</field>
+			<field name="name">estado_medio_pago</field>
+		</record>
+		<record model="setir.import.base" id="icb301">
+			<field name="eImportType">token_mp</field>
+			<field name="name">obu</field>
+		</record>
+		<record model="setir.import.base" id="icb302">
+			<field name="eImportType">token_mp</field>
+			<field name="name">tarjeta</field>
+		</record>
+		<record model="setir.import.base" id="icb401">
+			<field name="eImportType">formato_fecha</field>
+			<field name="name">formato_fecha</field>
+		</record>
+	</data>
+	<!-- ESTADOS -->
+	<data noupdate="0">
+		<record model="setir.import.base" id="icb201">
+			<field name="eImportType">estado</field>
+			<field name="name">Espera</field>
+			<field name="strDescription">Pendiente activación</field>
+		</record>
+		<record model="setir.import.base" id="icb202">
+			<field name="eImportType">estado</field>
+			<field name="name">Activo</field>
+			<field name="strDescription">Activo, pagos peaje permitidos</field>
+		</record>
+		<record model="setir.import.base" id="icb203">
+			<field name="eImportType">estado</field>
+			<field name="name">Bloqueado</field>
+			<field name="strDescription">Activo, pagos peaje bloqueados</field>
+		</record>
+		<record model="setir.import.base" id="icb204">
+			<field name="eImportType">estado</field>
+			<field name="name">Baja</field>
+			<field name="strDescription">Desactivado sin posibilidad de volver a activar</field>
 		</record>
 	</data>
 </openerp>

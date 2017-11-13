@@ -34,7 +34,7 @@ class setirPM ( models.Model):
 										)
 	
 	idProductPM		= fields.Many2one	(
-											string			= "Medio de pago",
+											string			= "Producto",
 											comodel_name	= "product.product"
 										)
 
@@ -43,13 +43,12 @@ class setirPM ( models.Model):
 											comodel_name	= "sale.quote.template"
 										)
 	ePMType			= fields.Selection	(
-											string		= "Tipo",
-											selection	= PM_TYPE
+											string			= "Tipo",
+											selection		= PM_TYPE
 										)
 	strPAN			= fields.Char		(	string			= "PAN")
 	name			= fields.Char		(
-											string			= "name",
-											related			= "strPAN"
+											string			= u"Código SETIR"
 										)
 	strSecondaryPAN	= fields.Char		(	string			= "PAN Secundario")
 
@@ -61,6 +60,7 @@ class setirPM ( models.Model):
 	strSecondarySN	= fields.Char		(	string			= "SN Secundario")
 
 	dtSignUp		= fields.Datetime	(	string			= u"Fecha alta")
+	dtCreation		= fields.Datetime	(	string			= u"Fecha creación")
 	dateExpiration	= fields.Date		(	string			= u"Fecha expiración")	
 	dtUnsubscribe	= fields.Datetime	(	string			= u"Fecha baja")
 
@@ -76,7 +76,8 @@ class setirPM ( models.Model):
 	#estados de propio PM
 	idsPMSate			=	fields.Many2one	(
 											string			= "Estado medio de pago",
-											comodel_name	= "setir.pm.state"
+											comodel_name	= "setir.import.base",
+											domain			= "[('eImportType','=','estado')]"
 											)
 	strPMState			=	fields.Char		(
 											string = "state",
@@ -105,6 +106,41 @@ class setirPM ( models.Model):
 											)
 
 	@api.one
+	def addPMManagementHistory (self, idMangement, strSender, strReceiver):
+		vals = {}
+		vals['idPM']			= self.id
+		vals['idManagement']	= idMangement
+		vals['dtManagement']	= fields.Datetime.now()
+		vals['eSender']			= dict(ACTORS)[strSender]
+		vals['eReceiver']		= dict(ACTORS)[strReceiver]
+
+		self.env["setir.pm.management.history"].create ( vals)
+
+	def requestPM (self):
+		strIDS = str ( self.env.context.get ("active_ids", False))
+		raise exceptions.ValidationError ( "solicitar:" + strIDS)
+
+	def sendPM (self):
+		strIDS = str ( self.env.context.get ("active_ids", False))
+		raise exceptions.ValidationError ( "enviar:" + strIDS)
+
+	def receivePM (self):
+		strIDS = str ( self.env.context.get ("active_ids", False))
+		raise exceptions.ValidationError ( "recibir:" + strIDS)
+
+	def lockPM (self):
+		strIDS = str ( self.env.context.get ("active_ids", False))
+		raise exceptions.ValidationError ( "bloquear:" + strIDS)
+	
+	def unlockPM (self):
+		strIDS = str ( self.env.context.get ("active_ids", False))
+		raise exceptions.ValidationError ( "desbloquear:" + strIDS)
+
+	def unlinkPM (self):
+		strIDS = str ( self.env.context.get ("active_ids", False))
+		raise exceptions.ValidationError ( "dar de baja:" + strIDS)
+
+	@api.one
 	def addPMStateHistory (self, idState):
 		vals = {}
 		vals['idPM']	= self.id
@@ -116,31 +152,19 @@ class setirPM ( models.Model):
 
 		return dtCurrent
 
-	@api.one
-	def addPMManagementHistory (self, idMangement, strSender, strReceiver):
-		vals = {}
-		vals['idPM']			= self.id
-		vals['idManagement']	= idMangement
-		vals['dtManagement']	= fields.Datetime.now()
-		vals['eSender']			= dict(ACTORS)[strSender]
-		vals['eReceiver']		= dict(ACTORS)[strReceiver]
-
-		self.env["setir.pm.management.history"].create ( vals)
-
-class setirPMState ( models.Model):
-	_name = "setir.pm.state"
-
-	name			= fields.Char	( string = "Estado")
-	strDescription  = fields.Char	( string = u"Descripción")
-
 class setirPMStateHistory ( models.Model):
 	_name = "setir.pm.state.history"
 	_order = 'dtState desc'
 
 	idPM	= fields.Many2one	(	string			= "pm",
 									comodel_name	= "setir.pm")
-	idState	= fields.Many2one	(	string			= "Estado",
-									comodel_name	= "setir.pm.state")
+	
+	idState	=	fields.Many2one	(
+									string			= "Estado medio de pago",
+									comodel_name	= "setir.import.base",
+									domain			= "[('eImportType','=','estado')]"
+								)
+	
 	dtState	= fields.Datetime	(	string	= "Fecha")	
 
 class setirPMUnsubscribeReason ( models.Model):

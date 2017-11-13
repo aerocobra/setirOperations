@@ -41,11 +41,12 @@
 								<field name="idCustomer"/>
 								<field name="eRegisterState"/>
 								<field name="dtSignUp"/>
+								<field name="dtCreation"/>
 								<field name="dateExpiration"/>
 								<field name="dtUnsubscribe" attrs="{'invisible': [('eRegisterState','=', 'alta')]}"/>
-								<field name="idUnsubscribeReason" attrs="{'invisible': [('eRegisterState','=', 'alta')]}"/>
-								<field name="idProvider"/>
-								<field name="idAssocPackTmpl"/>
+								<field name="idUnsubscribeReason"  options="{'no_create': True}" attrs="{'invisible': [('eRegisterState','=', 'alta')]}"/>
+								<field name="idProvider"  options="{'no_create': True}"/>
+								<field name="idAssocPackTmpl"  options="{'no_create': True}"/>
 							</group>
 							<group>	
 								<field name="ePMType"/>
@@ -54,15 +55,15 @@
 								<field name="strSN"/>
 								<field name="strSecondarySN" invisible="1"/>
 								<field name="strPN"/>
-								<field name="idCountry"/>
-								<field name="idProductPM"/>
+								<field name="idCountry"  options="{'no_create': True}"/>
+								<field name="idProductPM"  options="{'no_create': True}"/>
 							</group>
 						</group>
 						<group>
 							<group string="Estado">
-								<field name="idsPMSate"/>
+								<field name="idsPMSate"  options="{'no_create': True}"/>
 								<field name="strPMState" invisible="1"/>
-								<field name="idBlockReason" attrs="{'invisible': [('strPMState','!=', 'Bloqueado')]}"/>
+								<field name="idBlockReason" attrs="{'invisible': [('strPMState','!=', 'Bloqueado')]}"  options="{'no_create': True}"/>
 								<field name="idsPMStateHistory"  nolabel="1" col="2" colspan="4">
 									<tree string="Historial estados" limit="3">
 										<field name="idState"/>
@@ -71,7 +72,7 @@
 								</field>
 							</group>
 							<group string="Gestión">
-								<field name="idsPMManagement"/>
+								<field name="idsPMManagement"  options="{'no_create': True}"/>
 								<field name="idsPMManagementHist" nolabel="1" col="2" colspan="4">
 									<tree string="Historial gestiones" limit="3">
 										<field name="idManagement"/>

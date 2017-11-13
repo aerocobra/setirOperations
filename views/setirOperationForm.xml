@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
 	<data>
-		<!-- remove inherited geo loc fields -->
+		<!-- añadir tipo facturacion -->
 		<record model="ir.ui.view" id="partnerInvoicingType_form">
 			<field name="name">partnerInvoicingType_form</field>
 			<field name="model">res.partner</field>
@@ -29,7 +29,9 @@
 			</field>
 		</record>
 	</data>
+	<!-- Operación -->
 	<data>
+		<!-- tree -->
 		<record id="setirOperationTree" model="ir.ui.view">
 			<field name="name">setirOperationTree</field>
 			<field name="model">setir.operation</field>
@@ -43,6 +45,7 @@
 		</record>
 	</data>
 	<data>
+		<!-- form -->
 		<record id="setirOperationForm" model="ir.ui.view">
 			<field name="name">setirOperationForm</field>
 			<field name="model">setir.operation</field>
@@ -106,7 +109,7 @@
 								</field>
 							</page>
 							<page string="Medios de pago">
-								<button name="createPM" string="crear PM" type="object"/>
+								<!--  button name="createPM" string="crear PM" type="object"/ -->
 								<field name="idsLinePM" options="{'no_create': True}" nolabel="1" readonly="0">
 									<tree string="Peajes contartados" limit="5">
 										<field name="idAssocPackTmpl"/>

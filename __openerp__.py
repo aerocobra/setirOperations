@@ -24,7 +24,8 @@
     "data": [
 		"views/setirOperations.xml",
         "views/setirOperationForm.xml",
-        "views/setirPMForm.xml",
+		"views/setirPMForm.xml",
+		"views/setirImportForm.xml",
         "data/data.xml",
         "security/ir.model.access.csv",
         ],

@@ -14,10 +14,45 @@ from setirDefinitions import *
 class setirPartnerOperation ( models.Model):
 	_inherit		= "res.partner"
 
-	idInvoicingType				= fields.Many2one (	string			= u"Tipo facturación",
-													comodel_name	= "setir.invoicing.type")
-	strInvoicngTypeDescription	= fields.Char (		string			= u"Descripción",
-													related			= "idInvoicingType.strDescription")
+	idInvoicingType				= fields.Many2one	(	string			= u"Tipo facturación",
+														comodel_name	= "setir.invoicing.type")
+	strInvoicngTypeDescription	= fields.Char		(	string			= u"Descripción",
+														related			= "idInvoicingType.strDescription")
+	idsProviderCode				= fields.One2many	(	string			= u"Código proveedor",
+														comodel_name	= "setir.customer.provider.code",
+														inverse_name	= "idCustomer"
+													)
+	
+	#dict (DEF_ADDRESS_TYPE)["invoice"])])
+	@api.one	
+	def getAddress (self, strAddressType):
+		recordset = self.child_ids.search([('type', '=', strAddressType)])
+		if recordset:
+			record	= recordset[0]
+		else:
+			record	= self
+		
+		address = {}
+		
+		
+
+#codigos que dan los proveedores a los clientes    
+class setirPartnerCustomerCodes ( models.Model):
+	_name			= "setir.customer.provider.code"
+	
+	idCustomer		= fields.Many2one	(	string			= "Cliente",
+											comodel_name	= "res.partner",
+											domain			= "[('is_company', '=', True), ('customer', '=', True)]"
+										)
+	strCustomer		= fields.Char		(	related			= "idCustomer.name")
+	
+	idProvider		= fields.Many2one	(	string			= "Proveedor",
+											comodel_name	= "res.partner",
+											domain			= "[('is_company', '=', True), ('supplier', '=', True)]"
+										)
+	strProvider		= fields.Char		(	related			= "idProvider.name")
+	
+	strProviderCode	= fields.Char		(	string	 		= u"Código proveedor")
 
 class setirInvocingType ( models.Model):
 	_name	= "setir.invoicing.type"
@@ -35,7 +70,7 @@ class setirInvocingType ( models.Model):
 class setirSaleOrderOperation ( models.Model):
 	_inherit		= "sale.order"
 
-	@api.multi
+	@api.one
 	def action_done(self):
 		super(setirSaleOrderOperation, self).action_done()
 		
@@ -55,8 +90,8 @@ class setirSaleOrderOperation ( models.Model):
 			vals['dateSignUp']		= fields.Datetime.now()
 
 			operation = self.env["setir.operation"].create ( vals)
-			operation.fillOrdersProviders()
-
+			#operation.fillOrdersProviders()
+			
 		listToll	= []
 		listPM		= []
 		listTax		= []
@@ -99,7 +134,7 @@ class setirSaleOrderOperation ( models.Model):
 			#NOTE: strCategory ' is related field
 			if operationLine.strCategory == "peaje":
 				listToll.append ( operationLine.id)
-			elif operationLine.strCategory in ["obu", "tarjeta"]:
+			elif operationLine.strCategory in ["obu", "tarjeta", "activacion"]:
 				listPM.append ( operationLine.id)
 			elif operationLine.strCategory == "impuesto":
 				listTax.append ( operationLine.id)
@@ -257,7 +292,6 @@ class setirOperation ( models.Model):
 																		 ['peaje','medio de pago','impuesto', 'combustible'])]"
 												)
 
-
 	@api.onchange ('idCustomer')
 	def fillOrdersProviders ( self):
 		listOrders		= []
@@ -293,7 +327,7 @@ class setirOperation ( models.Model):
 	@api.multi
 	def createPM (self):
 		for operationLine in self.idsLinePM:
-			if operationLine.strCategory == dict(PM_TYPE)["obu"] or operationLine.strCategory == dict(PM_TYPE)["tarjeta"]:
+			if operationLine.strCategory == PM_TYPE_OBU or operationLine.strCategory == PM_TYPE_TARJETA:
 				for i in range ( int (operationLine.fQtyContracted)):
 					self.registerPM ( operationLine.idProvider.id, operationLine.idProduct.id, operationLine.idAssocPackTmpl.id)
 			
@@ -308,6 +342,10 @@ class setirOperation ( models.Model):
 		vals['idAssocPackTmpl']			= idAssocPackTmpl
 		strCategory						= self.env['product.product'].search([('id', '=', idProductPM)])[0].categ_id.name
 		vals['ePMType']					= strCategory
+		if strCategory == PM_TYPE_OBU:
+			vals['name']	= self.env['ir.sequence'].next_by_code('setir.obu.name.sequence')
+		elif strCategory == PM_TYPE_TARJETA:
+			vals['name']	= self.env['ir.sequence'].next_by_code('setir.tarjeta.name.sequence')
 
 		#strPAN 
 		#strSecondaryPAN
@@ -318,14 +356,18 @@ class setirOperation ( models.Model):
 		vals['dtSignUp']				= fields.Datetime.now()
 		#dateExpiration	
 		#dtUnsubscribe
-		vals['eRegisterState']			= "alta"
+		vals['eRegisterState']			= REGISTER_STATE_ALTA
 		
-		idsPMSate						= self.env['setir.pm.state'].search([('name', '=', 'Espera')])[0].id	
+		#estado del propio PM
+		idsPMSate 						= self.env['setir.import.base'].search([('eImportType', '=', IMPORT_TYPE_ESTADO),
+																				('name', '=', dict (PM_STATE)[PM_STATE_ESPERA])])[0].id	
+		vals['idsPMSate']				= idsPMSate
 
 		#estados de gestión PM
-		idsPMManagement					= self.env['setir.pm.management'].search([('name', '=', 'Solicitado')])[0].id
-		
-		pm	= self.env['setir.pm'].create ( vals)
+		idsPMManagement					= self.env['setir.pm.management'].search([('name', '=', ESTADO_GESTION_SOLICITADO)])[0].id
+		vals['idsPMManagement']			= idsPMManagement
+
+		pm								= self.env['setir.pm'].create ( vals)
 		
 		pm.addPMStateHistory ( idsPMSate)
-		pm.addPMManagementHistory (idsPMManagement, dict(ACTORS)['setir'], dict(ACTORS)['setir'])
+		pm.addPMManagementHistory (idsPMManagement, ACTOR_SETIR, ACTOR_SETIR)
