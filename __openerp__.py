@@ -27,6 +27,7 @@
 		"views/setirPMForm.xml",
 		"views/setirImportForm.xml",
         "data/data.xml",
+		"reports/pmReports.xml",
         "security/ir.model.access.csv",
         ],
     "installable": True,

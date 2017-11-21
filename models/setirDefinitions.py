@@ -1,23 +1,6 @@
 # -*- coding: utf-8 -*-
 #setirDefinitions.py
 
-ACTOR_CLIENTE	= "cliente"
-ACTOR_PROVEEDOR	= "proveedor"
-ACTOR_SETIR		= "setir"
-ACTORS          =   [
-					(ACTOR_CLIENTE, "cliente"),
-					(ACTOR_PROVEEDOR, "proveedor"),
-					(ACTOR_SETIR, "setir")
-					]
-
-#estados por defecto, es posible añadir más manualmente 
-ESTADO_GESTION_SOLICITADO	= "Solicitado"
-ESTADO_GESTION_ENVIADO		= "Enviado"
-ESTADO_GESTION_RECIBIDO		= "Recibido"
-ESTADO_GESTION_INSTALADO	= "Instalado"
-ESTADO_GESTION_PERDIDO		= "Perdido"
-ESTADO_GESTION_DEFECTUOSO	= "Defectuoso"
-
 INVOICING_TYPE_FACTURA	= "factura"
 INVOICING_TYPE_SUPLIDO	= "suplido"
 INVOICING_TYPE_RAPEL	= "rapel"
@@ -34,13 +17,12 @@ PM_TYPE         =   [
                     (PM_TYPE_TARJETA,	"tarjeta")
                     ]
 
-REGISTER_STATE_ALTA	= "alta"
-REGISTER_STATE_BAJA	= "baja"
+REGISTER_STATE_ALTA				= "alta"
+REGISTER_STATE_BAJA				= "baja"
 REGISTER_STATE  	=   [
-						(REGISTER_STATE_ALTA, "alta"),
-						(REGISTER_STATE_BAJA, "baja")
+						(REGISTER_STATE_ALTA, "Alta"),
+						(REGISTER_STATE_BAJA, "Baja")
 						]
-
 
 PM_STATE_ESPERA		= "espera"
 PM_STATE_ACTIVO		= "activo"
@@ -165,14 +147,37 @@ IMPORT_ACTION	=	[
 					]
 
 #tipos de direcciones definidos en odoo
-ADDRESS_CONTACT		= "contact"
-ADDRESS_INVOICE		= "invoice"
-ADDRESS_DELIVERY	= "delivery"
-ADDRESS_OTHER		= "other"
+ADDRESS_CONTACT				= "contact"
+ADDRESS_INVOICE				= "invoice"
+ADDRESS_DELIVERY			= "delivery"
+ADDRESS_OTHER				= "other"
 
-DEF_ADDRESS_TYPE =	[
-					(ADDRESS_CONTACT, "Contacto"),
-					(ADDRESS_INVOICE, u"Facturación"),
-					(ADDRESS_DELIVERY, u"Envío"),
-					(ADDRESS_OTHER, "Otra"),
-					]
+DEF_ADDRESS_TYPE			=	[
+								(ADDRESS_CONTACT, "Contacto"),
+								(ADDRESS_INVOICE, u"Facturación"),
+								(ADDRESS_DELIVERY, u"Envío"),
+								(ADDRESS_OTHER, "Otra"),
+								]
+
+CONTACT_NAME_ENVIO			= "envio"
+CONTACT_NAME_ENVIO_OBU		= "envio-obu"
+CONTACT_NAME_ENVIO_TTA		= "envio-tta"
+CONTACT_NAME_FACTURACION	= "facturacion"
+CONTACT_NAME_OPERACIONES	= "operaciones"
+
+ACTOR_CLIENTE				= "cliente"
+ACTOR_PROVEEDOR				= "proveedor"
+ACTOR_SETIR					= "setir"
+ACTORS          			=   [
+								(ACTOR_CLIENTE, "cliente"),
+								(ACTOR_PROVEEDOR, "proveedor"),
+								(ACTOR_SETIR, "setir")
+								]
+
+#estados por defecto, es posible añadir más manualmente 
+ESTADO_GESTION_SOLICITADO	= "Solicitado"
+ESTADO_GESTION_ENVIADO		= "Enviado"
+ESTADO_GESTION_RECIBIDO		= "Recibido"
+ESTADO_GESTION_INSTALADO	= "Instalado"
+ESTADO_GESTION_PERDIDO		= "Perdido"
+ESTADO_GESTION_DEFECTUOSO	= "Defectuoso"

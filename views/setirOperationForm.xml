@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
+	<!-- TIPO FACTURACIÓN -->
 	<data>
-		<!-- añadir tipo facturacion -->
 		<record model="ir.ui.view" id="partnerInvoicingType_form">
 			<field name="name">partnerInvoicingType_form</field>
 			<field name="model">res.partner</field>
@@ -29,7 +29,7 @@
 			</field>
 		</record>
 	</data>
-	<!-- Operación -->
+	<!-- OPERACIÓN -->
 	<data>
 		<!-- tree -->
 		<record id="setirOperationTree" model="ir.ui.view">

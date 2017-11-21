@@ -24,10 +24,10 @@
 			<field name="arch" type="xml">
 				<tree string="Importación">
 					<field name="dtLastImport"/>
+					<field name="idProvider"/>
 					<field name="eMonth"/>
 					<field name="name"/>
 					<field name="eImportType"/>
-					<field name="idProvider"/>
 				</tree>
 			</field>
 		</record>
@@ -140,7 +140,7 @@
 									<field name="dtUnsubscribe" invisible="1"/>
 									<field name="eRegisterState" invisible="1"/>
 									<field name="idUnsubscribeReason" invisible="1"/>
-									<field name="idsPMSate"/>
+									<field name="idsPMState"/>
 									<field name="strPMState" invisible="1"/>
 									<field name="idBlockReason" invisible="1"/>
 									<field name="idsPMStateHistory" invisible="1"/>	

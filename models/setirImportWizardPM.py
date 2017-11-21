@@ -43,7 +43,7 @@ class setirPMtt ( models.TransientModel):
 
 	idWizardPM		= fields.Many2one 	(	string			= "Wizard",
 											comodel_name	= "setir.import.wizard.pm")
-
+	
 	idOperation		= fields.Many2one	(
 											string			= u"Operación",
 											comodel_name	= "setir.operation"
@@ -101,14 +101,14 @@ class setirPMtt ( models.TransientModel):
 											)
 	
 	#estados de propio PM
-	idsPMSate			=	fields.Many2one	(
+	idsPMState			=	fields.Many2one	(
 											string			= "Estado MP",
 											comodel_name	= "setir.import.base",
 											domain			= "[('eImportType','=','estado')]"
 											)
 	strPMState			=	fields.Char		(
 											string = "state",
-											related = "idsPMSate.name"
+											related = "idsPMState.name"
 											)
 	idBlockReason		= fields.Many2one	(
 											string			= "Causa de bloqueo",
@@ -214,12 +214,11 @@ class setirImportWizardPM ( models.TransientModel):
 
 			if record.eImportAction == IMPORT_ACTION_UPDATE:  
 				vals2Update	= {}
-				vals2Update["idsPMSate"]	= record.idsPMSate.id
+				vals2Update["idsPMState"]	= record.idsPMState.id
 				
 				record2Update	= self.env["setir.pm"].search([('id','=', record.nID2Update)])[0]
-				pm = record2Update.write ( vals2Update)
-
-				#pm.addPMStateHistory ( vals2Update["idsPMSate"])
+				record2Update.write ( vals2Update)
+				record2Update.addPMStateHistory ( vals2Update["idsPMState"])
 				
 			elif record.eImportAction == IMPORT_ACTION_CREATE:
 				vals2Create	= {}
@@ -241,7 +240,7 @@ class setirImportWizardPM ( models.TransientModel):
 				vals2Create["dateExpiration"]	= record.dateExpiration	
 				vals2Create["dtUnsubscribe"]	= record.dtUnsubscribe
 				vals2Create["eRegisterState"]	= record.eRegisterState
-				vals2Create["idsPMSate"]		= record.idsPMSate.id
+				vals2Create["idsPMState"]		= record.idsPMState.id
 
 				#estados de gestión PM
 				idsPMManagement					= self.env['setir.pm.management'].search([('name', '=', ESTADO_GESTION_RECIBIDO)])[0].id
@@ -249,7 +248,7 @@ class setirImportWizardPM ( models.TransientModel):
 
 				pm	= self.env["setir.pm"].create ( vals2Create)
 				
-				pm.addPMStateHistory ( vals2Create["idsPMSate"])
+				pm.addPMStateHistory ( vals2Create["idsPMState"])
 				pm.addPMManagementHistory (idsPMManagement, ACTOR_PROVEEDOR, ACTOR_CLIENTE)
 
 		# add history
@@ -366,6 +365,15 @@ class setirImportWizardPM ( models.TransientModel):
 					continue
 
 				operation = self.env["setir.operation"].search ([('idCustomer', '=', archVals["idCustomer"])])
+				
+				nOBU	= 0
+				nTTA	= 0
+				for rec in operation.idsLinePM:
+					if rec.strCategory == PM_TYPE_OBU:
+						nOBU = int ( rec.fQtyContracted) 
+					elif rec.strCategory == PM_TYPE_TARJETA:
+						nTTA = int ( rec.fQtyContracted) 
+
 				if not operation:
 					strINFO	=	self.formatINFO (	u"Operación no existe, cliente:[{}] nif:[{}] código cliente:[{}]",
 													u"linea de archivo no importada",
@@ -386,7 +394,7 @@ class setirImportWizardPM ( models.TransientModel):
 					registeredPM.append ((record.strPAN, (	record.id,
 															record.ePMType,
 															record.idProvider.id,
-															record.idsPMSate.id)))
+															record.idsPMState.id)))
 
 				#3. encontrar el TIPO MEDIO DE PAGO (obu o tarjeta)
 				# token para buscar en el campo 'tipo' paar determinar el tipo
@@ -429,7 +437,7 @@ class setirImportWizardPM ( models.TransientModel):
 				for stateMatch in self.env['setir.import.line'].search([('idImportMap','=', mapStates[0].id)]):
 					if stateMatch.idFieldProvider.name == strNewStateProvider:
 						strNewStateBase	= stateMatch.idFieldBase.name
-						archVals["idsPMSate"] = self.env['setir.import.base'].search([('eImportType','=','estado'), ('name', '=', strNewStateBase)])[0].id
+						archVals["idsPMState"] = self.env['setir.import.base'].search([('eImportType','=', IMPORT_TYPE_ESTADO), ('name', '=', strNewStateBase)])[0].id
 						break
 
 				if len ( strNewStateBase) == 0:
@@ -442,11 +450,13 @@ class setirImportWizardPM ( models.TransientModel):
 
 				#ver si es un PAN nuevo o ya registrado				
 				if dict ( registeredPM).get (archVals["strPAN"]) == None:
-					#PAN encontrado no esta registado => crear nuevo ALTA mas abajo
-					
-					strINFO	=	self.formatINFO (	u"nuevo PAN no registrado, cliente:[{}]  pan:[{}]",
-													u"dar de alta MP nuevo",
-													u"nada").format( strCustomer, archVals["strPAN"])
+					#PAN encontrado no esta registado => ALTA
+					archVals["eImportAction"]	= IMPORT_ACTION_CREATE
+					archVals["eRegisterState"]	= REGISTER_STATE_ALTA
+
+					strINFO						=	self.formatINFO (	u"nuevo PAN no registrado, cliente:[{}]  pan:[{}]",
+																		u"dar de alta MP nuevo",
+																		u"nada").format( strCustomer, archVals["strPAN"])
 					incidents.append ( ( strINFO))
 					_logger.debug ( strINFO)
 				elif dict( registeredPM)[archVals["strPAN"]][X_PM_TYPE] != strType:
@@ -464,7 +474,6 @@ class setirImportWizardPM ( models.TransientModel):
 					if strRegisteredState == dict(PM_STATE)[PM_STATE_BAJA]:
 						#estado del MP registrado es BAJA => no alteramos nada
 						continue
-					
 					
 					if strRegisteredState == strNewStateBase:
 						#estado de MP en el archivo coincide con ya registrado => no alteramos nada
@@ -488,11 +497,9 @@ class setirImportWizardPM ( models.TransientModel):
 					
 					archVals["nID2Update"]		= dict( registeredPM)[archVals["strPAN"]][X_PM_ID]
 					archVals["eImportAction"]	= IMPORT_ACTION_UPDATE
-					pm2Update.create ( archVals)
-					continue
 
+				# desde aqui igual para ALTA y ACTUALIZACION
 				#campos ya extradidos: idCustomer, ePMType, strPAN
-				# solo ALTA
 				self.bSaveImport		= True
 				strFormatoFecha	= FORMATO_FECHA_ESTANDAR
 				formatoFecha	= self.env['setir.import.map'].search([	('eImportType','=', IMPORT_TYPE_FORMATO_FECHA),
@@ -509,10 +516,8 @@ class setirImportWizardPM ( models.TransientModel):
 				else:
 					strFormatoFecha	= formatoFecha[0].name 
 
-				archVals["eImportAction"]	= IMPORT_ACTION_CREATE
 				archVals["b2Import"]		= True
-				archVals["eRegisterState"]	= REGISTER_STATE_ALTA
-				#archVals["idsPMSate"] = self.env['setir.import.base'].search([	('eImportType','=', IMPORT_TYPE_ESTADO),
+				#archVals["idsPMState"] = self.env['setir.import.base'].search([	('eImportType','=', IMPORT_TYPE_ESTADO),
 				#																('name', '=', strNewStateBase)]).id
 
 				# setir.operation.line					
@@ -610,3 +615,63 @@ class setirImportWizardPM ( models.TransientModel):
 		
 		return {'type': "ir.actions.do_nothing",}
 
+class setirUnsubscribeWizardPM ( models.TransientModel):
+	_name				= "setir.unsubscribe.wizard.pm"
+	_description		= u"Baja medios de pago"
+
+	name				= fields.Char		(	string			= "ids")
+	idUnsubscribeReason	= fields.Many2one	(	string			= "Causa de baja",
+												comodel_name	= "setir.pm.unsubscribe.reason")
+
+	idsPM2Unsubscribe	= fields.Many2many	(	string			= "Medios d pago",
+												comodel_name	= "setir.pm",
+												readonly		= True)
+
+	strEmailBody		= fields.Text		(	string			= "Texto email")
+	
+	@api.multi
+	def create (self, vals):
+		ids2Unsubscribe	= self.env.context.get ('active_ids', False)
+
+		records2Unsubscribe	= self.env["setir.pm"].search ([('id', 'in', ids2Unsubscribe)])#,
+															#('eRegisterState', '!=', REGISTER_STATE_BAJA)])
+		
+		if not records2Unsubscribe:
+			raise exceptions.ValidationError ( "No hay registros para dar de baja")
+
+		vals["name"]		+= "[" + str (ids2Unsubscribe) + "]"
+		result				= super ( setirUnsubscribeWizardPM, self).create ( vals)
+		
+
+		for record in records2Unsubscribe:
+				result.idsPM2Unsubscribe	= [(4, record.id, False)]
+
+		return result
+
+	@api.multi
+	def unsubscribePM (self):
+		if not self.idUnsubscribeReason:
+			raise exceptions.ValidationError ( "Es necesario seleccionar una causa de baja")
+		
+		idsPM2unsubscribe	= self.env.context.get ('active_ids', False)
+		
+		stateBAJA			= self.env['setir.import.base'].search([('eImportType','=', IMPORT_TYPE_ESTADO),
+																	('name', '=', dict (PM_STATE)[PM_STATE_BAJA])])
+
+		#for pm_id in idsPM2unsubscribe:
+		vals	= {}
+		vals["dtUnsubscribe"]		= fields.Datetime.now()
+		vals["eRegisterState"]		= REGISTER_STATE_BAJA
+		vals["idsPMState"]			= stateBAJA.id
+		vals["idUnsubscribeReason"]	= self.idUnsubscribeReason.id 
+
+		self.env["setir.pm"].search([('id','in', idsPM2unsubscribe)]).write (vals)
+		self.env["setir.pm"].search([('id','in', idsPM2unsubscribe)]).addPMStateHistory ( stateBAJA.id)
+
+		return {'type': "ir.actions.do_nothing",}
+
+	def sendUnsubscribeMail (self):
+		return {'type': "ir.actions.do_nothing",}
+
+	def printUnsubscribeReport (self):
+		return {'type': "ir.actions.do_nothing",}

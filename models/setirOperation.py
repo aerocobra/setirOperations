@@ -269,21 +269,21 @@ class setirOperation ( models.Model):
 												column2			= "line_id",
 												domain			= "[('idOperation','=', id),('strCategory', '=', 'medio de pago')]"
 											)
-	idsLineTax			= fields.Many2many (	string			= "Medios de pago",
+	idsLineTax			= fields.Many2many (	string			= "Impuestos",
 												comodel_name	= "setir.operation.line",
 												relation		= "rel_operation_tax",
 												column1			= "operation_id",
 												column2			= "line_id",
 												domain			= "[('idOperation','=', id),('strCategory', '=', 'impuesto')]"
 											)
-	idsLineFuel			= fields.Many2many (	string			= "Medios de pago",
+	idsLineFuel			= fields.Many2many (	string			= "Combustible",
 												comodel_name	= "setir.operation.line",
 												relation		= "rel_operation_fuel",
 												column1			= "operation_id",
 												column2			= "line_id",
 												domain			= "[('idOperation','=', id),('strCategory', '=', 'combustible')]"
 											)
-	idsLineOther			= fields.Many2many (	string			= "Medios de pago",
+	idsLineOther			= fields.Many2many (	string			= "Otros",
 													comodel_name	= "setir.operation.line",
 													relation		= "rel_operation_other",
 													column1			= "operation_id",
@@ -359,9 +359,9 @@ class setirOperation ( models.Model):
 		vals['eRegisterState']			= REGISTER_STATE_ALTA
 		
 		#estado del propio PM
-		idsPMSate 						= self.env['setir.import.base'].search([('eImportType', '=', IMPORT_TYPE_ESTADO),
+		idsPMState 						= self.env['setir.import.base'].search([('eImportType', '=', IMPORT_TYPE_ESTADO),
 																				('name', '=', dict (PM_STATE)[PM_STATE_ESPERA])])[0].id	
-		vals['idsPMSate']				= idsPMSate
+		vals['idsPMState']				= idsPMState
 
 		#estados de gestión PM
 		idsPMManagement					= self.env['setir.pm.management'].search([('name', '=', ESTADO_GESTION_SOLICITADO)])[0].id
@@ -369,5 +369,5 @@ class setirOperation ( models.Model):
 
 		pm								= self.env['setir.pm'].create ( vals)
 		
-		pm.addPMStateHistory ( idsPMSate)
+		pm.addPMStateHistory ( idsPMState)
 		pm.addPMManagementHistory (idsPMManagement, ACTOR_SETIR, ACTOR_SETIR)

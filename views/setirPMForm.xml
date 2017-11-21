@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
+	<!-- MEDIO DE PAGO -->
 	<data>
+		<!-- tree -->
 		<record id="setirPMTree" model="ir.ui.view">
 			<field name="name">setirPMTree</field>
 			<field name="model">setir.pm</field>
 			<field name="priority">2</field>
 			<field name="arch" type="xml">
-				<tree string="Medios de pago">
+				<tree string="Medios de pago" decoration-muted="eRegisterState == 'baja'">
 					<field name="strPAN"/>
 					<field name="ePMType"/>
 					<field name="strSN" invisible ="1"/>
@@ -21,13 +23,14 @@
 					<field name="dateExpiration" invisible ="1"/>	
 					<field name="eRegisterState"/>
 					<field name="dtUnsubscribe" invisible ="1"/>
-					<field name="idsPMSate"/>
+					<field name="idsPMState"/>
 					<field name="idsPMManagement"/>
 				</tree>
 			</field>
 		</record>
 	</data>
 	<data>
+		<!-- form -->
 		<record id="setirPMForm" model="ir.ui.view">
 			<field name="name">setirPMForm</field>
 			<field name="model">setir.pm</field>
@@ -43,10 +46,8 @@
 								<field name="dtSignUp"/>
 								<field name="dtCreation"/>
 								<field name="dateExpiration"/>
-								<field name="dtUnsubscribe" attrs="{'invisible': [('eRegisterState','=', 'alta')]}"/>
+								<field name="dtUnsubscribe" attrs="{'invisible': [('eRegisterState','=', 'alta')]}" style="color:Purple;font-weight:bold;"/>
 								<field name="idUnsubscribeReason"  options="{'no_create': True}" attrs="{'invisible': [('eRegisterState','=', 'alta')]}"/>
-								<field name="idProvider"  options="{'no_create': True}"/>
-								<field name="idAssocPackTmpl"  options="{'no_create': True}"/>
 							</group>
 							<group>	
 								<field name="ePMType"/>
@@ -57,11 +58,13 @@
 								<field name="strPN"/>
 								<field name="idCountry"  options="{'no_create': True}"/>
 								<field name="idProductPM"  options="{'no_create': True}"/>
+								<field name="idProvider"  options="{'no_create': True}"/>
+								<field name="idAssocPackTmpl"  options="{'no_create': True}"/>
 							</group>
 						</group>
 						<group>
 							<group string="Estado">
-								<field name="idsPMSate"  options="{'no_create': True}"/>
+								<field name="idsPMState"  options="{'no_create': True}"/>
 								<field name="strPMState" invisible="1"/>
 								<field name="idBlockReason" attrs="{'invisible': [('strPMState','!=', 'Bloqueado')]}"  options="{'no_create': True}"/>
 								<field name="idsPMStateHistory"  nolabel="1" col="2" colspan="4">
@@ -91,5 +94,64 @@
 				</form>
 			</field>
 		</record>
+	</data>
+	<!-- WIZARD BAJA MEDIO DE PAGO -->
+	<data>
+		<record id="setirPMUnlinkForm" model="ir.ui.view">
+			<field name="name">setirPMUnlinkForm</field>
+			<field name="model">setir.unsubscribe.wizard.pm</field>
+			<field name="priority">2</field>
+			<field name="arch" type="xml">
+				<form string="Baja de medio de pago">
+					<sheet>
+						<group col= "4" colspan="2">
+							<field name="name"/>
+							<field name="idUnsubscribeReason"/>
+						</group>
+						<group>
+							<field name="idsPM2Unsubscribe" nolabel="1" widget="many2many">
+								<tree string="Medios de pago">
+									<field name="strPAN"/>
+									<field name="ePMType"/>
+									<field name="strSN" invisible ="1"/>
+									<field name="strPN"/>
+									<field name="idCountry"/>
+									<field name="idOperation" invisible ="1"/>
+									<field name="idCustomer"/>
+									<field name="idProvider"/>
+									<field name="idProductPM"/>
+									<field name="idAssocPackTmpl"/>
+									<field name="dtSignUp" invisible ="1"/>
+									<field name="dateExpiration" invisible ="1"/>	
+									<field name="eRegisterState"/>
+									<field name="dtUnsubscribe" invisible ="1"/>
+									<field name="idsPMState"/>
+									<field name="idsPMManagement" invisible ="1"/>
+								</tree>
+							</field>
+						</group>
+					</sheet>
+					<footer>
+	                    <button name="unsubscribePM" string="Baja" type="object" class="oe_highlight"/>
+	                    <button name="sendUnsubscribeMail" string="Mail" type="object" class="oe_highlight"/>
+						<button name="setirOperations.btn_action_send_mail_window" type="action" string="Enviar correo" class="oe_highlight"/>
+	                    <button name="printUnsubscribeReport" string="Envío" type="object" class="oe_highlight"/>
+						<button string="Cerrar" class="btn-default" special="cancel"/>
+					</footer>
+				</form>
+			</field>
+		</record>
+	</data>
+	<!-- ACCIONES ENVIO CORREOS -->
+	<data>
+		<!--  action -->
+		<record model="ir.actions.act_window" id="btn_action_send_mail_window">
+			<field name="name">Enviar correo ...</field>
+			<field name="src_model">setir.unsubscribe.wizard.pm</field>
+			<field name="res_model">mail.compose.message</field>
+			<field name="view_mode">form</field>
+			<field name="target">new</field>
+			<field name="key2"></field>
+		</record>		
 	</data>
 </openerp>

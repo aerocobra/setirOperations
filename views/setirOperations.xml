@@ -313,7 +313,7 @@
 		</record>
 		<!-- dar de baja -->
 		<record model="ir.actions.server" id="unlinkPM_for">
-		    <field name="name">dar de baja MP</field>
+		    <field name="name">Baja de medios de pago ...</field>
 		    <field name="type">ir.actions.server</field>
 		    <field name="model_id" ref="model_setir_pm"/>
 		    <field name="state">code</field>
@@ -323,7 +323,7 @@
 		    </field>
 		</record>
 		<record id="unlinkPM_of" model="ir.values">
-		    <field name="name">dardebajar_mp</field>
+		    <field name="name">dardebaja_mp</field>
 		    <field name="action_id" ref="unlinkPM_for"/>
 		    <field name="value" eval="'ir.actions.server,' + str(ref('unlinkPM_for'))"/>
 		    <field name="key">action</field>
