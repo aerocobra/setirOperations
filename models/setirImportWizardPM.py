@@ -208,48 +208,89 @@ class setirImportWizardPM ( models.TransientModel):
 		import_id		= self.env.context.get ('active_ids', True)[0]
 		currentImport	= self.env["setir.import"].search([('id','=', import_id)])[0]
 		
-		for record in self.idsPM2Import:
-			if not record.b2Import:
-				continue 
+		setCustomers	= self.idsPM2Import.distinct_field_get (field='idCustomer', value='')
 
-			if record.eImportAction == IMPORT_ACTION_UPDATE:  
-				vals2Update	= {}
-				vals2Update["idsPMState"]	= record.idsPMState.id
-				
-				record2Update	= self.env["setir.pm"].search([('id','=', record.nID2Update)])[0]
-				record2Update.write ( vals2Update)
-				record2Update.addPMStateHistory ( vals2Update["idsPMState"])
-				
-			elif record.eImportAction == IMPORT_ACTION_CREATE:
-				vals2Create	= {}
-				vals2Create["idOperation"]		= record.idOperation.id
-				vals2Create["idCustomer"]		= record.idCustomer.id
-				vals2Create["idProvider"]		= record.idProvider.id
-				vals2Create["idProductPM"]		= record.idProductPM.id
-				vals2Create["idAssocPackTmpl"]	= record.idAssocPackTmpl.id
-				vals2Create["ePMType"]			= record.ePMType
-				vals2Create["strPAN"]			= record.strPAN
-				vals2Create["name"]				= record.name
-				vals2Create["strSecondaryPAN"]	= record.strSecondaryPAN
-				vals2Create["strPN"]			= record.strPN
-				vals2Create["idCountry"]		= record.idCountry.id
-				vals2Create["strSN"]			= record.strSN
-				vals2Create["strSecondarySN"]	= record.strSecondarySN
-				vals2Create["dtSignUp"]			= record.dtSignUp
-				vals2Create["dtCreation"]		= record.dtCreation
-				vals2Create["dateExpiration"]	= record.dateExpiration	
-				vals2Create["dtUnsubscribe"]	= record.dtUnsubscribe
-				vals2Create["eRegisterState"]	= record.eRegisterState
-				vals2Create["idsPMState"]		= record.idsPMState.id
+		for customer in setCustomers:
+			for record in self.idsPM2Import.search([('idCustomer', '=', customer.idCustomer)]):
+				if not record.b2Import:
+					continue
 
-				#estados de gestión PM
-				idsPMManagement					= self.env['setir.pm.management'].search([('name', '=', ESTADO_GESTION_RECIBIDO)])[0].id
-				vals2Create['idsPMManagement']	= idsPMManagement
+				if record.eImportAction == IMPORT_ACTION_UPDATE:  
+					vals2Update	= {}
+					vals2Update["idsPMState"]	= record.idsPMState.id
 
-				pm	= self.env["setir.pm"].create ( vals2Create)
-				
-				pm.addPMStateHistory ( vals2Create["idsPMState"])
-				pm.addPMManagementHistory (idsPMManagement, ACTOR_PROVEEDOR, ACTOR_CLIENTE)
+					record2Update	= self.env["setir.pm"].search([('id','=', record.nID2Update)])[0]
+					record2Update.write ( vals2Update)
+					record2Update.addPMStateHistory ( vals2Update["idsPMState"])
+
+				elif record.eImportAction == IMPORT_ACTION_CREATE:
+					vals2Create	= {}
+					vals2Create["idOperation"]		= record.idOperation.id
+					vals2Create["idCustomer"]		= record.idCustomer.id
+					vals2Create["idProvider"]		= record.idProvider.id
+					vals2Create["idProductPM"]		= record.idProductPM.id
+					vals2Create["idAssocPackTmpl"]	= record.idAssocPackTmpl.id
+					vals2Create["ePMType"]			= record.ePMType
+					vals2Create["strPAN"]			= record.strPAN
+					vals2Create["name"]				= record.name
+					vals2Create["strSecondaryPAN"]	= record.strSecondaryPAN
+					vals2Create["strPN"]			= record.strPN
+					vals2Create["idCountry"]		= record.idCountry.id
+					vals2Create["strSN"]			= record.strSN
+					vals2Create["strSecondarySN"]	= record.strSecondarySN
+					vals2Create["dtSignUp"]			= record.dtSignUp
+					vals2Create["dtCreation"]		= record.dtCreation
+					vals2Create["dateExpiration"]	= record.dateExpiration	
+					vals2Create["dtUnsubscribe"]	= record.dtUnsubscribe
+					vals2Create["eRegisterState"]	= record.eRegisterState
+					vals2Create["idsPMState"]		= record.idsPMState.id
+	
+					#estados de gestión PM
+					idsPMManagement					= self.env['setir.pm.management'].search([('name', '=', ESTADO_GESTION_RECIBIDO)])[0].id
+					vals2Create['idsPMManagement']	= idsPMManagement
+	
+					pmNew	= self.env["setir.pm"].create ( vals2Create)
+					
+					pmNew.addPMStateHistory ( vals2Create["idsPMState"])
+					pmNew.addPMManagementHistory (idsPMManagement, ACTOR_PROVEEDOR, ACTOR_CLIENTE)
+			#for por medio de pago dentro de un cliente
+			#actualizar cantidad medios de pago en la operación del cliente
+			nImportedOBU	= self.env["setir.pm"].search_count([('idCustomer', '=', customer.idCustomer), ('ePMType', '=', PM_TYPE_OBU)])
+			nImportedTTA	= self.env["setir.pm"].search_count([('idCustomer', '=', customer.idCustomer), ('ePMType', '=', PM_TYPE_TARJETA)])
+			nOperationOBU	= 0
+			nOperationTTA	= 0
+			operation		= self.env["setir.operation"].search ([('idCustomer', '=', customer.idCustomer)])
+			for operationLine in operation.idsLinePM:
+				if operationLine.strCategory == PM_TYPE_OBU:
+					nOperationOBU = int ( operationLine.fQtyContracted)
+					if nOperationOBU < nImportedOBU:
+						strINFO	=	self.formatINFO (	u"CLIENTE:[{}], OBU OPERACIÓN:[{}] menos OBU IMPORTADO:[{}]",
+														u"actualizada la cantidad OBU en la operación",
+														u"comprobar la operación").format( customer.idCustomer.name, nOperationOBU, nImportedOBU)
+						_logger.debug ( strINFO)
+						self.strData += strINFO 
+					elif nOperationOBU > nImportedOBU:
+						strINFO	=	self.formatINFO (	u"CLIENTE:[{}], OBU OPERACIÓN:[{}] superior a OBU IMPORTADO:[{}]",
+														u"NO actualizada la cantidad OBU en la operación",
+														u"comprobar la operación").format( customer.idCustomer.name, nOperationOBU, nImportedOBU)
+						_logger.error ( strINFO)
+						self.strData += strINFO 
+				elif operationLine.strCategory == PM_TYPE_TARJETA:
+					nOperationTTA = int ( operationLine.fQtyContracted) 
+					if nOperationTTA < nImportedTTA:
+						strINFO	=	self.formatINFO (	u"CLIENTE:[{}], TARJETA OPERACIÓN:[{}] menos TARJETA IMPORTADO:[{}]",
+														u"actualizada la cantidad OBU en la operación",
+														u"comprobar la operación").format( customer.idCustomer.name, nOperationTTA, nImportedTTA)
+						_logger.debug ( strINFO)
+						self.strData += strINFO 
+					elif nOperationTTA > nImportedTTA:
+						strINFO	=	self.formatINFO (	u"CLIENTE:[{}], TARJETA OPERACIÓN:[{}] superior a TARJETA IMPORTADO:[{}]",
+														u"NO actualizada la cantidad OBU en la operación",
+														u"comprobar la operación").format( customer.idCustomer.name, nOperationTTA, nImportedTTA)
+						_logger.error ( strINFO)
+						self.strData += strINFO 
+
+		#for por cliente
 
 		# add history
 		historyVals						= {}
@@ -366,14 +407,6 @@ class setirImportWizardPM ( models.TransientModel):
 
 				operation = self.env["setir.operation"].search ([('idCustomer', '=', archVals["idCustomer"])])
 				
-				nOBU	= 0
-				nTTA	= 0
-				for rec in operation.idsLinePM:
-					if rec.strCategory == PM_TYPE_OBU:
-						nOBU = int ( rec.fQtyContracted) 
-					elif rec.strCategory == PM_TYPE_TARJETA:
-						nTTA = int ( rec.fQtyContracted) 
-
 				if not operation:
 					strINFO	=	self.formatINFO (	u"Operación no existe, cliente:[{}] nif:[{}] código cliente:[{}]",
 													u"linea de archivo no importada",
