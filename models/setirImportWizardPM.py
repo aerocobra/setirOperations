@@ -147,7 +147,7 @@ class setirImportWizardPM ( models.TransientModel):
 										comodel_name	= "setir.pm.tt",
 										inverse_name	= "idWizardPM"
 										)
-	
+
 	@api.multi
 	def checkFile (self):
 
@@ -208,22 +208,26 @@ class setirImportWizardPM ( models.TransientModel):
 		import_id		= self.env.context.get ('active_ids', True)[0]
 		currentImport	= self.env["setir.import"].search([('id','=', import_id)])[0]
 		
-		setCustomers	= self.idsPM2Import.distinct_field_get (field='idCustomer', value='')
+		customer_ids		= []
+		
+		for record in self.idsPM2Import:
+			if  not dict ( customer_ids).get ( record.idCustomer.id):
+				customer_ids.append ( ( record.idCustomer.id, record.idCustomer.name))
 
-		for customer in setCustomers:
-			for record in self.idsPM2Import.search([('idCustomer', '=', customer.idCustomer)]):
-				if not record.b2Import:
-					continue
+		for customer in customer_ids:
+			provider_ids	= []
+			for record in self.idsPM2Import.search([	('idCustomer',	'=', customer[0]),
+														('b2Import',		'=', True),
+														('eImportAction',	'=', IMPORT_ACTION_CREATE)]):
+				if  not dict ( provider_ids).get ( record.idProvider.id):
+					provider_ids.append ( ( record.idProvider.id, record.idProvider.name))
 
-				if record.eImportAction == IMPORT_ACTION_UPDATE:  
-					vals2Update	= {}
-					vals2Update["idsPMState"]	= record.idsPMState.id
-
-					record2Update	= self.env["setir.pm"].search([('id','=', record.nID2Update)])[0]
-					record2Update.write ( vals2Update)
-					record2Update.addPMStateHistory ( vals2Update["idsPMState"])
-
-				elif record.eImportAction == IMPORT_ACTION_CREATE:
+			for provider in provider_ids: 														
+				for record in self.idsPM2Import.search([('idCustomer',		'=', customer[0]),
+														('idProvider',		'=', provider[0]),
+														('b2Import',		'=', True),
+														('eImportAction',	'=', IMPORT_ACTION_CREATE),
+														]):
 					vals2Create	= {}
 					vals2Create["idOperation"]		= record.idOperation.id
 					vals2Create["idCustomer"]		= record.idCustomer.id
@@ -253,43 +257,37 @@ class setirImportWizardPM ( models.TransientModel):
 					
 					pmNew.addPMStateHistory ( vals2Create["idsPMState"])
 					pmNew.addPMManagementHistory (idsPMManagement, ACTOR_PROVEEDOR, ACTOR_CLIENTE)
-			#for por medio de pago dentro de un cliente
-			#actualizar cantidad medios de pago en la operación del cliente
-			nImportedOBU	= self.env["setir.pm"].search_count([('idCustomer', '=', customer.idCustomer), ('ePMType', '=', PM_TYPE_OBU)])
-			nImportedTTA	= self.env["setir.pm"].search_count([('idCustomer', '=', customer.idCustomer), ('ePMType', '=', PM_TYPE_TARJETA)])
-			nOperationOBU	= 0
-			nOperationTTA	= 0
-			operation		= self.env["setir.operation"].search ([('idCustomer', '=', customer.idCustomer)])
-			for operationLine in operation.idsLinePM:
-				if operationLine.strCategory == PM_TYPE_OBU:
-					nOperationOBU = int ( operationLine.fQtyContracted)
-					if nOperationOBU < nImportedOBU:
-						strINFO	=	self.formatINFO (	u"CLIENTE:[{}], OBU OPERACIÓN:[{}] menos OBU IMPORTADO:[{}]",
-														u"actualizada la cantidad OBU en la operación",
-														u"comprobar la operación").format( customer.idCustomer.name, nOperationOBU, nImportedOBU)
-						_logger.debug ( strINFO)
-						self.strData += strINFO 
-					elif nOperationOBU > nImportedOBU:
-						strINFO	=	self.formatINFO (	u"CLIENTE:[{}], OBU OPERACIÓN:[{}] superior a OBU IMPORTADO:[{}]",
-														u"NO actualizada la cantidad OBU en la operación",
-														u"comprobar la operación").format( customer.idCustomer.name, nOperationOBU, nImportedOBU)
-						_logger.error ( strINFO)
-						self.strData += strINFO 
-				elif operationLine.strCategory == PM_TYPE_TARJETA:
-					nOperationTTA = int ( operationLine.fQtyContracted) 
-					if nOperationTTA < nImportedTTA:
-						strINFO	=	self.formatINFO (	u"CLIENTE:[{}], TARJETA OPERACIÓN:[{}] menos TARJETA IMPORTADO:[{}]",
-														u"actualizada la cantidad OBU en la operación",
-														u"comprobar la operación").format( customer.idCustomer.name, nOperationTTA, nImportedTTA)
-						_logger.debug ( strINFO)
-						self.strData += strINFO 
-					elif nOperationTTA > nImportedTTA:
-						strINFO	=	self.formatINFO (	u"CLIENTE:[{}], TARJETA OPERACIÓN:[{}] superior a TARJETA IMPORTADO:[{}]",
-														u"NO actualizada la cantidad OBU en la operación",
-														u"comprobar la operación").format( customer.idCustomer.name, nOperationTTA, nImportedTTA)
-						_logger.error ( strINFO)
-						self.strData += strINFO 
-
+				#for por medio de pago dentro de un cliente
+				#actualizar cantidad medios de pago en la operación del cliente por proveedor
+				nImportedOBU	= self.env["setir.pm"].search_count([('idCustomer',	'=', customer[0]),
+																	('idProvider',	'=', provider[0]),
+																	('ePMType',		'=', PM_TYPE_OBU)])
+				nImportedTTA	= self.env["setir.pm"].search_count([('idCustomer',	'=', customer[0]),
+																	('idProvider',	'=', provider[0]),
+																	('ePMType',		'=', PM_TYPE_TARJETA)])
+				nOperationOBU	= 0
+				nOperationTTA	= 0
+				operation		= self.env["setir.operation"].search ([('idCustomer', '=', customer[0])])
+				for operationLine in operation.idsLinePM.search ([('idProvider', '=', provider[0])]):
+					if operationLine.strCategory == PM_TYPE_OBU and nImportedOBU > 0:
+						nOperationOBU = int ( operationLine.fQtyContracted)
+						if nOperationOBU != nImportedOBU:
+							operationLine.fQtyContracted = nImportedOBU 
+							strINFO	=	self.formatINFO (	u"CLIENTE:[{}], PROVEEDOR:[{}], OBU OPERACIÓN:[{}] no coincode con OBU IMPORTADO:[{}]",
+															u"actualizada la cantidad OBU en la operación",
+															u"comprobar la operación").format( customer[1], provider[1], nOperationOBU, nImportedOBU)
+							_logger.debug ( strINFO)
+							self.strData += strINFO + os.linesep
+					elif operationLine.strCategory == PM_TYPE_TARJETA and nImportedTTA > 0:
+						nOperationTTA = int ( operationLine.fQtyContracted) 
+						if nOperationTTA != nImportedTTA:
+							operationLine.fQtyContracted = nImportedTTA 
+							strINFO	=	self.formatINFO (	u"CLIENTE:[{}], PROVEEDOR:[{}], TTA OPERACIÓN:[{}] no coincode con TTA IMPORTADO:[{}]",
+															u"actualizada la cantidad TTA en la operación",
+															u"comprobar la operación").format( customer[1], provider[1], nOperationTTA, nImportedTTA)
+							_logger.debug ( strINFO)
+							self.strData += strINFO + os.linesep
+			#FOR por proveedor
 		#for por cliente
 
 		# add history
@@ -345,9 +343,10 @@ class setirImportWizardPM ( models.TransientModel):
 			_logger.error ( strINFO)
 			raise exceptions.ValidationError ( strINFO)
 		
-		mapTokenPM=[]
+		mapPMType=[]
 		for record in importMapTokenPM.idsMapLine:
-			mapTokenPM.append ((record.idFieldBase.name, record.idFieldProvider.name))
+			#mapPMType.append ( ( record.idFieldBase.name, record.idFieldProvider.name))
+			mapPMType.append ( ( record.idFieldProvider.name, record.idFieldBase.name))
 
 		#esto es el propio mapa de campos del archivo
 		sizeMap		= len (mapField)
@@ -431,23 +430,21 @@ class setirImportWizardPM ( models.TransientModel):
 
 				#3. encontrar el TIPO MEDIO DE PAGO (obu o tarjeta)
 				# token para buscar en el campo 'tipo' paar determinar el tipo
-				strType			= "desconocido"
 				#contenido campo tipo medio de pago
-				if row.get (dict(mapField).get (FIELD_TIPO).encode('utf-8')) == None:
+				if not row.get (dict(mapField).get (FIELD_TIPO).encode('utf-8')):
 					strINFO	=	self.formatINFO (	u"No esta mapeado el campo 'tipo' en el mapa [{}]",
 													u"importación interrumpida",
 													u"revisar y mapear el campo 'tipo'").format( importMap.name)
 					_logger.error ( strINFO)
 					raise exceptions.ValidationError ( strINFO)
-				strTYPEField	= row[dict(mapField).get (FIELD_TIPO).encode('utf-8')]
+				strEDI_MPType	= row[dict(mapField).get (FIELD_TIPO).encode('utf-8')]
 				
-				if strTYPEField:
-					if strTYPEField.find (dict(mapTokenPM).get ( PM_TYPE_OBU)) != -1:
-						#es obu
-						strType	= PM_TYPE_OBU
-					elif strTYPEField.find (dict(mapTokenPM).get (PM_TYPE_TARJETA)) != -1:
-						#es tarjeta
-						strType	= PM_TYPE_TARJETA
+				strType	= ""
+				if strEDI_MPType:
+					strType	= dict(mapPMType).get ( strEDI_MPType)
+				else:
+					strType	= strEDI_MPType
+					
 				archVals["ePMType"]	= strType
 					
 				#4. encontrar PAN
@@ -497,48 +494,46 @@ class setirImportWizardPM ( models.TransientModel):
 					# añadir incidencia, no segir con esta fila, el usuario debe comprobar los PAN
 					strINFO	=	self.formatINFO (	u"tipo MP NO coincide con el registrado, cliente:[{}] pan:[{}] registrado:[{}] importado:[{}]",
 													u"linea de archivo no importada",
-													u"nada").format( strCustomer, archVals["strPAN"], dict( registeredPM)[archVals["strPAN"]][X_PM_TYPE], strType)
+													u"comprobar el tipo del MP").format( strCustomer, archVals["strPAN"], dict( registeredPM)[archVals["strPAN"]][X_PM_TYPE], strType)
 					incidents.append ( ( strINFO))
 					_logger.debug ( strINFO)
 					continue
 				else:
 					# el TIPO de PAN registrado coincide con el tipo indicado en el archivo => comprobar el ESTADO del medio de pago 
 					strRegisteredState	= self.env['setir.import.base'].search([('id','=',dict( registeredPM)[archVals["strPAN"]][X_PM_STATE_ID])])[0].name
-					if strRegisteredState == dict(PM_STATE)[PM_STATE_BAJA]:
-						#estado del MP registrado es BAJA => no alteramos nada
-						continue
 					
 					if strRegisteredState == strNewStateBase:
 						#estado de MP en el archivo coincide con ya registrado => no alteramos nada
-						strINFO	=	self.formatINFO (	u"el MP ya esta registrado, todos los datos coinciden, cliente:[{}] pan:[{}] tipoR:[{}] tipoI:[{}] estadoR:[{}] estadoI:[{}]",
+						strINFO	=	self.formatINFO (	u"todos los datos coinciden, cliente:[{}] pan:[{}] tipoR:[{}] tipoI:[{}] estadoR:[{}] estadoI:[{}]",
 														u"linea de archivo no importada",
 														u"no es necesario hacer nada").format( strCustomer, archVals["strPAN"],
 																							dict( registeredPM)[archVals["strPAN"]][X_PM_TYPE],strType,
 																							strRegisteredState, strNewStateBase)
 						incidents.append ( ( strINFO))
 						_logger.debug ( strINFO)
-						continue
+					else:
+						#en este punto sabemos que el estado se solo es necesaria la ACTUALIZACION:
+						strINFO	=	self.formatINFO (	u"cambio inesperado de estado, cliente:[{}] pan:[{}] tipoR:[{}] tipoI:[{}] estadoR:[{}] estadoI:[{}]",
+														u"linea de archivo no importada",
+														u"comprobar el estado").format( strCustomer, archVals["strPAN"],
+																		dict( registeredPM)[archVals["strPAN"]][X_PM_TYPE], strType,
+																		strRegisteredState, strNewStateBase)
+						incidents.append ( ( strINFO))
+						_logger.debug ( strINFO)
+					#no hacemos actualziación
+					continue
+					#archVals["nID2Update"]		= dict( registeredPM)[archVals["strPAN"]][X_PM_ID]
+					#archVals["eImportAction"]	= IMPORT_ACTION_UPDATE
 					
-					#en este punto sabemos que solo es necesaria la ACTUALIZACION:
-					strINFO	=	self.formatINFO (	u"tipo MP SI coincide con el registrado, cambio de estado, cliente:[{}] pan:[{}] tipoR:[{}] tipoI:[{}] estadoR:[{}] estadoI:[{}]",
-													u"actualizar el MP existente",
-													u"nada").format( strCustomer, archVals["strPAN"],
-																	dict( registeredPM)[archVals["strPAN"]][X_PM_TYPE], strType,
-																	strRegisteredState, strNewStateBase)
-					incidents.append ( ( strINFO))
-					_logger.debug ( strINFO)
-					
-					archVals["nID2Update"]		= dict( registeredPM)[archVals["strPAN"]][X_PM_ID]
-					archVals["eImportAction"]	= IMPORT_ACTION_UPDATE
 
-				# desde aqui igual para ALTA y ACTUALIZACION
+				#ALTA
 				#campos ya extradidos: idCustomer, ePMType, strPAN
-				self.bSaveImport		= True
-				strFormatoFecha	= FORMATO_FECHA_ESTANDAR
-				formatoFecha	= self.env['setir.import.map'].search([	('eImportType','=', IMPORT_TYPE_FORMATO_FECHA),
-																		('idProvider', '=', archVals["idProvider"]),
-																		('name', '=', IMPORT_TYPE_FORMATO_FECHA)
-																		])
+				self.bSaveImport	= True
+				strFormatoFecha		= FORMATO_FECHA_ESTANDAR
+				formatoFecha		= self.env['setir.import.map'].search([	('eImportType','=', IMPORT_TYPE_FORMATO_FECHA),
+																			('idProvider', '=', archVals["idProvider"]),
+																			('name', '=', IMPORT_TYPE_FORMATO_FECHA)
+																			])
 				
 				if not formatoFecha:
 					strINFO	=	self.formatINFO (	u"formato de fecha no defenido, proveedor:[{}]",
@@ -550,8 +545,6 @@ class setirImportWizardPM ( models.TransientModel):
 					strFormatoFecha	= formatoFecha[0].name 
 
 				archVals["b2Import"]		= True
-				#archVals["idsPMState"] = self.env['setir.import.base'].search([	('eImportType','=', IMPORT_TYPE_ESTADO),
-				#																('name', '=', strNewStateBase)]).id
 
 				# setir.operation.line					
 				for linePM in operation.idsLinePM:
@@ -565,31 +558,33 @@ class setirImportWizardPM ( models.TransientModel):
 				elif archVals["ePMType"]	== PM_TYPE_TARJETA:
 					archVals["name"] = self.env['ir.sequence'].next_by_code('setir.tarjeta.name.sequence')
 
-				if dict(mapField).get ( FIELD_PAN_SECUNDARIO) != None:
-					if row.get (dict(mapField).get ( FIELD_PAN_SECUNDARIO).encode('utf-8')) != None:
-							archVals["strSecondaryPAN"]	= row[dict(mapField).get ( FIELD_PAN_SECUNDARIO).encode('utf-8')]
+				if dict(mapField).get ( FIELD_PAN_SECUNDARIO):
+					if row.get (dict(mapField).get ( FIELD_PAN_SECUNDARIO).encode('utf-8')):
+						archVals["strSecondaryPAN"]	= row[dict(mapField).get ( FIELD_PAN_SECUNDARIO).encode('utf-8')]
 					
-				if row.get (dict(mapField).get ( FIELD_MATRICULA_ASOCIADA).encode('utf-8')) != None:
-					archVals["strPN"]	= row[dict(mapField).get ( FIELD_MATRICULA_ASOCIADA).encode('utf-8')]
+				if dict(mapField).get ( FIELD_MATRICULA_ASOCIADA):
+					if row.get (dict(mapField).get ( FIELD_MATRICULA_ASOCIADA).encode('utf-8')):
+						archVals["strPN"]	= row[dict(mapField).get ( FIELD_MATRICULA_ASOCIADA).encode('utf-8')]
 				
-				if row.get (dict(mapField).get ( FIELD_PAIS_DE_MATRICULA).encode('utf-8')) != None:
-					strCountry	= row[dict(mapField).get ( FIELD_PAIS_DE_MATRICULA).encode('utf-8')]
-					if len (strCountry) == 2:
-						#es codigo pais
-						strCampo	= "code"
-					else:
-						strCampo	= "name"
-					
-					country = self.env['res.country'].search([(strCampo, '=', strCountry)]) 
-					if not country:
-						strINFO	=	self.formatINFO (	u"País no encontrado, cliente:[{}] pan:[{}] pais:[{}]",
-														u"linea de archivo no importada",
-														u"revisar el archivo y el código de país").format( strCustomer, archVals["strPAN"], strCountry)
-						incidents.append ( ( strINFO))
-						_logger.debug ( strINFO)
-						continue
-					
-					archVals["idCountry"] = country[0].id
+				if dict(mapField).get ( FIELD_PAIS_DE_MATRICULA):
+					if row.get ( dict(mapField).get ( FIELD_PAIS_DE_MATRICULA).encode('utf-8')):
+						strCountry	= row[dict(mapField).get ( FIELD_PAIS_DE_MATRICULA).encode('utf-8')]
+						if len (strCountry) == 2:
+							#es codigo pais
+							strCampo	= "code"
+						else:
+							strCampo	= "name"
+						
+						country = self.env['res.country'].search([(strCampo, '=', strCountry)]) 
+						if not country:
+							strINFO	=	self.formatINFO (	u"País no encontrado, cliente:[{}] pan:[{}] pais:[{}]",
+															u"linea de archivo no importada",
+															u"revisar el archivo y el código de país").format( strCustomer, archVals["strPAN"], strCountry)
+							incidents.append ( ( strINFO))
+							_logger.debug ( strINFO)
+							continue
+						
+						archVals["idCountry"] = country[0].id
 
 				if dict(mapField).get ( FIELD_NUMERO_SERIE) != None:
 					if row.get (dict(mapField).get ( FIELD_NUMERO_SERIE).encode('utf-8')) != None:
