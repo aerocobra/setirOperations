@@ -27,16 +27,16 @@ class setirPM ( models.Model):
 												comodel_name	= "res.partner",
 												domain			= "[('supplier', '=', True)]")
 	
-	idProductPM			= fields.Many2one	(	string			= "Producto",
+	idProduct			= fields.Many2one	(	string			= "Producto",
 												comodel_name	= "product.product")
+	strPMType			= fields.Char		(	string			= "Tipo",
+												related			= "idProduct.categ_id.name")
 
 	idAssocPackTmpl		= fields.Many2one	(	string			= "Pack peaje asociado",
 												comodel_name	= "sale.quote.template")
 	
-	ePMType				= fields.Selection	(	string			= "Tipo",
-												selection		= PM_TYPE)
 	strPAN				= fields.Char		(	string			= "PAN")
-	name				= fields.Char		(	string			= u"Código SETIR")
+	name				= fields.Char		(	string			= u"OBU ID")
 	strSecondaryPAN		= fields.Char		(	string			= "PAN Secundario")
 
 	strPN				= fields.Char		(	string			= u"Matrícula asociada")

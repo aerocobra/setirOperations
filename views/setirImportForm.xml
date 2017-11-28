@@ -59,7 +59,7 @@
 						</group>
 						<group  col="4" colspan="4">
 							<field name="idsImportHistory" nolabel="1" readonly="1">
-								<tree editable="bottom">
+								<tree editable="bottom" limit="5">
 									<field name="dtImport"/>
 									<field name="strFileImported"/>
 								</tree>
@@ -117,16 +117,16 @@
 	                    </group>
 	                    <group>
 	                    	<field name="idsPM2Import" nolabel="1">
-								<tree editable="bottom" colspan="4">
+								<tree readonly="1" colspan="4" limit="15">
 									<field name="b2Import"/>
 									<field name="eImportAction"/>
 									<field name="nID2Update"/>
 									<field name="idOperation" invisible="1"/>
 									<field name="idCustomer"/>
 									<field name="idProvider"/>
-									<field name="idProductPM"/>
+									<field name="idProduct"/>
 									<field name="idAssocPackTmpl" invisible="1"/>
-									<field name="ePMType"/>
+									<field name="strPMType"/>
 									<field name="strPAN"/>
 									<field name="name" invisible="1"/>
 									<field name="strSecondaryPAN" invisible="1"/>
@@ -147,10 +147,13 @@
 									<field name="idsPMManagement" invisible="1"/>
 									<field name="idsPMManagementHist" invisible="1"/>
 								</tree>
+								<form string="Información de importación">
+									<field name="strInfo"/>
+								</form>
 	                    	</field>
 	                    </group>
 	                    <group>
-							<field name="strData"  nolabel="1"/>
+							<field name="strData"  widget="text" nolabel="1"/>
 						</group>
 					</sheet>
 					<footer>
@@ -163,6 +166,73 @@
 			</field>
 		</record>
 	</data>
+	<!-- PRODUCT MAP -->
+	<data>
+		<!-- tree -->
+		<record id="setirProductImportMapTree" model="ir.ui.view">
+			<field name="name">setirProductImportMapTree</field>
+			<field name="model">setir.product.import.map</field>
+			<field name="arch" type="xml">
+				<tree>
+					<field name="name"/>
+					<field name="idProvider"/>
+					<field name="eImportType"/>
+				</tree>
+			</field>
+		</record>
+		<!-- form -->
+		<record id="setirProductImportMapForm" model="ir.ui.view">
+			<field name="name">setirProductImportMapForm</field>
+			<field name="model">setir.product.import.map</field>
+			<field name="priority">4</field>
+			<field name="arch" type="xml">
+				<form string="Mapeo productos">
+					<header>
+						<button name="setProviderFields" string="Mostar los campos de proveedor" type="object" help="Solo para la lista vacía"/>
+						<button name="clearNonCorrespondence" string="Quitar no correspndencias" type="object" help="Solo donde los campos base vacíos"/>
+					</header>
+					<sheet>
+	                    <div class="oe_title">
+	                        <h1>
+	                            <field name="name"/>
+	                        </h1>
+	                    </div>
+	                    <group col="6" colspan="2">
+							<field name="idProvider" options="{'no_create': True}"/>
+							<field name="strProvider" invisible="1"/>
+							<field name="eImportType"/>
+						</group>
+						<group col="4" colspan="2">
+							<field name="idsMapLine" nolabel="1" readonly="0">
+								<tree editable="bottom">
+									<field name="idImportMap" invisible="1"/>
+									<field name="strProvider" invisible="1"/>
+									<field name="strImportType" invisible="1"/>
+									<field name="idFieldProvider" options="{'no_create': True}"/>
+									<field name="idFieldBase" options="{'no_create': True}"/>
+									<field name="strCategory" readonly= "1"/>
+								</tree>
+								<form>
+									<group  col="4" colspan="2">
+										<field name="idImportMap" invisible="1"/>
+										<field name="strProvider" invisible="1"/>
+										<field name="strImportType" invisible="1"/>
+										<field name="idFieldProvider" options="{'no_create': True}"/>
+										<field name="idFieldBase" options="{'no_create': True}"/>
+										<field name="strCategory" readonly= "1"/>
+									</group>
+								</form>
+							</field>
+						</group>
+					</sheet>
+					<div class="oe_chatter">
+						<field name="message_follower_ids" widget="mail_followers"/>
+						<field name="message_ids" widget="mail_thread"/>
+					</div>
+				</form>
+			</field>
+		</record>
+	</data>	
 	<!-- IMPORT MAP -->
 	<data>
 		<!-- tree -->
@@ -185,8 +255,8 @@
 			<field name="arch" type="xml">
 				<form string="Mapeo campos">
 					<header>
-						<button name="setProviderFields" string="Mostar los campos de proveedor" type="object" help="Solo para lalista vacía"/>
-						<button name="clearNonCorrespondence" string="Quitar no correspndencias" type="object" help="Solo donde campos base vacíos"/>
+						<button name="setProviderFields" string="Mostar los campos de proveedor" type="object" help="Solo para la lista vacía"/>
+						<button name="clearNonCorrespondence" string="Quitar no correspndencias" type="object" help="Solo donde los campos base vacíos"/>
 					</header>
 					<sheet>
 	                    <div class="oe_title">

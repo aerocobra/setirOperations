@@ -1,5 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
+	<!-- PRODUCT.PRODUCT -->
+	<data>
+		<record model="ir.ui.view" id="setirProductForm">
+			<!-- Name field (whatever) -->
+			<field name="name">setirProductForm</field>
+			<!-- Parent object -->
+			<field name="model">product.template</field>
+			<!-- Parent View -->
+			<field name="inherit_id" ref="product.product_template_form_view"/>
+			<!-- new structure in the form view -->
+			<field name="arch" type="xml">
+				<!-- añadir campo de productos relacionados -->
+				<xpath expr="/form/sheet/notebook/page/group[@name='inventory']" position="after">
+					<separator string="Servicios relacionados"/>
+					<field name="idsRelatedServices" readonly="0">
+						<tree string="Servicios relacionados" limit="5">
+							<field name="name"/>
+							<field name="categ_id"/>
+						</tree>
+					</field>
+				</xpath>
+			</field>
+		</record>
+	</data>
 	<!-- TIPO FACTURACIÓN -->
 	<data>
 		<record model="ir.ui.view" id="partnerInvoicingType_form">

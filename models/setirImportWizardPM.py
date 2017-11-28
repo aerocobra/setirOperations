@@ -38,11 +38,11 @@ class setirPMtt ( models.TransientModel):
 	b2Import		= fields.Boolean	(	string			= "Importar")
 	eImportAction	= fields.Selection	(	string			= u"Acción",
 											selection		= IMPORT_ACTION)
-
 	nID2Update		= fields.Integer	(	string			= "ID2U")
-
 	idWizardPM		= fields.Many2one 	(	string			= "Wizard",
 											comodel_name	= "setir.import.wizard.pm")
+	strInfo			= fields.Text		(	string			= "Información de importación")
+
 	
 	idOperation		= fields.Many2one	(
 											string			= u"Operación",
@@ -60,23 +60,17 @@ class setirPMtt ( models.TransientModel):
 											domain			= "[('supplier', '=', True)]"
 										)
 	
-	idProductPM		= fields.Many2one	(
-											string			= "Producto",
-											comodel_name	= "product.product"
-										)
+	idProduct		= fields.Many2one	(	string			= "Producto",
+											comodel_name	= "product.product")
+	strPMType		= fields.Char		(	string			= "Tipo",
+											related			= "idProduct.categ_id.name")
 
 	idAssocPackTmpl	= fields.Many2one	(
 											string			= "Pack peaje asociado",
 											comodel_name	= "sale.quote.template"
 										)
-	ePMType			= fields.Selection	(
-											string			= "Tipo",
-											selection		= PM_TYPE
-										)
 	strPAN			= fields.Char		(	string			= "PAN")
-	name			= fields.Char		(
-											string			= u"Código SETIR"
-										)
+	name			= fields.Char		(	string			= u"OBU ID")
 	strSecondaryPAN	= fields.Char		(	string			= "PAN Secundario")
 
 	strPN			= fields.Char		(	string			= u"Matrícula asociada")
@@ -198,7 +192,6 @@ class setirImportWizardPM ( models.TransientModel):
 		return {'type': "ir.actions.do_nothing",}
 	
 	def formatINFO (self, strError, strAction, strTodo):
-
 		return u"INF: {}, ACT: {}, TODO: {}".format( strError, strAction, strTodo)
 
 	@api.multi
@@ -208,85 +201,86 @@ class setirImportWizardPM ( models.TransientModel):
 		import_id		= self.env.context.get ('active_ids', True)[0]
 		currentImport	= self.env["setir.import"].search([('id','=', import_id)])[0]
 		
+		#lista única de los clientes
 		customer_ids		= []
-		
 		for record in self.idsPM2Import:
 			if  not dict ( customer_ids).get ( record.idCustomer.id):
 				customer_ids.append ( ( record.idCustomer.id, record.idCustomer.name))
 
 		for customer in customer_ids:
+			#lista única de proveedores por clinete 
 			provider_ids	= []
 			for record in self.idsPM2Import.search([	('idCustomer',	'=', customer[0]),
-														('b2Import',		'=', True),
-														('eImportAction',	'=', IMPORT_ACTION_CREATE)]):
+														('b2Import',	'=', True)]):
 				if  not dict ( provider_ids).get ( record.idProvider.id):
 					provider_ids.append ( ( record.idProvider.id, record.idProvider.name))
 
-			for provider in provider_ids: 														
-				for record in self.idsPM2Import.search([('idCustomer',		'=', customer[0]),
-														('idProvider',		'=', provider[0]),
-														('b2Import',		'=', True),
-														('eImportAction',	'=', IMPORT_ACTION_CREATE),
-														]):
-					vals2Create	= {}
-					vals2Create["idOperation"]		= record.idOperation.id
-					vals2Create["idCustomer"]		= record.idCustomer.id
-					vals2Create["idProvider"]		= record.idProvider.id
-					vals2Create["idProductPM"]		= record.idProductPM.id
-					vals2Create["idAssocPackTmpl"]	= record.idAssocPackTmpl.id
-					vals2Create["ePMType"]			= record.ePMType
-					vals2Create["strPAN"]			= record.strPAN
-					vals2Create["name"]				= record.name
-					vals2Create["strSecondaryPAN"]	= record.strSecondaryPAN
-					vals2Create["strPN"]			= record.strPN
-					vals2Create["idCountry"]		= record.idCountry.id
-					vals2Create["strSN"]			= record.strSN
-					vals2Create["strSecondarySN"]	= record.strSecondarySN
-					vals2Create["dtSignUp"]			= record.dtSignUp
-					vals2Create["dtCreation"]		= record.dtCreation
-					vals2Create["dateExpiration"]	= record.dateExpiration	
-					vals2Create["dtUnsubscribe"]	= record.dtUnsubscribe
-					vals2Create["eRegisterState"]	= record.eRegisterState
-					vals2Create["idsPMState"]		= record.idsPMState.id
-	
-					#estados de gestión PM
-					idsPMManagement					= self.env['setir.pm.management'].search([('name', '=', ESTADO_GESTION_RECIBIDO)])[0].id
-					vals2Create['idsPMManagement']	= idsPMManagement
-	
-					pmNew	= self.env["setir.pm"].create ( vals2Create)
+			for provider in provider_ids:
+				#lista unica de peoductos por cliente y proveedor
+				product_ids	= []
+				for record in self.idsPM2Import.search([	('idCustomer',		'=', customer[0]),
+															('b2Import',		'=', True),
+															('idProvider',		'=', provider[0])]):
+					if  not dict ( product_ids).get ( record.idProduct.id):
+						product_ids.append ( ( record.idProduct.id, record.idProduct.name))
+
+				for product in product_ids:
+					for record in self.idsPM2Import.search([	('idCustomer',		'=', customer[0]),
+																('b2Import',		'=', True),
+																('idProvider',		'=', provider[0]),
+																('idProduct',		'=', product[0])]):
+
+						vals2Create	= {}
+
+						vals2Create["name"]				= record.name
+						vals2Create["strPAN"]			= record.strPAN
+						vals2Create["strSecondaryPAN"]	= record.strSecondaryPAN
+						vals2Create["strPN"]			= record.strPN
+						vals2Create["idCountry"]		= record.idCountry.id
+						vals2Create["strSN"]			= record.strSN
+						vals2Create["strSecondarySN"]	= record.strSecondarySN
+						vals2Create["dtSignUp"]			= record.dtSignUp
+						vals2Create["dtCreation"]		= record.dtCreation
+						vals2Create["dateExpiration"]	= record.dateExpiration	
+						vals2Create["dtUnsubscribe"]	= record.dtUnsubscribe
+						vals2Create["idsPMState"]		= record.idsPMState.id
+
+						#estados de gestión PM
+						idsPMManagement					= self.env['setir.pm.management'].search([('name', '=', ESTADO_GESTION_RECIBIDO)])[0].id
+						vals2Create['idsPMManagement']	= idsPMManagement
+
+						if record.eImportAction == IMPORT_ACTION_CREATE:
+							vals2Create["idOperation"]		= record.idOperation.id
+							vals2Create["idCustomer"]		= record.idCustomer.id
+							vals2Create["idProvider"]		= record.idProvider.id
+							vals2Create["idProduct"]		= record.idProduct.id
+							vals2Create["idAssocPackTmpl"]	= record.idAssocPackTmpl.id
+							vals2Create["eRegisterState"]	= record.eRegisterState
+							
+							pmNew		= self.env["setir.pm"].create ( vals2Create)
+						else:
+							id2Update	= record.nID2Update
+							pmNew		= self.env["setir.pm"].search ([('id', '=', id2Update)]).update ( vals2Create)
+						
+						pmNew.addPMStateHistory ( vals2Create["idsPMState"])
+						pmNew.addPMManagementHistory (vals2Create['idsPMManagement'], ACTOR_PROVEEDOR, ACTOR_CLIENTE)
+						
+					nProductImported	= self.env["setir.pm"].search_count([	('idCustomer',	'=', customer[0]),
+																				('idProvider',	'=', provider[0]),
+																				('idProduct',	'=', product[0])])
 					
-					pmNew.addPMStateHistory ( vals2Create["idsPMState"])
-					pmNew.addPMManagementHistory (idsPMManagement, ACTOR_PROVEEDOR, ACTOR_CLIENTE)
-				#for por medio de pago dentro de un cliente
-				#actualizar cantidad medios de pago en la operación del cliente por proveedor
-				nImportedOBU	= self.env["setir.pm"].search_count([('idCustomer',	'=', customer[0]),
-																	('idProvider',	'=', provider[0]),
-																	('ePMType',		'=', PM_TYPE_OBU)])
-				nImportedTTA	= self.env["setir.pm"].search_count([('idCustomer',	'=', customer[0]),
-																	('idProvider',	'=', provider[0]),
-																	('ePMType',		'=', PM_TYPE_TARJETA)])
-				nOperationOBU	= 0
-				nOperationTTA	= 0
-				operation		= self.env["setir.operation"].search ([('idCustomer', '=', customer[0])])
-				for operationLine in operation.idsLinePM.search ([('idProvider', '=', provider[0])]):
-					if operationLine.strCategory == PM_TYPE_OBU and nImportedOBU > 0:
-						nOperationOBU = int ( operationLine.fQtyContracted)
-						if nOperationOBU != nImportedOBU:
-							operationLine.fQtyContracted = nImportedOBU 
-							strINFO	=	self.formatINFO (	u"CLIENTE:[{}], PROVEEDOR:[{}], OBU OPERACIÓN:[{}] no coincode con OBU IMPORTADO:[{}]",
-															u"actualizada la cantidad OBU en la operación",
-															u"comprobar la operación").format( customer[1], provider[1], nOperationOBU, nImportedOBU)
-							_logger.debug ( strINFO)
-							self.strData += strINFO + os.linesep
-					elif operationLine.strCategory == PM_TYPE_TARJETA and nImportedTTA > 0:
-						nOperationTTA = int ( operationLine.fQtyContracted) 
-						if nOperationTTA != nImportedTTA:
-							operationLine.fQtyContracted = nImportedTTA 
-							strINFO	=	self.formatINFO (	u"CLIENTE:[{}], PROVEEDOR:[{}], TTA OPERACIÓN:[{}] no coincode con TTA IMPORTADO:[{}]",
-															u"actualizada la cantidad TTA en la operación",
-															u"comprobar la operación").format( customer[1], provider[1], nOperationTTA, nImportedTTA)
-							_logger.debug ( strINFO)
-							self.strData += strINFO + os.linesep
+					operation			= self.env["setir.operation"].search ([('idCustomer', '=', customer[0])])[0]
+					operationLine 		= operation.idsLinePM.search ([('idProvider', '=', provider[0]), ('idProduct', '=', product[0])])[0]
+					nProductContracted	= int ( operationLine.fQtyContracted)
+
+					if  nProductImported != nProductContracted: 
+						operationLine.fQtyContracted = nProductImported 
+						strINFO	=	self.formatINFO (	u"CLIENTE:[{}], PROVEEDOR:[{}], OBU OPERACIÓN:[{}] no coincode con OBU IMPORTADO:[{}]",
+														u"actualizada la cantidad OBU en la operación",
+														u"comprobar la operación").format( customer[1], provider[1], nProductContracted, nProductImported)
+						_logger.debug ( strINFO)
+						self.strData += "============================" + os.linesep + strINFO + os.linesep
+				#FOR por producto
 			#FOR por proveedor
 		#for por cliente
 
@@ -330,31 +324,31 @@ class setirImportWizardPM ( models.TransientModel):
 			_logger.error ( strINFO)
 			raise exceptions.ValidationError ( strINFO)
 
-		mapField=[]
+		mapFieldREG_EDI=[]
 		for record in importMap.idsMapLine:
-			mapField.append ((record.idFieldBase.name, record.idFieldProvider.name))
+			mapFieldREG_EDI.append ((record.idFieldBase.name, record.idFieldProvider.name))
 
-		#obtener el mapa de tokens para determiar el tipo de medio de pago
-		importMapTokenPM = self.env["setir.import.map"].search ([("idProvider", "=", currentImport.idProvider.id), ("eImportType", "=", IMPORT_TYPE_TOKEN_MP)])[0]
-		if not importMapTokenPM:
-			strINFO	=	self.formatINFO (	u"Mapa de token de medios de pago no existe para PROVEEDOR[{}]",
+		productMap		= self.env["setir.product.import.map"].search([	('idProvider', '=', currentImport.idProvider.id),
+																		('eImportType', '=', IMPORT_PRODUCT_CATEGORY_MP)])
+
+		if not productMap:
+			strINFO	=	self.formatINFO (	u"No exise el mapa de productos relacionados, proveedor:[{}]",
 											u"importación interrumpida",
-											u"crear el mapa").format( currentImport.idProvider.name)
+											u"crear el mapa de productos relacionados").format( currentImport.idProvider.name)
 			_logger.error ( strINFO)
 			raise exceptions.ValidationError ( strINFO)
-		
-		mapPMType=[]
-		for record in importMapTokenPM.idsMapLine:
-			#mapPMType.append ( ( record.idFieldBase.name, record.idFieldProvider.name))
-			mapPMType.append ( ( record.idFieldProvider.name, record.idFieldBase.name))
+
+		mapProductsEDI_REG	= []
+		for record in productMap.idsMapLine:
+			mapProductsEDI_REG.append ( ( record.idFieldProvider.name, record.idFieldBase.id))
 
 		#esto es el propio mapa de campos del archivo
-		sizeMap		= len (mapField)
+		sizeMap		= len (mapFieldREG_EDI)
 		strHeader	= "[BASE][PROVEEDOR]" + os.linesep
 		_logger.debug ( strHeader)
 		#imprimir campos con sus correspondencias (a quitar en futuro)
 		for i in range ( sizeMap):
-			strHeader	+= "[" + mapField[i][0] + "] " + "[" + mapField[i][1] + "] " + os.linesep
+			strHeader	+= "[" + mapFieldREG_EDI[i][0] + "] " + "[" + mapFieldREG_EDI[i][1] + "] " + os.linesep
 			_logger.debug ( strHeader)
 
 		#COMIENZO TRABAJO CON ARCHIVO A IMPORTAR
@@ -370,20 +364,21 @@ class setirImportWizardPM ( models.TransientModel):
 				archVals				= {}
 				archVals["idWizardPM"]	= self.id
 				archVals["idProvider"]	= currentImport.idProvider.id
+				archVals["b2Import"]	= True
 
 				strCustomer				= ""
 				strNIF					= "sin NIF"
 				strCODE					= "sin CODE"
 				# 1. encontrar CLIENTE
 				# si en el mapa esta presene el NIF, buscamos por el NIF  
-				customerNIF		= dict(mapField).get (FIELD_NIF_CLIENTE)
+				customerNIF		= dict(mapFieldREG_EDI).get (FIELD_NIF_CLIENTE)
 				if customerNIF:
 					strNIF		= row[customerNIF.encode('utf-8')]
 					if self.env["res.partner"].search ([('vat', '=', strNIF)]):
 						archVals["idCustomer"]	= self.env["res.partner"].search ([('vat', '=', strNIF), ('customer', '=', True)])[0].id
 						strCustomer				= self.env["res.partner"].search ([('vat', '=', strNIF), ('customer', '=', True)])[0].name
 				# si en el mapa esta presente el código de cliente, buscamops tambien el código
-				customerCODE	= dict(mapField).get (FIELD_CODIGO_CLIENTE_PROVEEDOR)
+				customerCODE	= dict(mapFieldREG_EDI).get (FIELD_CODIGO_CLIENTE_PROVEEDOR)
 				if customerCODE:
 					strCODE		= row[customerCODE.encode('utf-8')]
 					# si por el NIF no se encontró el cliente, intentamos buscar por el código ciente  
@@ -402,6 +397,9 @@ class setirImportWizardPM ( models.TransientModel):
 													u"dar de alta al cliente en el sistema").format( strCustomer, strNIF, strCODE)
 					incidents.append ( ( strINFO))
 					_logger.debug ( strINFO)
+					archVals["b2Import"]	= False
+					archVals["strInfo"]		= strINFO
+					pm2Update.create ( archVals)
 					continue
 
 				operation = self.env["setir.operation"].search ([('idCustomer', '=', archVals["idCustomer"])])
@@ -412,51 +410,36 @@ class setirImportWizardPM ( models.TransientModel):
 													u"crear operación para el cliente").format( strCustomer, strNIF, strCODE)
 					incidents.append ( ( strINFO))
 					_logger.debug ( strINFO)
+					archVals["b2Import"]	= False
+					archVals["strInfo"]		= strINFO
+					archVals["idOperation"] = -1
+					pm2Update.create ( archVals)
 					continue
 				else:
 					archVals["idOperation"] = operation[0].id
 
 				X_PM_ID				= 0
-				X_PM_TYPE			= 1
-				X_PM_PROVIDER_ID	= 2
-				X_PM_STATE_ID		= 3
+				X_PM_PRODUCT_ID		= 1
+				X_PM_PRODUCT_NAME	= 2
+				X_PM_PROVIDER_ID	= 3
+				X_PM_STATE_ID		= 4
 				# 2. encontrar todos los MP REGISTRADOS de este cliente
 				registeredPM	= []
 				for record in self.env["setir.pm"].search ([('idCustomer', '=', archVals["idCustomer"])]):
-					registeredPM.append ((record.strPAN, (	record.id,
-															record.ePMType,
+					registeredPM.append ((record.name, (	record.id,
+															record.idProduct.id,
+															record.idProduct.name,
 															record.idProvider.id,
 															record.idsPMState.id)))
-
-				#3. encontrar el TIPO MEDIO DE PAGO (obu o tarjeta)
-				# token para buscar en el campo 'tipo' paar determinar el tipo
-				#contenido campo tipo medio de pago
-				if not row.get (dict(mapField).get (FIELD_TIPO).encode('utf-8')):
-					strINFO	=	self.formatINFO (	u"No esta mapeado el campo 'tipo' en el mapa [{}]",
-													u"importación interrumpida",
-													u"revisar y mapear el campo 'tipo'").format( importMap.name)
-					_logger.error ( strINFO)
-					raise exceptions.ValidationError ( strINFO)
-				strEDI_MPType	= row[dict(mapField).get (FIELD_TIPO).encode('utf-8')]
-				
-				strType	= ""
-				if strEDI_MPType:
-					strType	= dict(mapPMType).get ( strEDI_MPType)
-				else:
-					strType	= strEDI_MPType
 					
-				archVals["ePMType"]	= strType
-					
-				#4. encontrar PAN
-				archVals["strPAN"]	= row[dict(mapField).get (FIELD_PAN).encode('utf-8')]
-				
-				#obtener el estado del PAN del archivo
+				#obtener el estado del MP del archivo
 				strNewStateProvider	= "" 
 				strNewStateBase		= ""
-				if row.get (dict(mapField).get ( FIELD_ESTADO_MEDIO_PAGO).encode('utf-8')) != None:
-					strNewStateProvider	= row[dict(mapField).get ( FIELD_ESTADO_MEDIO_PAGO).encode('utf-8')]
-				#obtener el estado base correspondiente 
-				mapStates = self.env['setir.import.map'].search([('eImportType','=', IMPORT_TYPE_ESTADO), ('idProvider', '=', archVals["idProvider"])])
+				
+				if row.get (dict(mapFieldREG_EDI).get ( FIELD_ESTADO_MEDIO_PAGO).encode('utf-8')):
+					strNewStateProvider	= row[dict(mapFieldREG_EDI).get ( FIELD_ESTADO_MEDIO_PAGO).encode('utf-8')]
+				mapStates = self.env['setir.import.map'].search([	('eImportType','=', IMPORT_TYPE_ESTADO),
+																	('idProvider', '=', archVals["idProvider"])])
 				if not mapStates:
 					strINFO	=	self.formatINFO (	u"Mapa de estados no existe, proveedor:[{}] estado:[{}]",
 													u"importación interrumpida",
@@ -464,10 +447,13 @@ class setirImportWizardPM ( models.TransientModel):
 					incidents.append ( ( strINFO))
 					_logger.error ( strINFO)
 					raise exceptions.ValidationError ( strINFO)
-				for stateMatch in self.env['setir.import.line'].search([('idImportMap','=', mapStates[0].id)]):
-					if stateMatch.idFieldProvider.name == strNewStateProvider:
-						strNewStateBase	= stateMatch.idFieldBase.name
-						archVals["idsPMState"] = self.env['setir.import.base'].search([('eImportType','=', IMPORT_TYPE_ESTADO), ('name', '=', strNewStateBase)])[0].id
+				
+				for stateCorrespondence in self.env['setir.import.line'].search([('idImportMap','=', mapStates[0].id)]):
+					if stateCorrespondence.idFieldProvider.name == strNewStateProvider:
+						#encontrada la correspondencia del estado proveedor en el archivo EDI 
+						strNewStateBase	= stateCorrespondence.idFieldBase.name
+						archVals["idsPMState"] = self.env['setir.import.base'].search([	('eImportType','=', IMPORT_TYPE_ESTADO),
+																						('name', '=', strNewStateBase)])[0].id
 						break
 
 				if len ( strNewStateBase) == 0:
@@ -478,56 +464,105 @@ class setirImportWizardPM ( models.TransientModel):
 					_logger.error ( strINFO)
 					raise exceptions.ValidationError ( strINFO)
 
-				#ver si es un PAN nuevo o ya registrado				
-				if dict ( registeredPM).get (archVals["strPAN"]) == None:
-					#PAN encontrado no esta registado => ALTA
+				#3. encontrar PRODUCTO RELACIONADO
+				if not row.get (dict(mapFieldREG_EDI).get (FIELD_RELATED_PRODUCT).encode('utf-8')):
+					strINFO	=	self.formatINFO (	u"No esta mapeado el campo 'producto_relacionado' en el mapa:[{}]",
+													u"importación interrumpida",
+													u"revisar y mapear el campo 'producto_relacionado'").format( importMap.name)
+					_logger.error ( strINFO)
+					raise exceptions.ValidationError ( strINFO)
+				
+				strEDI_RelatedPorduct	= row[dict(mapFieldREG_EDI).get (FIELD_RELATED_PRODUCT).encode('utf-8')]
+
+				
+				if not dict(mapProductsEDI_REG).get ( strEDI_RelatedPorduct):
+					strINFO	=	self.formatINFO (	u"El producto relacionado no esta mapeado, el producto EDI:[{}]",
+													u"importación interrumpida",
+													u"mapear el producto relacionado").format( strEDI_RelatedPorduct)
+					_logger.error ( strINFO)
+					raise exceptions.ValidationError ( strINFO)
+
+				archVals["idProduct"]		= dict(mapProductsEDI_REG).get ( strEDI_RelatedPorduct)
+				
+				strProduct	= self.env["product.product"].search([('id', '=', archVals["idProduct"])])[0].name
+
+				#comprobamos si el producto estña registrado en la operación 
+				operationLine 		= operation.idsLinePM.search ([('idProvider', '=', archVals["idProvider"]), ('idProduct', '=', archVals["idProduct"])])
+				if not operationLine:
+					strINFO	=	self.formatINFO (	u"Producto no registrado en la operación:[{}], cliente:[{}], producto:[{}], proveedor:[{}]",
+													u"medio de pago no importado",
+													u"comprobar la operación").format (	operation.name,
+																						strCustomer,
+																						strProduct,
+																						currentImport.idProvider.name)
+					_logger.error ( strINFO)
+					incidents.append ( ( strINFO))
+					archVals["b2Import"]	= False
+					archVals["strInfo"]		= strINFO
+					pm2Update.create ( archVals)
+					continue
+
+				#encontrar FIELD_PM_ID
+				archVals["name"]	= row[dict(mapFieldREG_EDI).get (FIELD_PM_ID).encode('utf-8')]
+
+				#encontrar PAN
+				archVals["strPAN"]	= row[dict(mapFieldREG_EDI).get (FIELD_PAN).encode('utf-8')]
+
+				#ver si es un MP nuevo o ya registrado.
+				if not dict ( registeredPM).get (archVals["name"]):
+					#PM encontrado no esta registado => ALTA
 					archVals["eImportAction"]	= IMPORT_ACTION_CREATE
 					archVals["eRegisterState"]	= REGISTER_STATE_ALTA
 
-					strINFO						=	self.formatINFO (	u"nuevo PAN no registrado, cliente:[{}]  pan:[{}]",
+					strINFO						=	self.formatINFO (	u"nuevo PM no registrado, cliente:[{}]  ID:[{}] pan:[{}]",
 																		u"dar de alta MP nuevo",
-																		u"nada").format( strCustomer, archVals["strPAN"])
+																		u"nada").format( strCustomer, archVals["name"], archVals["strPAN"])
 					incidents.append ( ( strINFO))
 					_logger.debug ( strINFO)
-				elif dict( registeredPM)[archVals["strPAN"]][X_PM_TYPE] != strType:
-					# el tipo de PAN registrado NO coincide con el tipo indicado en el archivo
-					# añadir incidencia, no segir con esta fila, el usuario debe comprobar los PAN
-					strINFO	=	self.formatINFO (	u"tipo MP NO coincide con el registrado, cliente:[{}] pan:[{}] registrado:[{}] importado:[{}]",
-													u"linea de archivo no importada",
-													u"comprobar el tipo del MP").format( strCustomer, archVals["strPAN"], dict( registeredPM)[archVals["strPAN"]][X_PM_TYPE], strType)
-					incidents.append ( ( strINFO))
-					_logger.debug ( strINFO)
-					continue
+					archVals["strInfo"]		= strINFO
 				else:
-					# el TIPO de PAN registrado coincide con el tipo indicado en el archivo => comprobar el ESTADO del medio de pago 
-					strRegisteredState	= self.env['setir.import.base'].search([('id','=',dict( registeredPM)[archVals["strPAN"]][X_PM_STATE_ID])])[0].name
-					
-					if strRegisteredState == strNewStateBase:
-						#estado de MP en el archivo coincide con ya registrado => no alteramos nada
-						strINFO	=	self.formatINFO (	u"todos los datos coinciden, cliente:[{}] pan:[{}] tipoR:[{}] tipoI:[{}] estadoR:[{}] estadoI:[{}]",
-														u"linea de archivo no importada",
-														u"no es necesario hacer nada").format( strCustomer, archVals["strPAN"],
-																							dict( registeredPM)[archVals["strPAN"]][X_PM_TYPE],strType,
+					#PM esta registrado  => comprobar el ESTADO del medio de pago 
+					#en los registrados solo se hace la actualización de ESPERA a ACTIVO, el resto de actualziaciones no se hacen 
+					strRegisteredState	= self.env['setir.import.base'].search([('id','=',dict( registeredPM)[archVals["name"]][X_PM_STATE_ID])])[0].name
+					if strRegisteredState != strNewStateBase:
+						if strRegisteredState == PM_STATE_ESPERA and strNewStateBase == PM_STATE_ACTIVO:
+							strINFO	=	self.formatINFO (	u"cambio de estado permitido, cliente:[{}] ID:[{}] producto :[{}] estadoOLD:[{}] estadoNEW:[{}]",
+															u"actualizar Medio de pago",
+															u"no es necesario hacer nada").format( strCustomer, archVals["name"],
+																								dict( registeredPM)[archVals["name"]][X_PM_PRODUCT_NAME],
+																								strRegisteredState, strNewStateBase)
+							incidents.append ( ( strINFO))
+							_logger.debug ( strINFO)
+							archVals["nID2Update"]		= dict( registeredPM)[archVals["name"]][X_PM_ID]
+							archVals["eImportAction"]	= IMPORT_ACTION_UPDATE
+							archVals["strInfo"]			= strINFO
+						else:
+							strINFO	=	self.formatINFO (	u"cambio inesperado de estado, cliente:[{}] ID:[{}] producto :[{}] estadoOLD:[{}] estadoNEW:[{}]",
+															u"linea de archivo no importada",
+															u"comprobar el estado").format( strCustomer, archVals["name"],
+																							dict( registeredPM)[archVals["name"]][X_PM_PRODUCT_NAME],
 																							strRegisteredState, strNewStateBase)
-						incidents.append ( ( strINFO))
-						_logger.debug ( strINFO)
+							incidents.append ( ( strINFO))
+							_logger.debug ( strINFO)
+							archVals["b2Import"]	= False
+							archVals["strInfo"]		= strINFO
+							pm2Update.create ( archVals)
+							continue
 					else:
-						#en este punto sabemos que el estado se solo es necesaria la ACTUALIZACION:
-						strINFO	=	self.formatINFO (	u"cambio inesperado de estado, cliente:[{}] pan:[{}] tipoR:[{}] tipoI:[{}] estadoR:[{}] estadoI:[{}]",
+						strINFO	=	self.formatINFO (	u"no hay cambio inesperado , cliente:[{}] ID:[{}] producto :[{}] estadoOLD:[{}] estadoNEW:[{}]",
 														u"linea de archivo no importada",
-														u"comprobar el estado").format( strCustomer, archVals["strPAN"],
-																		dict( registeredPM)[archVals["strPAN"]][X_PM_TYPE], strType,
-																		strRegisteredState, strNewStateBase)
+														u"no hay que hacer nada").format( strCustomer, archVals["name"],
+																						dict( registeredPM)[archVals["name"]][X_PM_PRODUCT_NAME],
+																						strRegisteredState, strNewStateBase)
 						incidents.append ( ( strINFO))
 						_logger.debug ( strINFO)
-					#no hacemos actualziación
-					continue
-					#archVals["nID2Update"]		= dict( registeredPM)[archVals["strPAN"]][X_PM_ID]
-					#archVals["eImportAction"]	= IMPORT_ACTION_UPDATE
+						archVals["b2Import"]	= False
+						archVals["strInfo"]		= strINFO
+						pm2Update.create ( archVals)
+						continue
 					
 
-				#ALTA
-				#campos ya extradidos: idCustomer, ePMType, strPAN
+				#campos ya extradidos: idCustomer, strPAN
 				self.bSaveImport	= True
 				strFormatoFecha		= FORMATO_FECHA_ESTANDAR
 				formatoFecha		= self.env['setir.import.map'].search([	('eImportType','=', IMPORT_TYPE_FORMATO_FECHA),
@@ -544,31 +579,23 @@ class setirImportWizardPM ( models.TransientModel):
 				else:
 					strFormatoFecha	= formatoFecha[0].name 
 
-				archVals["b2Import"]		= True
-
 				# setir.operation.line					
 				for linePM in operation.idsLinePM:
-					if linePM.idProvider.id == archVals["idProvider"] and linePM.strCategory == archVals["ePMType"]: 
-						archVals["idProductPM"]		= linePM.idProduct.id
+					if linePM.idProvider.id == archVals["idProvider"] and linePM.idProduct.id == archVals["idProduct"]: 
 						archVals["idAssocPackTmpl"]	= linePM.idAssocPackTmpl.id
 						break
 
-				if archVals["ePMType"]	== PM_TYPE_OBU:
-					archVals["name"] = self.env['ir.sequence'].next_by_code('setir.obu.name.sequence')
-				elif archVals["ePMType"]	== PM_TYPE_TARJETA:
-					archVals["name"] = self.env['ir.sequence'].next_by_code('setir.tarjeta.name.sequence')
-
-				if dict(mapField).get ( FIELD_PAN_SECUNDARIO):
-					if row.get (dict(mapField).get ( FIELD_PAN_SECUNDARIO).encode('utf-8')):
-						archVals["strSecondaryPAN"]	= row[dict(mapField).get ( FIELD_PAN_SECUNDARIO).encode('utf-8')]
+				if dict(mapFieldREG_EDI).get ( FIELD_PAN_SECUNDARIO):
+					if row.get (dict(mapFieldREG_EDI).get ( FIELD_PAN_SECUNDARIO).encode('utf-8')):
+						archVals["strSecondaryPAN"]	= row[dict(mapFieldREG_EDI).get ( FIELD_PAN_SECUNDARIO).encode('utf-8')]
 					
-				if dict(mapField).get ( FIELD_MATRICULA_ASOCIADA):
-					if row.get (dict(mapField).get ( FIELD_MATRICULA_ASOCIADA).encode('utf-8')):
-						archVals["strPN"]	= row[dict(mapField).get ( FIELD_MATRICULA_ASOCIADA).encode('utf-8')]
+				if dict(mapFieldREG_EDI).get ( FIELD_MATRICULA_ASOCIADA):
+					if row.get (dict(mapFieldREG_EDI).get ( FIELD_MATRICULA_ASOCIADA).encode('utf-8')):
+						archVals["strPN"]	= row[dict(mapFieldREG_EDI).get ( FIELD_MATRICULA_ASOCIADA).encode('utf-8')]
 				
-				if dict(mapField).get ( FIELD_PAIS_DE_MATRICULA):
-					if row.get ( dict(mapField).get ( FIELD_PAIS_DE_MATRICULA).encode('utf-8')):
-						strCountry	= row[dict(mapField).get ( FIELD_PAIS_DE_MATRICULA).encode('utf-8')]
+				if dict(mapFieldREG_EDI).get ( FIELD_PAIS_DE_MATRICULA):
+					if row.get ( dict(mapFieldREG_EDI).get ( FIELD_PAIS_DE_MATRICULA).encode('utf-8')):
+						strCountry	= row[dict(mapFieldREG_EDI).get ( FIELD_PAIS_DE_MATRICULA).encode('utf-8')]
 						if len (strCountry) == 2:
 							#es codigo pais
 							strCampo	= "code"
@@ -582,40 +609,42 @@ class setirImportWizardPM ( models.TransientModel):
 															u"revisar el archivo y el código de país").format( strCustomer, archVals["strPAN"], strCountry)
 							incidents.append ( ( strINFO))
 							_logger.debug ( strINFO)
-							continue
+							#archVals["b2Import"]	= False
+							archVals["strInfo"]		= strINFO
+							#continue
 						
 						archVals["idCountry"] = country[0].id
 
-				if dict(mapField).get ( FIELD_NUMERO_SERIE) != None:
-					if row.get (dict(mapField).get ( FIELD_NUMERO_SERIE).encode('utf-8')) != None:
-						archVals["strSN"]	= row[dict(mapField).get ( FIELD_NUMERO_SERIE).encode('utf-8')]
+				if dict(mapFieldREG_EDI).get ( FIELD_NUMERO_SERIE) != None:
+					if row.get (dict(mapFieldREG_EDI).get ( FIELD_NUMERO_SERIE).encode('utf-8')) != None:
+						archVals["strSN"]	= row[dict(mapFieldREG_EDI).get ( FIELD_NUMERO_SERIE).encode('utf-8')]
 
-				if dict(mapField).get ( FIELD_NUMERO_SERIE_SECUNDARIO) != None:
-					if row.get (dict(mapField).get ( FIELD_NUMERO_SERIE_SECUNDARIO).encode('utf-8')) != None:
-						archVals["strSecondarySN"]	= row[dict(mapField).get ( FIELD_NUMERO_SERIE_SECUNDARIO).encode('utf-8')]
+				if dict(mapFieldREG_EDI).get ( FIELD_NUMERO_SERIE_SECUNDARIO) != None:
+					if row.get (dict(mapFieldREG_EDI).get ( FIELD_NUMERO_SERIE_SECUNDARIO).encode('utf-8')) != None:
+						archVals["strSecondarySN"]	= row[dict(mapFieldREG_EDI).get ( FIELD_NUMERO_SERIE_SECUNDARIO).encode('utf-8')]
 
 				#FECHAS
 				dtSignUp	= None
-				if dict(mapField).get ( FIELD_FECHA_ALTA) != None:
-					if row.get (dict(mapField).get ( FIELD_FECHA_ALTA).encode('utf-8')) != None:
-						dtSignUp 	= archVals["dtSignUp"]	= datetime.strptime ( row[dict(mapField).get ( FIELD_FECHA_ALTA).encode('utf-8')],
+				if dict(mapFieldREG_EDI).get ( FIELD_FECHA_ALTA) != None:
+					if row.get (dict(mapFieldREG_EDI).get ( FIELD_FECHA_ALTA).encode('utf-8')) != None:
+						dtSignUp 	= archVals["dtSignUp"]	= datetime.strptime ( row[dict(mapFieldREG_EDI).get ( FIELD_FECHA_ALTA).encode('utf-8')],
 																			strFormatoFecha)
 
-				if dict(mapField).get ( FIELD_FECHA_CREACION) != None:
-					if row.get (dict(mapField).get ( FIELD_FECHA_CREACION).encode('utf-8')) != None:
-						archVals["dtCreation"]	= datetime.strptime ( row[dict(mapField).get ( FIELD_FECHA_CREACION).encode('utf-8')],
+				if dict(mapFieldREG_EDI).get ( FIELD_FECHA_CREACION) != None:
+					if row.get (dict(mapFieldREG_EDI).get ( FIELD_FECHA_CREACION).encode('utf-8')) != None:
+						archVals["dtCreation"]	= datetime.strptime ( row[dict(mapFieldREG_EDI).get ( FIELD_FECHA_CREACION).encode('utf-8')],
 																			strFormatoFecha)
 						if dtSignUp == None:
 							archVals["dtSignUp"] = archVals["dtCreation"]  
 
-				if dict(mapField).get ( FIELD_FECHA_EXPIRACION) != None:
-					if row.get (dict(mapField).get ( FIELD_FECHA_EXPIRACION).encode('utf-8')) != None:
-						archVals["dateExpiration"]	= datetime.strptime ( row[dict(mapField).get ( FIELD_FECHA_EXPIRACION).encode('utf-8')],
+				if dict(mapFieldREG_EDI).get ( FIELD_FECHA_EXPIRACION) != None:
+					if row.get (dict(mapFieldREG_EDI).get ( FIELD_FECHA_EXPIRACION).encode('utf-8')) != None:
+						archVals["dateExpiration"]	= datetime.strptime ( row[dict(mapFieldREG_EDI).get ( FIELD_FECHA_EXPIRACION).encode('utf-8')],
 																			strFormatoFecha)
 
-				if dict(mapField).get ( FIELD_FECHA_BAJA) != None:
-					if row.get (dict(mapField).get ( FIELD_FECHA_BAJA).encode('utf-8')) != None:
-						archVals["dtUnsubscribe"]	= datetime.strptime ( row[dict(mapField).get ( FIELD_FECHA_BAJA).encode('utf-8')],
+				if dict(mapFieldREG_EDI).get ( FIELD_FECHA_BAJA) != None:
+					if row.get (dict(mapFieldREG_EDI).get ( FIELD_FECHA_BAJA).encode('utf-8')) != None:
+						archVals["dtUnsubscribe"]	= datetime.strptime ( row[dict(mapFieldREG_EDI).get ( FIELD_FECHA_BAJA).encode('utf-8')],
 																			strFormatoFecha)
 					
 				pm2Update.create ( archVals)

@@ -11,6 +11,15 @@ from openerp.tools import float_is_zero, float_compare, DEFAULT_SERVER_DATETIME_
 from openerp import exceptions
 from setirDefinitions import *
 
+class setirProduct ( models.Model):
+	_inherit			= "product.template"
+	
+	idsRelatedServices	=	fields.Many2many	(	string			= "Servicios asociados",
+													comodel_name	= "product.template",
+													relation		= "rel_pm_service",
+													column1			= "pm_id",
+													column2			= "service_id")
+
 class setirPartnerOperation ( models.Model):
 	_inherit		= "res.partner"
 
@@ -333,20 +342,14 @@ class setirOperation ( models.Model):
 			
 	#cree registros vacios de los PM vendidios 
 	@api.one
-	def registerPM (self, idProvider, idProductPM, idAssocPackTmpl):
+	def registerPM (self, idProvider, idProduct, idAssocPackTmpl):
 		vals = {}
 		vals['idOperation']				= self.id
 		vals['idCustomer']				= self.idCustomer.id
 		vals['idProvider']				= idProvider
-		vals['idProductPM']				= idProductPM
+		vals['idProduct']				= idProduct
 		vals['idAssocPackTmpl']			= idAssocPackTmpl
-		strCategory						= self.env['product.product'].search([('id', '=', idProductPM)])[0].categ_id.name
-		vals['ePMType']					= strCategory
-		if strCategory == PM_TYPE_OBU:
-			vals['name']	= self.env['ir.sequence'].next_by_code('setir.obu.name.sequence')
-		elif strCategory == PM_TYPE_TARJETA:
-			vals['name']	= self.env['ir.sequence'].next_by_code('setir.tarjeta.name.sequence')
-
+		#name
 		#strPAN 
 		#strSecondaryPAN
 		#strPN

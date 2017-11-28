@@ -116,6 +116,10 @@
 	</data>
 	<!-- IMPORTACION CAMOPOS BASE -->
 	<data noupdate="0">
+		<record model="setir.import.base" id="icb0">
+			<field name="eImportType">medio_pago</field>
+			<field name="name">id_medio_pago</field>
+		</record>
 		<record model="setir.import.base" id="icb1">
 			<field name="eImportType">medio_pago</field>
 			<field name="name">nombre_cliente</field>
@@ -146,7 +150,7 @@
 		</record>
 		<record model="setir.import.base" id="icb7">
 			<field name="eImportType">medio_pago</field>
-			<field name="name">tipo</field>
+			<field name="name">producto_relacionado</field>
 		</record>
 		<record model="setir.import.base" id="icb8">
 			<field name="eImportType">medio_pago</field>

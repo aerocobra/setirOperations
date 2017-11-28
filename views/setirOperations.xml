@@ -127,6 +127,18 @@
 			sequence = "20"
 			action="action_setir_operation_cfg_import_map"
 		/>
+		<!-- Operaciones/Configuracion/Importación/Mapeo productos -->
+		<act_window id="action_setir_operation_cfg_product_map"
+			name = "Mapeo productos"
+			res_model = "setir.product.import.map"
+			view_mode = "tree,form"	
+		/>
+		<menuitem id="menu_setir_operation_cfg_product_map"
+			name = "Mapeo productos"
+			parent = "menu_operations_cfg_import"
+			sequence = "20"
+			action="action_setir_operation_cfg_product_map"
+		/>
 		<!-- Operaciones/Configuracion/Importación/Campos base -->
 		<act_window id="action_setir_operation_cfg_import_base"
 			name = "Campos base"

@@ -9,15 +9,16 @@
 			<field name="priority">2</field>
 			<field name="arch" type="xml">
 				<tree string="Medios de pago" decoration-muted="eRegisterState == 'baja'">
+					<field name="name"/>
 					<field name="strPAN"/>
-					<field name="ePMType"/>
+					<field name="strPMType"/>
 					<field name="strSN" invisible ="1"/>
 					<field name="strPN"/>
 					<field name="idCountry"/>
 					<field name="idOperation" invisible ="1"/>
 					<field name="idCustomer"/>
 					<field name="idProvider"/>
-					<field name="idProductPM"/>
+					<field name="idProduct"/>
 					<field name="idAssocPackTmpl"/>
 					<field name="dtSignUp" invisible ="1"/>
 					<field name="dateExpiration" invisible ="1"/>	
@@ -50,14 +51,14 @@
 								<field name="idUnsubscribeReason"  options="{'no_create': True}" attrs="{'invisible': [('eRegisterState','=', 'alta')]}"/>
 							</group>
 							<group>	
-								<field name="ePMType"/>
 								<field name="strPAN"/>
 								<field name="strSecondaryPAN" invisible="1"/>
 								<field name="strSN"/>
 								<field name="strSecondarySN" invisible="1"/>
 								<field name="strPN"/>
 								<field name="idCountry"  options="{'no_create': True}"/>
-								<field name="idProductPM"  options="{'no_create': True}"/>
+								<field name="idProduct"  options="{'no_create': True}"/>
+								<field name="strPMType"/>
 								<field name="idProvider"  options="{'no_create': True}"/>
 								<field name="idAssocPackTmpl"  options="{'no_create': True}"/>
 							</group>
@@ -112,14 +113,14 @@
 							<field name="idsPM2Unsubscribe" nolabel="1" widget="many2many">
 								<tree string="Medios de pago">
 									<field name="strPAN"/>
-									<field name="ePMType"/>
 									<field name="strSN" invisible ="1"/>
 									<field name="strPN"/>
 									<field name="idCountry"/>
 									<field name="idOperation" invisible ="1"/>
 									<field name="idCustomer"/>
 									<field name="idProvider"/>
-									<field name="idProductPM"/>
+									<field name="idProduct"/>
+									<field name="strPMType"/>
 									<field name="idAssocPackTmpl"/>
 									<field name="dtSignUp" invisible ="1"/>
 									<field name="dateExpiration" invisible ="1"/>	
