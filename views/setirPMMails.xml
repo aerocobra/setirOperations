@@ -1,0 +1,489 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+	<!-- ACCIONES ENVIO CORREOS -->
+	<data>
+		<!--  action -->
+		<record model="ir.actions.act_window" id="btn_action_send_mail_window">
+			<field name="name">Enviar correo ...</field>
+			<field name="src_model">setir.unsubscribe.wizard.pm</field>
+			<field name="res_model">mail.compose.message</field>
+			<field name="view_mode">form</field>
+			<field name="target">new</field>
+			<field name="key2"></field>
+		</record>		
+	</data>
+	<!-- data noupdate="0" -->
+	<data>
+		<record id="unlink_pm_email_template" model="mail.template">
+			<field name="name">baja medio de pago</field>
+			<field name="email_from">${(object.user_id.email and '%s &#60;%s&#62;' % (object.user_id.name, object.user_id.email) or '')|safe}</field>
+			<field name="subject">Baja MP: cliente[${object.idCustomer.name}] proveedor[${object.idProvider.name}]</field>
+			<field name="email_to">${object.strMailDestination}</field>
+			<!-- field name="email_to">${object.idProvider.mail}</field -->
+			<field name="reply_to">${object.user_id.email}</field>
+			<field name="lang">${object.lang}</field>
+			<!-- field name="report_template">setirOperations.pmUnsubscribeWizardReport</field -->
+			<field name="report_template" ref="setirOperations.btn_pmUnsubscribeWizardReport_action"/>
+			<field name="report_name">informeBajaMP_cliente[${object.idCustomer.name}]-proveedor[${object.idProvider.name}]</field>
+			<field name="model_id" ref="setirOperations.model_setir_unsubscribe_wizard_pm"/>
+			<field name="auto_delete" eval="False"/>
+			<field name="body_html">
+					<![CDATA[
+					<P><FONT FACE="Arial, sans-serif"><FONT SIZE=2><FONT COLOR="#000000"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">Att:
+					</SPAN></SPAN></FONT><FONT COLOR="#000000"><I><B>${object.idProvider.name}</B></I></FONT></FONT></FONT></P>
+					<P STYLE="margin-top: 0.2cm; margin-bottom: 0cm; font-style: normal; font-weight: normal; widows: 2; orphans: 2">
+					<FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=2>Estimadas/os
+					Sras/es:</FONT></FONT></FONT></P>
+					<P STYLE="margin-top: 0.2cm; margin-bottom: 0.2cm; widows: 2; orphans: 2">
+					<FONT FACE="Arial, sans-serif"><FONT SIZE=2><FONT COLOR="#000000"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">Rogamos
+					que procedan con la </SPAN></SPAN></FONT><FONT COLOR="#ff3333"><SPAN STYLE="font-style: normal"><B>baja</B></SPAN></FONT><FONT COLOR="#000000">
+					</FONT><FONT COLOR="#000000"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">de
+					los siguientes </SPAN></SPAN></FONT><FONT COLOR="#000000"><SPAN STYLE="font-style: normal"><U><SPAN STYLE="font-weight: normal">medios
+					de pago</SPAN></U></SPAN></FONT><FONT COLOR="#000000"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">:</SPAN></SPAN></FONT></FONT></FONT></P>
+					<TABLE WIDTH=803 BORDER=0 CELLPADDING=5 CELLSPACING=0>
+						<COL WIDTH=151>
+						<COL WIDTH=633>
+						<TR VALIGN=TOP>
+							<TD WIDTH=151>
+								<P STYLE="font-weight: normal"><FONT FACE="Arial, sans-serif"><FONT SIZE=2>Cliente:</FONT></FONT></P>
+							</TD>
+							<TD WIDTH=633>
+								<P><FONT FACE="Arial, sans-serif"><FONT SIZE=2><B><SPAN LANG="es-ES">${object.idCustomer.name}</SPAN></B></FONT></FONT></P>
+							</TD>
+						</TR>
+						<TR VALIGN=TOP>
+							<TD WIDTH=151>
+								<P STYLE="font-weight: normal"><FONT FACE="Arial, sans-serif"><FONT SIZE=2>C&oacute;digo
+								cliente:</FONT></FONT></P>
+							</TD>
+							<TD WIDTH=633>
+								% if object.idCustomerCode.name
+								<P><FONT FACE="Arial, sans-serif"><FONT SIZE=2><B><SPAN LANG="es-ES">${object.idCustomerCode.name}</SPAN></B></FONT></FONT></P>
+								% endif
+							</TD>
+						</TR>
+					</TABLE>
+					<P STYLE="margin-bottom: 0cm; widows: 2; orphans: 2"><BR>
+					</P>
+					<TABLE WIDTH=100% BORDER=2 BORDERCOLOR="#000000" CELLPADDING=10 CELLSPACING=0 STYLE="page-break-before: auto; page-break-inside: avoid">
+						<COL WIDTH=64*>
+						<COL WIDTH=64*>
+						<COL WIDTH=64*>
+						<COL WIDTH=64*>
+						<TR>
+							<TD WIDTH=25%>
+								<P STYLE="margin-left: 0.2cm"><FONT FACE="Arial, sans-serif"><FONT SIZE=2><B>PAN</B></FONT></FONT></P>
+							</TD>
+							<TD WIDTH=25%>
+								<P STYLE="margin-left: 0.2cm"><FONT FACE="Arial, sans-serif"><FONT SIZE=2><B>S/N</B></FONT></FONT></P>
+							</TD>
+							<TD WIDTH=25%>
+								<P STYLE="margin-left: 0.2cm"><FONT FACE="Arial, sans-serif"><FONT SIZE=2><B>Matr&iacute;cula</B></FONT></FONT></P>
+							</TD>
+							<TD WIDTH=25%>
+								<P STYLE="margin-left: 0.2cm"><FONT FACE="Arial, sans-serif"><FONT SIZE=2><B>Sustituci&oacute;n</B></FONT></FONT></P>
+							</TD>
+						</TR>
+					</TABLE>
+					% for line in object.idsPM2Manage:
+					<TABLE WIDTH=100% BORDER=1 BORDERCOLOR="#999999" CELLPADDING=10 CELLSPACING=0 STYLE="page-break-before: auto; page-break-inside: avoid">
+						<COL WIDTH=64*>
+						<COL WIDTH=64*>
+						<COL WIDTH=64*>
+						<COL WIDTH=64*>
+						<TR>
+							<TD WIDTH=25%>
+								<P STYLE="margin-left: 0.2cm; font-weight: normal"><FONT FACE="Arial, sans-serif"><FONT SIZE=2>${line.strPAN}</FONT></FONT></P>
+							</TD>
+							<TD WIDTH=25%>
+								% if line.strSN
+								<P STYLE="margin-left: 0.2cm; font-weight: normal"><FONT FACE="Arial, sans-serif"><FONT SIZE=2>${line.strSN}</FONT></FONT></P>
+								% endif
+							</TD>
+							<TD WIDTH=25%>
+								<P STYLE="margin-left: 0.2cm; font-weight: normal"><FONT FACE="Arial, sans-serif"><FONT SIZE=2>${line.strPN}</FONT></FONT></P>
+							</TD>
+							<TD WIDTH=25%>
+								% if line.bReplace
+								<P STYLE="margin-left: 0.2cm; font-weight: normal"><FONT FACE="Arial, sans-serif"><FONT SIZE=2><FONT COLOR="#006600"><B>Si</B></FONT></FONT></FONT></P>
+								% endif
+							</TD>
+						</TR>
+					</TABLE>
+					% endfor
+					<P STYLE="margin-top: 0.2cm; margin-bottom: 0cm; font-style: normal; font-weight: normal; widows: 2; orphans: 2">
+					<FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=2>Adjunta
+					viene la carta con las especificaciones de los mismos medios de pago.</FONT></FONT></FONT></P>
+					<P STYLE="margin-top: 0.2cm; margin-bottom: 0cm; font-style: normal; font-weight: normal; widows: 2; orphans: 2">
+					<FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=2>Atentamente</FONT></FONT></FONT></P>
+					<HR>
+					<P STYLE="margin-top: 0.1cm; margin-bottom: 0cm; widows: 2; orphans: 2">
+					<FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt"><I><B>${object.user_id.name}</B></I></FONT></FONT></FONT></P>
+					<P STYLE="margin-top: 0.1cm; margin-bottom: 0.1cm; font-style: normal; font-weight: normal; widows: 2; orphans: 2">
+					<FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=1 STYLE="font-size: 8pt"><U>Dpto.
+					${object.user_id.employee_ids.department_id.name}</U></FONT></FONT></FONT></P>
+					<TABLE WIDTH=40% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: auto; page-break-after: auto; page-break-inside: avoid">
+						<COL WIDTH=103*>
+						<COL WIDTH=153*>
+						<TR VALIGN=BOTTOM>
+							<TD WIDTH=40% HEIGHT=2>
+								<P><IMG SRC="http://web.setir.es/logo.png" NAME="gr&aacute;ficos1" ALIGN=LEFT WIDTH=93 HEIGHT=30 BORDER=0><BR>
+								</P>
+							</TD>
+							<TD WIDTH=60%>
+								<P STYLE="widows: 2; orphans: 2"><FONT COLOR="#004586"><SPAN STYLE="text-decoration: none"><FONT FACE="Arial, sans-serif"><FONT SIZE=5><SPAN LANG="es-ES"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal"><SPAN STYLE="background: transparent">|</SPAN></SPAN></SPAN></SPAN></FONT></FONT></SPAN></FONT><FONT COLOR="#0066cc"><SPAN STYLE="text-decoration: none"><SPAN STYLE="background: transparent">
+								</SPAN></SPAN></FONT><A HREF="http://www.setir.es/"><FONT COLOR="#0066cc"><SPAN STYLE="text-decoration: none"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt"><SPAN LANG="es-ES"><SPAN STYLE="font-style: normal"><B><SPAN STYLE="background: transparent">${object.user_id.company_id.name}</SPAN></B></SPAN></SPAN></FONT></FONT></SPAN></FONT></A></P>
+							</TD>
+						</TR>
+					</TABLE>
+					<HR>
+					<TABLE WIDTH=40% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-inside: avoid">
+						<COL WIDTH=102*>
+						<COL WIDTH=77*>
+						<COL WIDTH=77*>
+						<TR VALIGN=TOP>
+							<TD WIDTH=40%>
+								<H6 CLASS="western" STYLE="margin-top: 0cm; font-style: normal; font-weight: normal; widows: 2; orphans: 2">
+								<FONT FACE="Arial, sans-serif"><FONT SIZE=1 STYLE="font-size: 8pt">${object.user_id.email}</FONT></FONT></H6>
+							</TD>
+							<TD WIDTH=30%>
+								<H6 CLASS="western" STYLE="margin-top: 0cm; font-style: normal; font-weight: normal; widows: 2; orphans: 2">
+								<FONT FACE="Arial, sans-serif"><FONT SIZE=1 STYLE="font-size: 8pt">${object.user_id.company_id.phone}</FONT></FONT></H6>
+							</TD>
+							<TD WIDTH=30%>
+								<H6 CLASS="western" STYLE="margin-top: 0cm; widows: 2; orphans: 2">
+								<A HREF="http://www.setir.es/"><FONT COLOR="#337ab7"><FONT FACE="Arial, sans-serif"><FONT SIZE=1 STYLE="font-size: 8pt"><SPAN LANG="es-ES"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal"><SPAN STYLE="background: transparent">${object.user_id.company_id.website}</SPAN></SPAN></SPAN></SPAN></FONT></FONT></FONT></A></H6>
+							</TD>
+						</TR>
+						<TR VALIGN=TOP>
+							<TD WIDTH=40%>
+								<H6 CLASS="western" STYLE="margin-top: 0cm; font-style: normal; font-weight: normal; widows: 2; orphans: 2">
+								<FONT FACE="Arial, sans-serif"><FONT SIZE=1 STYLE="font-size: 8pt">${object.user_id.company_id.street},
+								${object.user_id.company_id.street2}</FONT></FONT></H6>
+							</TD>
+							<TD WIDTH=30%>
+								<H6 CLASS="western" STYLE="margin-top: 0cm; font-style: normal; font-weight: normal; widows: 2; orphans: 2">
+								<FONT FACE="Arial, sans-serif"><FONT SIZE=1 STYLE="font-size: 8pt">${object.user_id.company_id.zip}
+								${object.user_id.company_id.city}</FONT></FONT></H6>
+							</TD>
+							<TD WIDTH=30%>
+								<H6 CLASS="western" STYLE="margin-top: 0cm; font-style: normal; font-weight: normal; widows: 2; orphans: 2">
+								<FONT FACE="Arial, sans-serif"><FONT SIZE=1 STYLE="font-size: 8pt">${object.user_id.company_id.state_id.name}
+								${object.user_id.company_id.country_id.name}</FONT></FONT></H6>
+							</TD>
+						</TR>
+					</TABLE>
+					<H6 CLASS="western" STYLE="margin-top: 0cm; margin-bottom: 0cm; widows: 2; orphans: 2">
+					<BR>
+					</H6>					
+					]]>
+			</field>
+	    </record>
+		<record id="lock_pm_email_template" model="mail.template">
+			<field name="name">bloqueo medio de pago</field>
+			<field name="report_template" ref="setirOperations.btn_pmLockWizardReport_action"/>
+			<field name="report_name">informeBloqueoMP_cliente[${object.idCustomer.name}]-proveedor[${object.idProvider.name}]</field>
+			<field name="email_from">${(object.user_id.email and '%s &#60;%s&#62;' % (object.user_id.name, object.user_id.email) or '')|safe}</field>
+			<field name="subject">Bloqueo MP: cliente[${object.idCustomer.name}] proveedor[${object.idProvider.name}]</field>
+			<field name="email_to">${object.strMailDestination}</field>
+			<field name="reply_to">${object.user_id.email}</field>
+			<field name="lang">${object.lang}</field>
+			<field name="model_id" ref="setirOperations.model_setir_unsubscribe_wizard_pm"/>
+			<field name="auto_delete" eval="False"/>
+			<field name="body_html">
+					<![CDATA[
+					<P><FONT FACE="Arial, sans-serif"><FONT SIZE=2><FONT COLOR="#000000"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">Att:
+					</SPAN></SPAN></FONT><FONT COLOR="#000000"><I><B>${object.idProvider.name}</B></I></FONT></FONT></FONT></P>
+					<P STYLE="margin-top: 0.2cm; margin-bottom: 0cm; font-style: normal; font-weight: normal; widows: 2; orphans: 2">
+					<FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=2>Estimadas/os
+					Sras/es:</FONT></FONT></FONT></P>
+					<P STYLE="margin-top: 0.2cm; margin-bottom: 0.2cm; widows: 2; orphans: 2">
+					<FONT FACE="Arial, sans-serif"><FONT SIZE=2><FONT COLOR="#000000"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">Rogamos
+					que procedan con el </SPAN></SPAN></FONT><FONT COLOR="#ff6600"><SPAN STYLE="font-style: normal"><B>bloqueo
+					temporal</B></SPAN></FONT><FONT COLOR="#000000"> </FONT><FONT COLOR="#000000"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">de
+					los siguientes </SPAN></SPAN></FONT><FONT COLOR="#000000"><SPAN STYLE="font-style: normal"><U><SPAN STYLE="font-weight: normal">medios
+					de pago</SPAN></U></SPAN></FONT><FONT COLOR="#000000"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">:</SPAN></SPAN></FONT></FONT></FONT></P>
+					<TABLE WIDTH=803 BORDER=0 CELLPADDING=5 CELLSPACING=0>
+						<COL WIDTH=151>
+						<COL WIDTH=633>
+						<TR VALIGN=TOP>
+							<TD WIDTH=151>
+								<P STYLE="font-weight: normal"><FONT FACE="Arial, sans-serif"><FONT SIZE=2>Cliente:</FONT></FONT></P>
+							</TD>
+							<TD WIDTH=633>
+								<P><FONT FACE="Arial, sans-serif"><FONT SIZE=2><B><SPAN LANG="es-ES">${object.idCustomer.name}</SPAN></B></FONT></FONT></P>
+							</TD>
+						</TR>
+						<TR VALIGN=TOP>
+							<TD WIDTH=151>
+								<P STYLE="font-weight: normal"><FONT FACE="Arial, sans-serif"><FONT SIZE=2>C&oacute;digo
+								cliente:</FONT></FONT></P>
+							</TD>
+							<TD WIDTH=633>
+								% if object.idCustomerCode.name
+								<P><FONT FACE="Arial, sans-serif"><FONT SIZE=2><B><SPAN LANG="es-ES">${object.idCustomerCode.name}</SPAN></B></FONT></FONT></P>
+								% endif
+							</TD>
+						</TR>
+					</TABLE>
+					<P STYLE="margin-bottom: 0cm; widows: 2; orphans: 2"><BR>
+					</P>
+					<TABLE WIDTH=100% BORDER=2 BORDERCOLOR="#000000" CELLPADDING=10 CELLSPACING=0 STYLE="page-break-before: auto; page-break-inside: avoid">
+						<COL WIDTH=85*>
+						<COL WIDTH=85*>
+						<COL WIDTH=85*>
+						<TR>
+							<TD WIDTH=33%>
+								<P STYLE="margin-left: 0.2cm"><FONT FACE="Arial, sans-serif"><FONT SIZE=2><B>PAN</B></FONT></FONT></P>
+							</TD>
+							<TD WIDTH=33%>
+								<P STYLE="margin-left: 0.2cm"><FONT FACE="Arial, sans-serif"><FONT SIZE=2><B>S/N</B></FONT></FONT></P>
+							</TD>
+							<TD WIDTH=33%>
+								<P STYLE="margin-left: 0.2cm"><FONT FACE="Arial, sans-serif"><FONT SIZE=2><B>Matr&iacute;cula</B></FONT></FONT></P>
+							</TD>
+						</TR>
+					</TABLE>
+					% for line in object.idsPM2Manage:
+					<TABLE WIDTH=100% BORDER=1 BORDERCOLOR="#999999" CELLPADDING=10 CELLSPACING=0 STYLE="page-break-before: auto; page-break-inside: avoid">
+						<COL WIDTH=85*>
+						<COL WIDTH=85*>
+						<COL WIDTH=85*>
+						<TR>
+							<TD WIDTH=33%>
+								<P STYLE="margin-left: 0.2cm; font-weight: normal"><FONT FACE="Arial, sans-serif"><FONT SIZE=2>${line.strPAN}</FONT></FONT></P>
+							</TD>
+							<TD WIDTH=33%>
+								% if line.strSN
+								<P STYLE="margin-left: 0.2cm; font-weight: normal"><FONT FACE="Arial, sans-serif"><FONT SIZE=2>${line.strSN}</FONT></FONT></P>
+								% endif
+							</TD>
+							<TD WIDTH=33%>
+								<P STYLE="margin-left: 0.2cm; font-weight: normal"><FONT FACE="Arial, sans-serif"><FONT SIZE=2>${line.strPN}</FONT></FONT></P>
+							</TD>
+						</TR>
+					</TABLE>
+					% endfor
+					<P STYLE="margin-top: 0.2cm; margin-bottom: 0cm; widows: 2; orphans: 2">
+					<FONT FACE="Arial, sans-serif"><FONT SIZE=2><FONT COLOR="#000000"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">Adjunta
+					viene la carta con las especificaciones de los mismos medios de pago.</SPAN></SPAN></FONT></FONT></FONT></P>
+					<P STYLE="margin-top: 0.2cm; margin-bottom: 0cm; font-style: normal; font-weight: normal; widows: 2; orphans: 2">
+					<FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=2>Atentamente</FONT></FONT></FONT></P>
+					<HR>
+					<P STYLE="margin-top: 0.1cm; margin-bottom: 0cm; widows: 2; orphans: 2">
+					<FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt"><I><B>${object.user_id.name}</B></I></FONT></FONT></FONT></P>
+					<P STYLE="margin-top: 0.1cm; margin-bottom: 0.1cm; font-style: normal; font-weight: normal; widows: 2; orphans: 2">
+					<FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=1 STYLE="font-size: 8pt"><U>Dpto.
+					${object.user_id.employee_ids.department_id.name}</U></FONT></FONT></FONT></P>
+					<TABLE WIDTH=40% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: auto; page-break-after: auto; page-break-inside: avoid">
+						<COL WIDTH=103*>
+						<COL WIDTH=153*>
+						<TR VALIGN=BOTTOM>
+							<TD WIDTH=40% HEIGHT=2>
+								<P><IMG SRC="http://web.setir.es/logo.png" NAME="gr&aacute;ficos1" ALIGN=LEFT WIDTH=93 HEIGHT=30 BORDER=0><BR>
+								</P>
+							</TD>
+							<TD WIDTH=60%>
+								<P STYLE="widows: 2; orphans: 2"><FONT COLOR="#004586"><SPAN STYLE="text-decoration: none"><FONT FACE="Arial, sans-serif"><FONT SIZE=5><SPAN LANG="es-ES"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal"><SPAN STYLE="background: transparent">|</SPAN></SPAN></SPAN></SPAN></FONT></FONT></SPAN></FONT><FONT COLOR="#0066cc"><SPAN STYLE="text-decoration: none"><SPAN STYLE="background: transparent">
+								</SPAN></SPAN></FONT><A HREF="http://www.setir.es/"><FONT COLOR="#0066cc"><SPAN STYLE="text-decoration: none"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt"><SPAN LANG="es-ES"><SPAN STYLE="font-style: normal"><B><SPAN STYLE="background: transparent">${object.user_id.company_id.name}</SPAN></B></SPAN></SPAN></FONT></FONT></SPAN></FONT></A></P>
+							</TD>
+						</TR>
+					</TABLE>
+					<HR>
+					<TABLE WIDTH=40% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-inside: avoid">
+						<COL WIDTH=102*>
+						<COL WIDTH=77*>
+						<COL WIDTH=77*>
+						<TR VALIGN=TOP>
+							<TD WIDTH=40%>
+								<H6 CLASS="western" STYLE="margin-top: 0cm; font-style: normal; font-weight: normal; widows: 2; orphans: 2">
+								<FONT FACE="Arial, sans-serif"><FONT SIZE=1 STYLE="font-size: 8pt">${object.user_id.email}</FONT></FONT></H6>
+							</TD>
+							<TD WIDTH=30%>
+								<H6 CLASS="western" STYLE="margin-top: 0cm; font-style: normal; font-weight: normal; widows: 2; orphans: 2">
+								<FONT FACE="Arial, sans-serif"><FONT SIZE=1 STYLE="font-size: 8pt">${object.user_id.company_id.phone}</FONT></FONT></H6>
+							</TD>
+							<TD WIDTH=30%>
+								<H6 CLASS="western" STYLE="margin-top: 0cm; widows: 2; orphans: 2">
+								<A HREF="http://www.setir.es/"><FONT COLOR="#337ab7"><FONT FACE="Arial, sans-serif"><FONT SIZE=1 STYLE="font-size: 8pt"><SPAN LANG="es-ES"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal"><SPAN STYLE="background: transparent">${object.user_id.company_id.website}</SPAN></SPAN></SPAN></SPAN></FONT></FONT></FONT></A></H6>
+							</TD>
+						</TR>
+						<TR VALIGN=TOP>
+							<TD WIDTH=40%>
+								<H6 CLASS="western" STYLE="margin-top: 0cm; font-style: normal; font-weight: normal; widows: 2; orphans: 2">
+								<FONT FACE="Arial, sans-serif"><FONT SIZE=1 STYLE="font-size: 8pt">${object.user_id.company_id.street},
+								${object.user_id.company_id.street2}</FONT></FONT></H6>
+							</TD>
+							<TD WIDTH=30%>
+								<H6 CLASS="western" STYLE="margin-top: 0cm; font-style: normal; font-weight: normal; widows: 2; orphans: 2">
+								<FONT FACE="Arial, sans-serif"><FONT SIZE=1 STYLE="font-size: 8pt">${object.user_id.company_id.zip}
+								${object.user_id.company_id.city}</FONT></FONT></H6>
+							</TD>
+							<TD WIDTH=30%>
+								<H6 CLASS="western" STYLE="margin-top: 0cm; font-style: normal; font-weight: normal; widows: 2; orphans: 2">
+								<FONT FACE="Arial, sans-serif"><FONT SIZE=1 STYLE="font-size: 8pt">${object.user_id.company_id.state_id.name}
+								${object.user_id.company_id.country_id.name}</FONT></FONT></H6>
+							</TD>
+						</TR>
+					</TABLE>
+					<H6 CLASS="western" STYLE="margin-top: 0cm; margin-bottom: 0cm; widows: 2; orphans: 2">
+					<BR>
+					</H6>
+					]]>
+			</field>
+	    </record>
+		<record id="unlock_pm_email_template" model="mail.template">
+			<field name="name">desbloqueo medio de pago</field>
+			<field name="report_template" ref="setirOperations.btn_pmUnlockWizardReport_action"/>
+			<field name="report_name">informeDesbloqueoMP_cliente[${object.idCustomer.name}]-proveedor[${object.idProvider.name}]</field>
+			<field name="email_from">${(object.user_id.email and '%s &#60;%s&#62;' % (object.user_id.name, object.user_id.email) or '')|safe}</field>
+			<field name="subject">Desbloqueo MP: cliente[${object.idCustomer.name}] proveedor[${object.idProvider.name}]</field>
+			<field name="email_to">${object.strMailDestination}</field>
+			<field name="reply_to">${object.user_id.email}</field>
+			<field name="lang">${object.lang}</field>
+			<field name="model_id" ref="setirOperations.model_setir_unsubscribe_wizard_pm"/>
+			<field name="auto_delete" eval="False"/>
+			<field name="body_html">
+					<![CDATA[
+					<P><FONT FACE="Arial, sans-serif"><FONT SIZE=2><FONT COLOR="#000000"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">Att:
+					</SPAN></SPAN></FONT><FONT COLOR="#000000"><I><B>${object.idProvider.name}</B></I></FONT></FONT></FONT></P>
+					<P STYLE="margin-top: 0.2cm; margin-bottom: 0cm; font-style: normal; font-weight: normal; widows: 2; orphans: 2">
+					<FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=2>Estimadas/os
+					Sras/es:</FONT></FONT></FONT></P>
+					<P STYLE="margin-top: 0.2cm; margin-bottom: 0.2cm; widows: 2; orphans: 2">
+					<FONT FACE="Arial, sans-serif"><FONT SIZE=2><FONT COLOR="#000000"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">Rogamos
+					que procedan con el </SPAN></SPAN></FONT><FONT COLOR="#006600"><SPAN STYLE="font-style: normal"><B>desbloqueo</B></SPAN></FONT><FONT COLOR="#000000"><SPAN STYLE="font-style: normal"><B>
+					</B></SPAN></FONT><FONT COLOR="#000000"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">de
+					los siguientes </SPAN></SPAN></FONT><FONT COLOR="#000000"><SPAN STYLE="font-style: normal"><U><SPAN STYLE="font-weight: normal">medios
+					de pago</SPAN></U></SPAN></FONT><FONT COLOR="#000000"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">:</SPAN></SPAN></FONT></FONT></FONT></P>
+					<TABLE WIDTH=803 BORDER=0 CELLPADDING=5 CELLSPACING=0>
+						<COL WIDTH=151>
+						<COL WIDTH=633>
+						<TR VALIGN=TOP>
+							<TD WIDTH=151>
+								<P STYLE="font-weight: normal"><FONT FACE="Arial, sans-serif"><FONT SIZE=2>Cliente:</FONT></FONT></P>
+							</TD>
+							<TD WIDTH=633>
+								<P><FONT FACE="Arial, sans-serif"><FONT SIZE=2><B><SPAN LANG="es-ES">${object.idCustomer.name}</SPAN></B></FONT></FONT></P>
+							</TD>
+						</TR>
+						<TR VALIGN=TOP>
+							<TD WIDTH=151>
+								<P STYLE="font-weight: normal"><FONT FACE="Arial, sans-serif"><FONT SIZE=2>C&oacute;digo
+								cliente:</FONT></FONT></P>
+							</TD>
+							<TD WIDTH=633>
+								% if object.idCustomerCode.name
+								<P><FONT FACE="Arial, sans-serif"><FONT SIZE=2><B><SPAN LANG="es-ES">${object.idCustomerCode.name}</SPAN></B></FONT></FONT></P>
+								% endif
+							</TD>
+						</TR>
+					</TABLE>
+					<P STYLE="margin-bottom: 0cm; widows: 2; orphans: 2"><BR>
+					</P>
+					<TABLE WIDTH=100% BORDER=2 BORDERCOLOR="#000000" CELLPADDING=10 CELLSPACING=0 STYLE="page-break-before: auto; page-break-inside: avoid">
+						<COL WIDTH=85*>
+						<COL WIDTH=85*>
+						<COL WIDTH=85*>
+						<TR>
+							<TD WIDTH=33%>
+								<P STYLE="margin-left: 0.2cm"><FONT FACE="Arial, sans-serif"><FONT SIZE=2><B>PAN</B></FONT></FONT></P>
+							</TD>
+							<TD WIDTH=33%>
+								<P STYLE="margin-left: 0.2cm"><FONT FACE="Arial, sans-serif"><FONT SIZE=2><B>S/N</B></FONT></FONT></P>
+							</TD>
+							<TD WIDTH=33%>
+								<P STYLE="margin-left: 0.2cm"><FONT FACE="Arial, sans-serif"><FONT SIZE=2><B>Matr&iacute;cula</B></FONT></FONT></P>
+							</TD>
+						</TR>
+					</TABLE>
+					% for line in object.idsPM2Manage:
+					<TABLE WIDTH=100% BORDER=1 BORDERCOLOR="#999999" CELLPADDING=10 CELLSPACING=0 STYLE="page-break-before: auto; page-break-inside: avoid">
+						<COL WIDTH=85*>
+						<COL WIDTH=85*>
+						<COL WIDTH=85*>
+						<TR>
+							<TD WIDTH=33%>
+								<P STYLE="margin-left: 0.2cm; font-weight: normal"><FONT FACE="Arial, sans-serif"><FONT SIZE=2>${line.strPAN}</FONT></FONT></P>
+							</TD>
+							<TD WIDTH=33%>
+								% if line.strSN
+								<P STYLE="margin-left: 0.2cm; font-weight: normal"><FONT FACE="Arial, sans-serif"><FONT SIZE=2>${line.strSN}</FONT></FONT></P>
+								% endif
+							</TD>
+							<TD WIDTH=33%>
+								<P STYLE="margin-left: 0.2cm; font-weight: normal"><FONT FACE="Arial, sans-serif"><FONT SIZE=2>${line.strPN}</FONT></FONT></P>
+							</TD>
+						</TR>
+					</TABLE>
+					% endfor
+					<P STYLE="margin-top: 0.2cm; margin-bottom: 0cm; widows: 2; orphans: 2">
+					<FONT FACE="Arial, sans-serif"><FONT SIZE=2><FONT COLOR="#000000"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">Adjunto
+					viene la carta con las especificaciones de los mismos medios de pago.</SPAN></SPAN></FONT></FONT></FONT></P>
+					<P STYLE="margin-top: 0.2cm; margin-bottom: 0cm; font-style: normal; font-weight: normal; widows: 2; orphans: 2">
+					<FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=2>Atentamente</FONT></FONT></FONT></P>
+					<HR>
+					<P STYLE="margin-top: 0.1cm; margin-bottom: 0cm; widows: 2; orphans: 2">
+					<FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt"><I><B>${object.user_id.name}</B></I></FONT></FONT></FONT></P>
+					<P STYLE="margin-top: 0.1cm; margin-bottom: 0.1cm; font-style: normal; font-weight: normal; widows: 2; orphans: 2">
+					<FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=1 STYLE="font-size: 8pt"><U>Dpto.
+					${object.user_id.employee_ids.department_id.name}</U></FONT></FONT></FONT></P>
+					<TABLE WIDTH=40% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: auto; page-break-after: auto; page-break-inside: avoid">
+						<COL WIDTH=103*>
+						<COL WIDTH=153*>
+						<TR VALIGN=BOTTOM>
+							<TD WIDTH=40% HEIGHT=2>
+								<P><IMG SRC="http://web.setir.es/logo.png" NAME="gr&aacute;ficos1" ALIGN=LEFT WIDTH=93 HEIGHT=30 BORDER=0><BR>
+								</P>
+							</TD>
+							<TD WIDTH=60%>
+								<P STYLE="widows: 2; orphans: 2"><FONT COLOR="#004586"><SPAN STYLE="text-decoration: none"><FONT FACE="Arial, sans-serif"><FONT SIZE=5><SPAN LANG="es-ES"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal"><SPAN STYLE="background: transparent">|</SPAN></SPAN></SPAN></SPAN></FONT></FONT></SPAN></FONT><FONT COLOR="#0066cc"><SPAN STYLE="text-decoration: none"><SPAN STYLE="background: transparent">
+								</SPAN></SPAN></FONT><A HREF="http://www.setir.es/"><FONT COLOR="#0066cc"><SPAN STYLE="text-decoration: none"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt"><SPAN LANG="es-ES"><SPAN STYLE="font-style: normal"><B><SPAN STYLE="background: transparent">${object.user_id.company_id.name}</SPAN></B></SPAN></SPAN></FONT></FONT></SPAN></FONT></A></P>
+							</TD>
+						</TR>
+					</TABLE>
+					<HR>
+					<TABLE WIDTH=40% BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-inside: avoid">
+						<COL WIDTH=102*>
+						<COL WIDTH=77*>
+						<COL WIDTH=77*>
+						<TR VALIGN=TOP>
+							<TD WIDTH=40%>
+								<H6 CLASS="western" STYLE="margin-top: 0cm; font-style: normal; font-weight: normal; widows: 2; orphans: 2">
+								<FONT FACE="Arial, sans-serif"><FONT SIZE=1 STYLE="font-size: 8pt">${object.user_id.email}</FONT></FONT></H6>
+							</TD>
+							<TD WIDTH=30%>
+								<H6 CLASS="western" STYLE="margin-top: 0cm; font-style: normal; font-weight: normal; widows: 2; orphans: 2">
+								<FONT FACE="Arial, sans-serif"><FONT SIZE=1 STYLE="font-size: 8pt">${object.user_id.company_id.phone}</FONT></FONT></H6>
+							</TD>
+							<TD WIDTH=30%>
+								<H6 CLASS="western" STYLE="margin-top: 0cm; widows: 2; orphans: 2">
+								<A HREF="http://www.setir.es/"><FONT COLOR="#337ab7"><FONT FACE="Arial, sans-serif"><FONT SIZE=1 STYLE="font-size: 8pt"><SPAN LANG="es-ES"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal"><SPAN STYLE="background: transparent">${object.user_id.company_id.website}</SPAN></SPAN></SPAN></SPAN></FONT></FONT></FONT></A></H6>
+							</TD>
+						</TR>
+						<TR VALIGN=TOP>
+							<TD WIDTH=40%>
+								<H6 CLASS="western" STYLE="margin-top: 0cm; font-style: normal; font-weight: normal; widows: 2; orphans: 2">
+								<FONT FACE="Arial, sans-serif"><FONT SIZE=1 STYLE="font-size: 8pt">${object.user_id.company_id.street},
+								${object.user_id.company_id.street2}</FONT></FONT></H6>
+							</TD>
+							<TD WIDTH=30%>
+								<H6 CLASS="western" STYLE="margin-top: 0cm; font-style: normal; font-weight: normal; widows: 2; orphans: 2">
+								<FONT FACE="Arial, sans-serif"><FONT SIZE=1 STYLE="font-size: 8pt">${object.user_id.company_id.zip}
+								${object.user_id.company_id.city}</FONT></FONT></H6>
+							</TD>
+							<TD WIDTH=30%>
+								<H6 CLASS="western" STYLE="margin-top: 0cm; font-style: normal; font-weight: normal; widows: 2; orphans: 2">
+								<FONT FACE="Arial, sans-serif"><FONT SIZE=1 STYLE="font-size: 8pt">${object.user_id.company_id.state_id.name}
+								${object.user_id.company_id.country_id.name}</FONT></FONT></H6>
+							</TD>
+						</TR>
+					</TABLE>
+					<H6 CLASS="western" STYLE="margin-top: 0cm; margin-bottom: 0cm; widows: 2; orphans: 2">
+					<BR>
+					</H6>
+					]]>
+			</field>
+	    </record>
+	</data>
+</openerp>

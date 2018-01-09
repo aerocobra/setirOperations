@@ -40,10 +40,10 @@
 				<form string="Importación">
 					<header>
 						<button name="setirOperations.btn_action_import_wizard_pm" type="action" string="Importar Medios de pago" class="oe_highlight"
-						attrs="{'invisible': ['|',('eImportType', '!=', 'medio_pago'), ('name', '=', 'Nuevo')]}"
+						attrs="{'invisible': ['|',('eImportType', '!=', 'process_medio_pago'), ('name', '=', 'Nuevo')]}"
 						/>
 						<button name="setirOperations.btn_action_import_wizard_invoice" type="action" string="Importar Facturación" class="oe_highlight"
-						attrs="{'invisible': ['|',('eImportType', '!=', 'facturacion'), ('name', '=', 'Nuevo')]}"/>
+						attrs="{'invisible': ['|',('eImportType', '!=', 'process_facturacion'), ('name', '=', 'Nuevo')]}"/>
 					</header>
 					<sheet>
 	                    <div class="oe_title">
@@ -53,13 +53,17 @@
 	                    </div>
 	                    <group col="4" colspan="2">
 							<field name="eImportType" attrs="{'readonly': [('name', '!=', 'Nuevo')]}"/>
-		                    <field name="idProvider"/>
+		                    <field name="idProvider" attrs="{'readonly': [('name', '!=', 'Nuevo')]}"/>
+		                    <field name="eYear" attrs="{'readonly': [('name', '!=', 'Nuevo')]}"/>
 		                    <field name="eMonth"/>
 							<field name="dtLastImport"/>
+							<field name="bDirs" invisible="1"/>
+							<button name="checkDirs" string="Comprobar carpetas" type="object" class="oe_highlight" attrs="{'invisible': [('eMonth','!=', '01')]}"/>
+							<button name="makeDirs" string="Crear carpetas" type="object" class="oe_highlight" attrs="{'invisible': [('bDirs','=', True)]}"/>
 						</group>
 						<group  col="4" colspan="4">
 							<field name="idsImportHistory" nolabel="1" readonly="1">
-								<tree editable="bottom" limit="5">
+								<tree editable="bottom" limit="3">
 									<field name="dtImport"/>
 									<field name="strFileImported"/>
 								</tree>
@@ -147,9 +151,6 @@
 									<field name="idsPMManagement" invisible="1"/>
 									<field name="idsPMManagementHist" invisible="1"/>
 								</tree>
-								<form string="Información de importación">
-									<field name="strInfo"/>
-								</form>
 	                    	</field>
 	                    </group>
 	                    <group>
@@ -158,7 +159,7 @@
 					</sheet>
 					<footer>
 	                    <button name="checkFile" string="Comporbar" type="object"  class="oe_highlight"/>
-						<button name="importFile" string="Importar" type="object" attrs="{'invisible': [('strFile2Import','=', False)]}"  class="oe_highlight"/>
+						<button name="importFile" string="Importar" type="object" attrs="{'invisible': ['|',('strFile2Import','=', False), ('bSaveImport', '=', True)]}"  class="oe_highlight"/>
 						<button name="saveImport" string="Guardar" type="object" attrs="{'invisible': ['|',('strFile2Import','=', False), ('bSaveImport', '=', False)]}"  class="oe_highlight"/>
 						<button string="Cerrar" class="btn-default" special="cancel"/>
 					</footer>
@@ -308,6 +309,7 @@
 				<tree>
 					<field name="eImportType"/>
 					<field name="name"/>
+					<field name="strDescription"/>
 				</tree>
 			</field>
 		</record>
@@ -322,6 +324,7 @@
 	                    <group col="4" colspan="2">
 							<field name="eImportType"/>
                             <field name="name"/>
+							<field name="strDescription"/>
 						</group>
 					</sheet>
 				</form>

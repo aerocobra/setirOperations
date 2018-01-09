@@ -34,10 +34,10 @@
 			<field name="name">Cambio proveedor</field>
 		</record>
 		<record model="setir.pm.unsubscribe.reason" id="pmur4">
-			<field name="name">Defectuoso</field>
+			<field name="name">Cambio producto</field>
 		</record>
 		<record model="setir.pm.unsubscribe.reason" id="pmur5">
-			<field name="name">Sustituición</field>
+			<field name="name">Defectuoso</field>
 		</record>
 		<record model="setir.pm.unsubscribe.reason" id="pmur6">
 			<field name="name">Pérdida</field>
@@ -88,7 +88,7 @@
 			<field name="strDescription">Proveedor factura consumos y su comisión, SETIR factura su comisión</field>
 			<field name="eConsumos">suplido</field>
 			<field name="eCoste">suplido</field>
-			<field name="eBeneficio">suplido</field>
+			<field name="eBeneficio">factura</field>
 		</record>
 	</data>
 	<!-- PARAMETROS CFG -->
@@ -107,11 +107,11 @@
 		</record>
 		<record model="ir.config_parameter" id="ip4">
 			<field name="key">path_consumtions</field>
-			<field name="value">detalle</field>
+			<field name="value">consumos</field>
 		</record>
 		<record model="ir.config_parameter" id="ip5">
 			<field name="key">path_payment_media</field>
-			<field name="value">obu</field>
+			<field name="value">medios_pago</field>
 		</record>
 	</data>
 	<!-- IMPORTACION CAMOPOS BASE -->
@@ -119,98 +119,112 @@
 		<record model="setir.import.base" id="icb0">
 			<field name="eImportType">medio_pago</field>
 			<field name="name">id_medio_pago</field>
+			<field name="strDescription">Identificador único del medio de pago</field>
 		</record>
 		<record model="setir.import.base" id="icb1">
 			<field name="eImportType">medio_pago</field>
 			<field name="name">nombre_cliente</field>
+			<field name="strDescription">Nombre del cliente</field>
 		</record>
 		<record model="setir.import.base" id="icb01">
 			<field name="eImportType">medio_pago</field>
 			<field name="name">nif_cliente</field>
+			<field name="strDescription">NIF del cliente</field>
 		</record>
 		<record model="setir.import.base" id="icb2">
 			<field name="eImportType">medio_pago</field>
 			<field name="name">codigo_cliente_setir</field>
+			<field name="strDescription">Código del cliente en setir</field>
 		</record>
 		<record model="setir.import.base" id="icb3">
 			<field name="eImportType">medio_pago</field>
 			<field name="name">codigo_cliente_proveedor</field>
+			<field name="strDescription">Código del cliente en proveedor</field>
 		</record>
 		<record model="setir.import.base" id="icb4">
 			<field name="eImportType">medio_pago</field>
 			<field name="name">nombre_proveedor</field>
+			<field name="strDescription">Nombre del proveedor del medio de pago</field>
 		</record>
 		<record model="setir.import.base" id="icb5">
 			<field name="eImportType">medio_pago</field>
 			<field name="name">codigo_proveedor_setir</field>
+			<field name="strDescription">Código del proveedor en setir</field>
 		</record>
 		<record model="setir.import.base" id="icb6">
 			<field name="eImportType">medio_pago</field>
 			<field name="name">codigo_proveedor_proveedor</field>
+			<field name="strDescription">Código del proveedor en proveedor</field>
 		</record>
 		<record model="setir.import.base" id="icb7">
 			<field name="eImportType">medio_pago</field>
 			<field name="name">producto_relacionado</field>
+			<field name="strDescription">Identificador del producto del medio de pago</field>
 		</record>
 		<record model="setir.import.base" id="icb8">
 			<field name="eImportType">medio_pago</field>
 			<field name="name">pan</field>
+			<field name="strDescription">Personal Account Number - identificador para autopistas</field>
 		</record>
 		<record model="setir.import.base" id="icb9">
 			<field name="eImportType">medio_pago</field>
 			<field name="name">pan_secundario</field>
+			<field name="strDescription">PAN secundario</field>
 		</record>
 		<record model="setir.import.base" id="icb10">
 			<field name="eImportType">medio_pago</field>
 			<field name="name">matricula_asociada</field>
+			<field name="strDescription">Matrícula del vehículo asociado</field>
 		</record>
 		<record model="setir.import.base" id="icb11">
 			<field name="eImportType">medio_pago</field>
 			<field name="name">pais_de_matricula</field>
+			<field name="strDescription">País de la matrícula</field>
 		</record>
 		<record model="setir.import.base" id="icb12">
 			<field name="eImportType">medio_pago</field>
 			<field name="name">numero_serie</field>
+			<field name="strDescription">Numero de serie del medio de pago</field>
 		</record>
 		<record model="setir.import.base" id="icb13">
 			<field name="eImportType">medio_pago</field>
 			<field name="name">numero_serie_secundario</field>
+			<field name="strDescription">Numero de serie secundario del medio de pago</field>
 		</record>
 		<record model="setir.import.base" id="icb14">
 			<field name="eImportType">medio_pago</field>
 			<field name="name">fecha_alta</field>
+			<field name="strDescription">Fecha alta registro del medio de pago</field>
 		</record>
 		<record model="setir.import.base" id="icb15">
 			<field name="eImportType">medio_pago</field>
 			<field name="name">fecha_creacion</field>
+			<field name="strDescription">Fecha de creación del medio de pago</field>
 		</record>
 		<record model="setir.import.base" id="icb16">
 			<field name="eImportType">medio_pago</field>
 			<field name="name">fecha_expiracion</field>
-		</record>	
+			<field name="strDescription">Fecha de expiración (caducidad)</field>
+		</record>
 		<record model="setir.import.base" id="icb17">
 			<field name="eImportType">medio_pago</field>
 			<field name="name">fecha_baja</field>
+			<field name="strDescription">Fecha de baja del medio de pago</field>
 		</record>
 		<record model="setir.import.base" id="icb18">
 			<field name="eImportType">medio_pago</field>
 			<field name="name">estado_registro</field>
+			<field name="strDescription">Estado del registro del medio de pago</field>
 		</record>
 		<record model="setir.import.base" id="icb19">
 			<field name="eImportType">medio_pago</field>
 			<field name="name">estado_medio_pago</field>
-		</record>
-		<record model="setir.import.base" id="icb301">
-			<field name="eImportType">token_mp</field>
-			<field name="name">obu</field>
-		</record>
-		<record model="setir.import.base" id="icb302">
-			<field name="eImportType">token_mp</field>
-			<field name="name">tarjeta</field>
+			<field name="strDescription">Estado del propio medio de pago</field>
 		</record>
 		<record model="setir.import.base" id="icb401">
 			<field name="eImportType">formato_fecha</field>
 			<field name="name">formato_fecha</field>
+			<field name="strDescription">Formato de fecha en el archivo de importación, si no esta identificado, se aplica '%d/%m/%Y'</field>
 		</record>
 	</data>
 	<!-- ESTADOS -->

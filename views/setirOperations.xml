@@ -27,7 +27,7 @@
 		<act_window id="action_setir_pm"
 			name = "Medios de pago"
 			res_model = "setir.pm"
-			view_mode = "tree,form"	
+			view_mode = "tree,form,pivot,graph,kanban"
 		/>
 		<menuitem id="menu_setir_pm"
 			name = "Medios de pago"
@@ -223,121 +223,21 @@
 	</data>
 	<!-- PM -->
 	<data>
-		<!-- solicitar -->
-		<record model="ir.actions.server" id="requestPM_for">
-		    <field name="name">solicitar MP</field>
+		<!-- GESTIONAR MP -->
+		<record model="ir.actions.server" id="managePM_for">
+		    <field name="name">Gestionar medios de pago ...</field>
 		    <field name="type">ir.actions.server</field>
 		    <field name="model_id" ref="model_setir_pm"/>
 		    <field name="state">code</field>
 		    <field name="code">
 			    if context.get('active_model') == 'setir.pm' and context.get('active_ids'):
-	                action = env['setir.pm'].browse(context['active_ids']).requestPM()
+	                action = env['setir.pm'].browse(context['active_ids']).managePM()
 		    </field>
 		</record>
-		<record id="requestPM_of" model="ir.values">
-		    <field name="name">solicitar_mp</field>
-		    <field name="action_id" ref="requestPM_for"/>
-		    <field name="value" eval="'ir.actions.server,' + str(ref('requestPM_for'))"/>
-		    <field name="key">action</field>
-		    <field name="model_id" ref="model_setir_pm"/>
-		    <field name="model">setir.pm</field>
-		    <field name="key2">client_action_multi</field>
-		</record>
-		<!-- enviar -->
-		<record model="ir.actions.server" id="sendPM_for">
-		    <field name="name">enviar MP</field>
-		    <field name="type">ir.actions.server</field>
-		    <field name="model_id" ref="model_setir_pm"/>
-		    <field name="state">code</field>
-		    <field name="code">
-			    if context.get('active_model') == 'setir.pm' and context.get('active_ids'):
-	                action = env['setir.pm'].browse(context['active_ids']).sendPM()
-		    </field>
-		</record>
-		<record id="sendPM_of" model="ir.values">
-		    <field name="name">enviar_mp</field>
-		    <field name="action_id" ref="sendPM_for"/>
-		    <field name="value" eval="'ir.actions.server,' + str(ref('sendPM_for'))"/>
-		    <field name="key">action</field>
-		    <field name="model_id" ref="model_setir_pm"/>
-		    <field name="model">setir.pm</field>
-		    <field name="key2">client_action_multi</field>
-		</record>
-		<!-- recibir -->
-		<record model="ir.actions.server" id="receivePM_for">
-		    <field name="name">recibir MP</field>
-		    <field name="type">ir.actions.server</field>
-		    <field name="model_id" ref="model_setir_pm"/>
-		    <field name="state">code</field>
-		    <field name="code">
-			    if context.get('active_model') == 'setir.pm' and context.get('active_ids'):
-	                action = env['setir.pm'].browse(context['active_ids']).receivePM()
-		    </field>
-		</record>
-		<record id="receivePM_of" model="ir.values">
-		    <field name="name">recibir_mp</field>
-		    <field name="action_id" ref="receivePM_for"/>
-		    <field name="value" eval="'ir.actions.server,' + str(ref('receivePM_for'))"/>
-		    <field name="key">action</field>
-		    <field name="model_id" ref="model_setir_pm"/>
-		    <field name="model">setir.pm</field>
-		    <field name="key2">client_action_multi</field>
-		</record>
-		<!-- bloquear -->
-		<record model="ir.actions.server" id="lockPM_for">
-		    <field name="name">bloquear MP</field>
-		    <field name="type">ir.actions.server</field>
-		    <field name="model_id" ref="model_setir_pm"/>
-		    <field name="state">code</field>
-		    <field name="code">
-			    if context.get('active_model') == 'setir.pm' and context.get('active_ids'):
-	                action = env['setir.pm'].browse(context['active_ids']).lockPM()
-		    </field>
-		</record>
-		<record id="lockPM_of" model="ir.values">
-		    <field name="name">bloquear_mp</field>
-		    <field name="action_id" ref="lockPM_for"/>
-		    <field name="value" eval="'ir.actions.server,' + str(ref('lockPM_for'))"/>
-		    <field name="key">action</field>
-		    <field name="model_id" ref="model_setir_pm"/>
-		    <field name="model">setir.pm</field>
-		    <field name="key2">client_action_multi</field>
-		</record>
-		<!-- desbloquear -->
-		<record model="ir.actions.server" id="unlockPM_for">
-		    <field name="name">desbloquear MP</field>
-		    <field name="type">ir.actions.server</field>
-		    <field name="model_id" ref="model_setir_pm"/>
-		    <field name="state">code</field>
-		    <field name="code">
-			    if context.get('active_model') == 'setir.pm' and context.get('active_ids'):
-	                action = env['setir.pm'].browse(context['active_ids']).unlockPM()
-		    </field>
-		</record>
-		<record id="unlockPM_of" model="ir.values">
-		    <field name="name">desbloquear_mp</field>
-		    <field name="action_id" ref="unlockPM_for"/>
-		    <field name="value" eval="'ir.actions.server,' + str(ref('unlockPM_for'))"/>
-		    <field name="key">action</field>
-		    <field name="model_id" ref="model_setir_pm"/>
-		    <field name="model">setir.pm</field>
-		    <field name="key2">client_action_multi</field>
-		</record>
-		<!-- dar de baja -->
-		<record model="ir.actions.server" id="unlinkPM_for">
-		    <field name="name">Baja de medios de pago ...</field>
-		    <field name="type">ir.actions.server</field>
-		    <field name="model_id" ref="model_setir_pm"/>
-		    <field name="state">code</field>
-		    <field name="code">
-			    if context.get('active_model') == 'setir.pm' and context.get('active_ids'):
-	                action = env['setir.pm'].browse(context['active_ids']).unlinkPM()
-		    </field>
-		</record>
-		<record id="unlinkPM_of" model="ir.values">
+		<record id="managePM_of" model="ir.values">
 		    <field name="name">dardebaja_mp</field>
-		    <field name="action_id" ref="unlinkPM_for"/>
-		    <field name="value" eval="'ir.actions.server,' + str(ref('unlinkPM_for'))"/>
+		    <field name="action_id" ref="managePM_for"/>
+		    <field name="value" eval="'ir.actions.server,' + str(ref('managePM_for'))"/>
 		    <field name="key">action</field>
 		    <field name="model_id" ref="model_setir_pm"/>
 		    <field name="model">setir.pm</field>

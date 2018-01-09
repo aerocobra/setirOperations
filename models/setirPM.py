@@ -15,17 +15,26 @@ class setirPM ( models.Model):
 	_name				= "setir.pm"
 	_inherit			= ['mail.thread', 'ir.needaction_mixin']
 	_description		= "Medio de pago"
-	_order				= 'idCustomer desc, dtSignUp desc'
+	_order				= 'idProvider,idCustomer,dtSignUp'
+
+	name				= fields.Char		(	string			= u"OBU ID")
+
+	nPMCount			= fields.Integer	(	string			= "Count")
 
 	idOperation			= fields.Many2one	(	string			= u"Operación",
 												comodel_name	= "setir.operation")
 
 	idCustomer			= fields.Many2one	(	string			= "Cliente",
 												comodel_name	= "res.partner",
-												domain			= "[('customer', '=', True)]")
+												domain			= "[('customer', '=', True)]",
+												index			= True)
+	strCustomer			= fields.Char		(	string			= "Cliente",
+												related			= "idCustomer.name")
 	idProvider			= fields.Many2one	(	string			= "Proveedor",
 												comodel_name	= "res.partner",
 												domain			= "[('supplier', '=', True)]")
+	strProvider			= fields.Char		(	string			= "Proveedor",
+												related			= "idProvider.name")
 	
 	idProduct			= fields.Many2one	(	string			= "Producto",
 												comodel_name	= "product.product")
@@ -36,7 +45,6 @@ class setirPM ( models.Model):
 												comodel_name	= "sale.quote.template")
 	
 	strPAN				= fields.Char		(	string			= "PAN")
-	name				= fields.Char		(	string			= u"OBU ID")
 	strSecondaryPAN		= fields.Char		(	string			= "PAN Secundario")
 
 	strPN				= fields.Char		(	string			= u"Matrícula asociada")
@@ -59,6 +67,8 @@ class setirPM ( models.Model):
 	idUnsubscribeReason	= fields.Many2one	(	string			= "Causa de baja",
 												comodel_name	= "setir.pm.unsubscribe.reason",
 												readonly		= True)
+	bReplace			= fields.Boolean	(	string			= u"Sustitución",
+												default			= False)
 	
 	#estados de propio PM
 	idsPMState			= fields.Many2one	(	string			= "Estado medio de pago",
@@ -85,13 +95,13 @@ class setirPM ( models.Model):
 												readonly		= True)
 
 	@api.one
-	def addPMManagementHistory (self, idMangement, strSender, strReceiver):
+	def addPMManagementHistory (self, idMangement, eSender, eReceiver):
 		vals = {}
 		vals['idPM']			= self.id
 		vals['idManagement']	= idMangement
 		vals['dtManagement']	= fields.Datetime.now()
-		vals['eSender']			= dict(ACTORS)[strSender]
-		vals['eReceiver']		= dict(ACTORS)[strReceiver]
+		vals['eSender']			= eSender #dict(ACTORS)[strSender]
+		vals['eReceiver']		= eReceiver #dict(ACTORS)[strReceiver]
 
 		self.env["setir.pm.management.history"].create ( vals)
 
@@ -107,15 +117,7 @@ class setirPM ( models.Model):
 		strIDS = str ( self.env.context.get ("active_ids", False))
 		raise exceptions.ValidationError ( "recibir:" + strIDS)
 
-	def lockPM (self):
-		strIDS = str ( self.env.context.get ("active_ids", False))
-		raise exceptions.ValidationError ( "bloquear:" + strIDS)
-	
-	def unlockPM (self):
-		strIDS = str ( self.env.context.get ("active_ids", False))
-		raise exceptions.ValidationError ( "desbloquear:" + strIDS)
-
-	def unlinkPM (self):
+	def managePM (self):
 		ids2D	= self.env.context.get ("active_ids", False) 
 		strIDS	= str ( ids2D)
 		
@@ -125,7 +127,7 @@ class setirPM ( models.Model):
 		
 		
 		return {
-            'name': 'Wizard de baja MP',
+            'name': u'Gestión de los medios de pago',
             'view_type': 'form',
             'view_mode': 'form',
             'view_id': self.env['ir.ui.view'].search([('name','=','setirPMUnlinkForm')])[0].id,
@@ -136,8 +138,6 @@ class setirPM ( models.Model):
 			'target': "new",
 			'context': ctx
         }
-		
-		#raise exceptions.ValidationError ( "dar de baja:" + strIDS)
 
 	@api.one
 	def addPMStateHistory (self, idState):

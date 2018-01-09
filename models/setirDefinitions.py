@@ -10,6 +10,16 @@ INVOICING_TYPE  					=   [
 										(INVOICING_TYPE_RAPEL,		"rapel"),
 										]
 
+#categorias productos setir a dar de alata como categorias internas
+CATEGORIA_MEDIO_DE_PAGO				= "medio de pago"
+CATEGORIA_OBU						= "obu"
+CATEGORIA_TARJETA					= "tarjeta"
+CAEGORIA_ACTIVACION					= "activacion"
+CATEGORIA_PEAJE						= "peaje"
+CATEGORIA_RAPEL						= "rapel"
+CATEGORIA_COMBUSTIBLE				= "combustible"
+CATEGORIA_IMPUESTO					= "impuesto"
+
 PM_TYPE_OBU							= "obu"
 PM_TYPE_TARJETA						= "tarjeta"
 PM_TYPE         					=   [
@@ -30,9 +40,22 @@ PM_STATE_BLOQUEADO					= "bloqueado"
 PM_STATE_BAJA						= "baja"
 PM_STATE							=	[
 										(PM_STATE_ESPERA, "Espera"),
-										(PM_STATE_ACTIVO, "Activado"),
+										(PM_STATE_ACTIVO, "Activo"),
 										(PM_STATE_BLOQUEADO, "Bloqueado"),
 										(PM_STATE_BAJA, "Baja")
+										]
+
+GESTION_BLOQUEO						= "bloqueo" 
+GESTION_DESBLOQUEO					= "desbloqueo"
+GESTION_BAJA						= "baja"
+GESTION_ENVIO						= "envio"
+GESTION_RECEPCION					= "recepcion"
+GESTIONES							=	[
+										(GESTION_BLOQUEO,		"Bloqueo"), 
+										(GESTION_DESBLOQUEO,	"Desbloqueo"),
+										(GESTION_BAJA,			"Baja"),
+										(GESTION_ENVIO, 		u"Envío"),
+										(GESTION_RECEPCION, 	u"Recepción"),
 										]
 
 IMPORT_TYPE_FACTURACION				= "facturacion"
@@ -69,20 +92,28 @@ IMPORT_PROCESS_TYPE_FACTURACION	= "process_facturacion"
 IMPORT_PROCESS_TYPE_MP			= "process_medio_pago"
 IMPORT_PROCES_TYPE				=	[
 									(IMPORT_PROCESS_TYPE_FACTURACION,	"Facturacion"),
-									(IMPORT_PROCESS_TYPE_MP,			"Medios de pago")
+									(IMPORT_PROCESS_TYPE_MP,			"Medio de pago")
 									]
 
 PATH_ROOT			= "path_root"
 PATH_INVOICING		= "path_invoicing"
-PATH_INVOICE		= "path_invoice"
-PATH_CONSUPTION		= "path_consumtion"
+PATH_INVOICES		= "path_invoices"
+PATH_CONSUPTIONS	= "path_consumtions"
 PATH_PM				= "path_payment_media"
 DEF_PATHS  			=   [
 						(PATH_ROOT,"path_root"),
 						(PATH_INVOICING,"path_invoicing"),
-						(PATH_INVOICE,"path_invoice"),
-						(PATH_CONSUPTION,"path_consumtion"),
+						(PATH_INVOICES,"path_invoices"),
+						(PATH_CONSUPTIONS,"path_consumtions"),
 						(PATH_PM,"path_payment_media")
+						]
+
+YEARS			  	=   [
+						("2016", "2016"),
+						("2017", "2017"),
+						("2018", "2018"),
+						("2019", "2019"),
+						("2020", "2020"),
 						]
 
 MONTHS			  	=   [
@@ -179,7 +210,7 @@ DEF_ADDRESS_TYPE			=	[
 
 CONTACT_NAME_ENVIO			= "envio"
 CONTACT_NAME_ENVIO_OBU		= "envio-obu"
-CONTACT_NAME_ENVIO_TTA		= "envio-tta"
+CONTACT_NAME_ENVIO_TARJETA	= "envio-tarjeta"
 CONTACT_NAME_FACTURACION	= "facturacion"
 CONTACT_NAME_OPERACIONES	= "operaciones"
 
@@ -187,9 +218,9 @@ ACTOR_CLIENTE				= "cliente"
 ACTOR_PROVEEDOR				= "proveedor"
 ACTOR_SETIR					= "setir"
 ACTORS          			=   [
-								(ACTOR_CLIENTE, "cliente"),
-								(ACTOR_PROVEEDOR, "proveedor"),
-								(ACTOR_SETIR, "setir")
+								(ACTOR_CLIENTE,		"cliente"),
+								(ACTOR_PROVEEDOR,	"proveedor"),
+								(ACTOR_SETIR,		"setir")
 								]
 
 #estados por defecto, es posible añadir más manualmente 

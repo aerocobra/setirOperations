@@ -1,8 +1,289 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
 	<data>
+		<!-- RECEIVE WIZARD -->
+		<report id="btn_pmReceiveWizardReport_action"
+			string="Adjuntar informe desbloqueo"
+			model="setir.unsubscribe.wizard.pm"
+			report_type="qweb-pdf"
+			file="setirOperations.pmReceiveWizardReport"
+			name="setirOperations.pmReceiveWizardReport"
+		/>
+		<report id="pmReceiveWizardReport_action"
+			string="Informe bloqueo"
+			model="setir.unsubscribe.wizard.pm"
+			report_type="qweb-pdf"
+			file="setirOperations.pmReceiveWizardReport"
+			name="setirOperations.pmReceiveWizardReport"
+		/>
+		<template id="pmReceiveWizardReport">
+			<t t-call="report.html_container">
+				<t t-call="report.external_layout">
+					<div class="page">
+						<t t-set="first_doc" t-value="false"/>
+						<t t-foreach="docs" t-as="wizard_record">
+							<t t-set="first_pm_type" t-value="'sin_tipo'"/>
+							<t t-set="primerRegistro" t-value="1"/>
+							<t t-set="mediosPago" t-value="wizard_record.idsPM2Manage"/>
+							<t t-foreach="wizard_record.idsPM2Manage" t-as="registroMedioPago">
+								<t t-if="primerRegistro">
+									<t t-set="primerRegistro" t-value="0"/>
+									<t t-set="first_doc" t-value="registroMedioPago"/>
+									<t t-set="first_pm_type" t-value="registroMedioPago.strPMType"/>
+									<t t-call="setirOperations.pmSearchAddress">
+										<t t-set="item" t-value="registroMedioPago"/>
+										<t t-raw="0"/>
+									</t>
+									<br></br><br></br>
+									<t t-call="setirOperations.pmTextRecepcion" />
+									<br></br><br></br>
+								</t>
+							</t>
+							<!-- SOLO se mostarrán medios de pago del mismo tipo que el primero seleccionado  -->
+							<t t-call="setirOperations.pmItems">
+								<t t-set="current_state" t-value="''"/>
+								<t t-set="current_type" t-value="first_pm_type"/>
+								<t t-set="items" t-value="wizard_record.idsPM2Manage"/>
+								<t t-raw="0"/>
+							</t>
+						</t>
+						<div class="col-xs-offset-8 col-xs-4">
+							<br></br><br></br><p><strong>Atentamente</strong></p>
+							<p><strong>Dpto. <span t-esc="first_doc.idOperation.idResonsibleToll.employee_ids.department_id.name"/></strong></p>
+							<p><b><i><span t-esc="first_doc.idOperation.idResonsibleToll.name"/></i></b></p>
+							<p t-esc="first_doc.idOperation.idResonsibleToll.email"/>
+						</div>
+					</div>
+				</t>
+			</t>
+		</template>
+		<!-- SEND WIZARD -->
+		<report id="btn_pmSendWizardReport_action"
+			string="Adjuntar informe desbloqueo"
+			model="setir.unsubscribe.wizard.pm"
+			report_type="qweb-pdf"
+			file="setirOperations.pmSendWizardReport"
+			name="setirOperations.pmSendWizardReport"
+		/>
+		<report id="pmSendWizardReport_action"
+			string="Informe bloqueo"
+			model="setir.unsubscribe.wizard.pm"
+			report_type="qweb-pdf"
+			file="setirOperations.pmSendWizardReport"
+			name="setirOperations.pmSendWizardReport"
+		/>
+		<template id="pmSendWizardReport">
+			<t t-call="report.html_container">
+				<t t-call="report.external_layout">
+					<div class="page">
+						<t t-set="first_doc" t-value="false"/>
+						<t t-foreach="docs" t-as="wizard_record">
+							<t t-set="first_pm_type" t-value="'sin_tipo'"/>
+							<t t-set="primerRegistro" t-value="1"/>
+							<t t-set="mediosPago" t-value="wizard_record.idsPM2Manage"/>
+							<t t-foreach="wizard_record.idsPM2Manage" t-as="registroMedioPago">
+								<t t-if="primerRegistro">
+									<t t-set="primerRegistro" t-value="0"/>
+									<t t-set="first_doc" t-value="registroMedioPago"/>
+									<t t-set="first_pm_type" t-value="registroMedioPago.strPMType"/>
+									<t t-call="setirOperations.pmSearchAddress">
+										<t t-set="item" t-value="registroMedioPago"/>
+										<t t-raw="0"/>
+									</t>
+									<br></br><br></br>
+									<t t-call="setirOperations.pmTextEnvio" />
+									<br></br><br></br>
+								</t>
+							</t>
+							<!-- SOLO se mostarrán medios de pago del mismo tipo que el primero seleccionado  -->
+							<t t-call="setirOperations.pmItems">
+								<t t-set="current_state" t-value="''"/>
+								<t t-set="current_type" t-value="first_pm_type"/>
+								<t t-set="items" t-value="wizard_record.idsPM2Manage"/>
+								<t t-raw="0"/>
+							</t>
+						</t>
+						<div class="col-xs-offset-8 col-xs-4">
+							<br></br><br></br><p><strong>Atentamente</strong></p>
+							<p><strong>Dpto. <span t-esc="first_doc.idOperation.idResonsibleToll.employee_ids.department_id.name"/></strong></p>
+							<p><b><i><span t-esc="first_doc.idOperation.idResonsibleToll.name"/></i></b></p>
+							<p t-esc="first_doc.idOperation.idResonsibleToll.email"/>
+						</div>
+					</div>
+				</t>
+			</t>
+		</template>
+		<!-- UNLOCK WIZARD -->
+		<report id="btn_pmUnlockWizardReport_action"
+			string="Adjuntar informe desbloqueo"
+			model="setir.unsubscribe.wizard.pm"
+			report_type="qweb-pdf"
+			file="setirOperations.pmUnlockWizardReport"
+			name="setirOperations.pmUnlockWizardReport"
+		/>
+		<report id="pmUnlockWizardReport_action"
+			string="Informe bloqueo"
+			model="setir.unsubscribe.wizard.pm"
+			report_type="qweb-pdf"
+			file="setirOperations.pmUnlockWizardReport"
+			name="setirOperations.pmUnlockWizardReport"
+		/>
+		<template id="pmUnlockWizardReport">
+			<t t-call="report.html_container">
+				<t t-call="report.external_layout">
+					<div class="page">
+						<t t-set="first_doc" t-value="false"/>
+						<t t-foreach="docs" t-as="wizard_record">
+							<t t-set="first_pm_type" t-value="'sin_tipo'"/>
+							<t t-set="primerRegistro" t-value="1"/>
+							<t t-set="mediosPago" t-value="wizard_record.idsPM2Manage"/>
+							<t t-foreach="wizard_record.idsPM2Manage" t-as="registroMedioPago">
+								<t t-if="primerRegistro">
+									<t t-set="primerRegistro" t-value="0"/>
+									<t t-set="first_doc" t-value="registroMedioPago"/>
+									<t t-set="first_pm_type" t-value="registroMedioPago.strPMType"/>
+									<t t-call="setirOperations.pmSearchAddress">
+										<t t-set="item" t-value="registroMedioPago"/>
+										<t t-raw="0"/>
+									</t>
+									<br></br><br></br>
+									<t t-call="setirOperations.pmTextDesbloqueo" />
+									<br></br><br></br>
+								</t>
+							</t>
+							<!-- SOLO se mostarrán medios de pago del mismo tipo que el primero seleccionado  -->
+							<t t-call="setirOperations.pmItems">
+								<t t-set="current_state" t-value="'Activo'"/>
+								<t t-set="current_type" t-value="first_pm_type"/>
+								<t t-set="items" t-value="wizard_record.idsPM2Manage"/>
+								<t t-raw="0"/>
+							</t>
+						</t>
+						<div class="col-xs-offset-8 col-xs-4">
+							<br></br><br></br><p><strong>Atentamente</strong></p>
+							<p><strong>Dpto. <span t-esc="first_doc.idOperation.idResonsibleToll.employee_ids.department_id.name"/></strong></p>
+							<p><b><i><span t-esc="first_doc.idOperation.idResonsibleToll.name"/></i></b></p>
+							<p t-esc="first_doc.idOperation.idResonsibleToll.email"/>
+						</div>
+					</div>
+				</t>
+			</t>
+		</template>
+		<!-- LOCK WIZARD -->
+		<report id="btn_pmLockWizardReport_action"
+			string="Adjuntar informe bloqueo"
+			model="setir.unsubscribe.wizard.pm"
+			report_type="qweb-pdf"
+			file="setirOperations.pmLockWizardReport"
+			name="setirOperations.pmLockWizardReport"
+		/>
+		<report id="pmLockWizardReport_action"
+			string="Informe bloqueo"
+			model="setir.unsubscribe.wizard.pm"
+			report_type="qweb-pdf"
+			file="setirOperations.pmLockWizardReport"
+			name="setirOperations.pmLockWizardReport"
+		/>
+		<template id="pmLockWizardReport">
+			<t t-call="report.html_container">
+				<t t-call="report.external_layout">
+					<div class="page">
+						<t t-set="first_doc" t-value="false"/>
+						<t t-foreach="docs" t-as="wizard_record">
+							<t t-set="first_pm_type" t-value="'sin_tipo'"/>
+							<t t-set="primerRegistro" t-value="1"/>
+							<t t-set="mediosPago" t-value="wizard_record.idsPM2Manage"/>
+							<t t-foreach="wizard_record.idsPM2Manage" t-as="registroMedioPago">
+								<t t-if="primerRegistro">
+									<t t-set="primerRegistro" t-value="0"/>
+									<t t-set="first_doc" t-value="registroMedioPago"/>
+									<t t-set="first_pm_type" t-value="registroMedioPago.strPMType"/>
+									<t t-call="setirOperations.pmSearchAddress">
+										<t t-set="item" t-value="registroMedioPago"/>
+										<t t-raw="0"/>
+									</t>
+									<br></br><br></br>
+									<t t-call="setirOperations.pmTextBloqueo" />
+									<br></br><br></br>
+								</t>
+							</t>
+							<!-- SOLO se mostarrán medios de pago del mismo tipo que el primero seleccionado  -->
+							<t t-call="setirOperations.pmItems">
+								<t t-set="current_state" t-value="'Bloqueado'"/>
+								<t t-set="current_type" t-value="first_pm_type"/>
+								<t t-set="items" t-value="wizard_record.idsPM2Manage"/>
+								<t t-raw="0"/>
+							</t>
+						</t>
+						<div class="col-xs-offset-8 col-xs-4">
+							<br></br><br></br><p><strong>Atentamente</strong></p>
+							<p><strong>Dpto. <span t-esc="first_doc.idOperation.idResonsibleToll.employee_ids.department_id.name"/></strong></p>
+							<p><b><i><span t-esc="first_doc.idOperation.idResonsibleToll.name"/></i></b></p>
+							<p t-esc="first_doc.idOperation.idResonsibleToll.email"/>
+						</div>
+					</div>
+				</t>
+			</t>
+		</template>
+		<!-- UNLINK WIZARD -->
+		<report id="btn_pmUnsubscribeWizardReport_action"
+			string="Adjuntar informe baja"
+			model="setir.unsubscribe.wizard.pm"
+			report_type="qweb-pdf"
+			file="setirOperations.pmUnsubscribeWizardReport"
+			name="setirOperations.pmUnsubscribeWizardReport"
+		/>
+		<report id="pmUnsubscribeWizardReport_action"
+			string="Informe baja"
+			model="setir.unsubscribe.wizard.pm"
+			report_type="qweb-pdf"
+			file="setirOperations.pmUnsubscribeWizardReport"
+			name="setirOperations.pmUnsubscribeWizardReport"
+		/>
+		<template id="pmUnsubscribeWizardReport">
+			<t t-call="report.html_container">
+				<t t-call="report.external_layout">
+					<div class="page">
+						<t t-set="first_doc" t-value="false"/>
+						<t t-foreach="docs" t-as="wizard_record">
+							<t t-set="first_pm_type" t-value="'sin_tipo'"/>
+							<t t-set="primerRegistro" t-value="1"/>
+							<t t-set="mediosPago" t-value="wizard_record.idsPM2Manage"/>
+							<t t-foreach="wizard_record.idsPM2Manage" t-as="registroMedioPago">
+								<t t-if="primerRegistro">
+									<t t-set="primerRegistro" t-value="0"/>
+									<t t-set="first_doc" t-value="registroMedioPago"/>
+									<t t-set="first_pm_type" t-value="registroMedioPago.strPMType"/>
+									<t t-call="setirOperations.pmSearchAddress">
+										<t t-set="item" t-value="registroMedioPago"/>
+										<t t-raw="0"/>
+									</t>
+									<br></br><br></br>
+									<t t-call="setirOperations.pmTextBaja" />
+									<br></br><br></br>
+								</t>
+							</t>
+							<!-- SOLO se mostarrán medios de pago del mismo tipo que el primero seleccionado  -->
+							<t t-call="setirOperations.pmItems">
+								<t t-set="current_state" t-value="'Baja'"/>
+								<t t-set="current_type" t-value="first_pm_type"/>
+								<t t-set="items" t-value="wizard_record.idsPM2Manage"/>
+								<t t-raw="0"/>
+							</t>
+						</t>
+						<div class="col-xs-offset-8 col-xs-4">
+							<br></br><br></br><p><strong>Atentamente</strong></p>
+							<p><strong>Dpto. <span t-esc="first_doc.idOperation.idResonsibleToll.employee_ids.department_id.name"/></strong></p>
+							<p><b><i><span t-esc="first_doc.idOperation.idResonsibleToll.name"/></i></b></p>
+							<p t-esc="first_doc.idOperation.idResonsibleToll.email"/>
+						</div>
+					</div>
+				</t>
+			</t>
+		</template>
+		<!--  REPORT DESDE TREE VIEW ======================================================================== -->
 		<report id="pmUnsubscribeReport_action"
-			string="Informa baja"
+			string="Informe baja"
 			model="setir.pm"
 			report_type="qweb-pdf"
 			file="setirOperations.pmUnsubscribeReport"
@@ -12,78 +293,225 @@
 			<t t-call="report.html_container">
 				<t t-call="report.external_layout">
 					<div class="page">
-						<div class="col-xs-offset-9 col-xs-3">
+						<t t-set="first_doc" t-value="false"/>
+						<div>
 							<t t-set="first_pm_type" t-value="'sin_tipo'"/>
 							<t t-foreach="docs" t-as="rec">
 								<t t-if="rec_first">
-									<div>
-										<img t-if="rec.idProvider.image_medium"
-											t-att-src="'data:image/png;base64,%s' % rec.idProvider.image_medium"
-											style="max-height: 55px;"/>
-									</div>
-									<t t-esc="rec.idProvider.name"/><br></br>
-									<t t-set="first_pm_type" t-value="rec.ePMType"/>
-
-									<!-- direccion por defecto es la direccion principal del proveedor -->
-									<t t-set="addressName" t-value="'envio-'+rec.ePMType"/>
-									<!-- t t-set="addressName" t-value="'envio-obu'"/ -->
-									<t t-set="specificDeliveryAddressFound" t-value="False"/>
-									<t t-set="generalDeliveryAddressFound" t-value="False"/>
-									<t t-esc="addressName"/><br></br>
-									<!-- buscamos la dirección de envío específica para el tipo de medio de pago -->
-									<t t-foreach="rec.idProvider.child_ids" t-as="contact">
-										<t t-if="contact.type =='delivery' and contact.name == addressName and not specificDeliveryAddressFound">
-											<t t-set="specificDeliveryAddressFound" t-value="True"/>
-											<t t-call="setirOperations.pmAddress">
-												<t t-set="contact" t-value="contact"/>
-												<t t-raw="0"/>
-											</t>
-										</t>
-									</t>
-									<!-- buscamos la dirección de envío generica si la específica no se ha encontrada -->
-									<t t-foreach="rec.idProvider.child_ids" t-as="contact">
-										<t t-if="contact.type =='delivery' and not specificDeliveryAddressFound and not generalDeliveryAddressFound">
-											<t t-set="generalDeliveryAddressFound" t-value="True"/>
-											<t t-call="setirOperations.pmAddress">
-												<t t-set="contact" t-value="contact"/>
-												<t t-raw="0"/>
-											</t>
-										</t>
-									</t>
-									<!-- no se ha encontrado nada, usamos la direccion por defecto -->
-									<t t-if="not specificDeliveryAddressFound and not generalDeliveryAddressFound">
-										<t t-call="setirOperations.pmAddress">
-											<t t-set="contact" t-value="rec.idProvider"/>
-											<t t-raw="0"/>
-										</t>
+									<t t-set="first_doc" t-value="rec"/>
+									<t t-set="first_pm_type" t-value="rec.strPMType"/>
+									<t t-call="setirOperations.pmSearchAddress">
+										<t t-set="item" t-value="rec"/>
+										<t t-raw="0"/>
 									</t>
 								</t>
 							</t>
 						</div>
-						
-						<p></p><p></p>
-						<div class="col-xs-offset-4 col-xs-4">
-							<br></br><p><strong>Baja de los medios de pago</strong></p>
-							
-						</div>
 						<br></br><br></br>
-						<div class="col-xs-12">
-							<p>Estimadas/os Sras/es,</p><br></br>
-							<p>Rogamos que procede con la baja de los siguientes medios de pago :</p>
-						</div>
+						<t t-call="setirOperations.pmTextBaja" />
 						<br></br><br></br>
 						<!-- SOLO se mostarrán medios de pago del mismo tipo que el primero seleccionado  -->
 						<t t-call="setirOperations.pmItems">
-							<t t-set="current_state" t-value="'baja'"/>
+							<t t-set="current_state" t-value="'Baja'"/>
 							<t t-set="current_type" t-value="first_pm_type"/>
+							<t t-set="items" t-value="docs"/>
+							<t t-raw="0"/>
+						</t>
+						<t t-call="setirOperations.pmFirma">
+							<t t-set="item" t-value="first_doc"/>
 							<t t-raw="0"/>
 						</t>
 					</div>
 				</t>
 			</t>
 		</template>
-		<!-- bloque de dirección formateada -->
+		<report id="pmLockReport_action"
+			string="Informe bloqueo"
+			model="setir.pm"
+			report_type="qweb-pdf"
+			file="setirOperations.pmLockReport"
+			name="setirOperations.pmLockReport"
+		/>
+		<template id="pmLockReport">
+			<t t-call="report.html_container">
+				<t t-call="report.external_layout">
+					<div class="page">
+						<t t-set="first_doc" t-value="false"/>
+						<div>
+							<t t-set="first_pm_type" t-value="'sin_tipo'"/>
+							<t t-foreach="docs" t-as="rec">
+								<t t-if="rec_first">
+									<t t-set="first_doc" t-value="rec"/>
+									<t t-set="first_pm_type" t-value="rec.strPMType"/>
+									<t t-call="setirOperations.pmSearchAddress">
+										<t t-set="item" t-value="rec"/>
+										<t t-raw="0"/>
+									</t>
+								</t>
+							</t>
+						</div>
+						<br></br><br></br>
+						<t t-call="setirOperations.pmTextBloqueo" />
+						<br></br><br></br>
+						<!-- SOLO se mostarrán medios de pago del mismo tipo que el primero seleccionado  -->
+						<t t-call="setirOperations.pmItems">
+							<t t-set="current_state" t-value="'Bloqueado'"/>
+							<t t-set="current_type" t-value="first_pm_type"/>
+							<t t-set="items" t-value="docs"/>
+							<t t-raw="0"/>
+						</t>
+						<t t-call="setirOperations.pmFirma">
+							<t t-set="item" t-value="first_doc"/>
+							<t t-raw="0"/>
+						</t>
+					</div>
+				</t>
+			</t>
+		</template>
+		<report id="pmUnlockReport_action"
+			string="Informe desbloqueo"
+			model="setir.pm"
+			report_type="qweb-pdf"
+			file="setirOperations.pmUnlockReport"
+			name="setirOperations.pmUnlockReport"
+		/>
+		<template id="pmUnlockReport">
+			<t t-call="report.html_container">
+				<t t-call="report.external_layout">
+					<div class="page">
+						<t t-set="first_doc" t-value="false"/>
+						<div>
+							<t t-set="first_pm_type" t-value="'sin_tipo'"/>
+							<t t-foreach="docs" t-as="rec">
+								<t t-if="rec_first">
+									<t t-set="first_doc" t-value="rec"/>
+									<t t-set="first_pm_type" t-value="rec.strPMType"/>
+									<t t-call="setirOperations.pmSearchAddress">
+										<t t-set="item" t-value="rec"/>
+										<t t-raw="0"/>
+									</t>
+								</t>
+							</t>
+						</div>
+						<br></br><br></br>
+						<t t-call="setirOperations.pmTextDesbloqueo" />
+						<br></br><br></br>
+						<!-- SOLO se mostarrán medios de pago del mismo tipo que el primero seleccionado  -->
+						<t t-call="setirOperations.pmItems">
+							<t t-set="current_state" t-value="'Activo'"/>
+							<t t-set="current_type" t-value="first_pm_type"/>
+							<t t-set="items" t-value="docs"/>
+							<t t-raw="0"/>
+						</t>
+						<t t-call="setirOperations.pmFirma">
+							<t t-set="item" t-value="first_doc"/>
+							<t t-raw="0"/>
+						</t>
+					</div>
+				</t>
+			</t>
+		</template>
+		<!-- BLOQUES DE LOS INFORMES -->
+		<template  id="pmFirma">
+			<div class="col-xs-offset-8 col-xs-4">
+				<br></br><br></br><p><strong>Atentamente</strong></p>
+				<p><strong>Dpto. <span t-esc="item.idOperation.idResonsibleToll.employee_ids.department_id.name"/></strong></p>
+				<p><b><i><span t-esc="item.idOperation.idResonsibleToll.name"/></i></b></p>
+				<p t-esc="item.idOperation.idResonsibleToll.email"/>
+			</div>
+		</template>
+		<template  id="pmTextBaja">
+			<div class="col-xs-offset-4 col-xs-5">
+				<br></br><p><strong>Baja de los medios de pago</strong></p>
+			</div>
+			<div class="col-xs-12">
+				<p>Estimadas/os Sras/es,</p><br></br>
+				<p>Rogamos que procede con la baja de los siguientes medios de pago:</p>
+			</div>
+		</template>
+		<template  id="pmTextBloqueo">
+			<div class="col-xs-offset-4 col-xs-5">
+				<br></br><p><strong>Bloqueo temporal de los medios de pago</strong></p>
+			</div>
+			<div class="col-xs-12">
+				<p>Estimadas/os Sras/es,</p><br></br>
+				<p>Rogamos que procede con el bloqueo temporal de los siguientes medios de pago:</p>
+			</div>
+		</template>
+		<template  id="pmTextDesbloqueo">
+			<div class="col-xs-offset-4 col-xs-5">
+				<br></br><p><strong>Desbloqueo de los medios de pago</strong></p>
+			</div>
+			<div class="col-xs-12">
+				<p>Estimadas/os Sras/es,</p><br></br>
+				<p>Rogamos que procede con el desdloqueo de los siguientes medios de pago:</p>
+			</div>
+		</template>
+		<template  id="pmTextEnvio">
+			<div class="col-xs-offset-4 col-xs-5">
+				<br></br><p><strong>Envío de los medios de pago</strong></p>
+			</div>
+			<div class="col-xs-12">
+				<p>Estimadas/os Sras/es,</p><br></br>
+				<p>Les enviamos los siguientes medios de pago:</p>
+			</div>
+		</template>
+		<template  id="pmTextRecepcion">
+			<div class="col-xs-offset-4 col-xs-5">
+				<br></br><p><strong>Recepción de los medios de pago</strong></p>
+			</div>
+			<div class="col-xs-12">
+				<p>Estimadas/os Sras/es,</p><br></br>
+				<p>Hemos recibido los siguientes medios de pago:</p>
+			</div>
+		</template>
+		<!-- SELECCION DIRECCION CORRECTA -->
+		<template id="pmSearchAddress">
+			<div  class="col-xs-offset-7 col-xs-5">
+				<div>
+					<img t-if="item.idProvider.image_medium"
+						t-att-src="'data:image/png;base64,%s' % item.idProvider.image_medium"
+						style="max-height: 55px;"/>
+				</div>
+				<t t-esc="item.idProvider.name"/><br></br>
+				<!-- direccion por defecto es la direccion principal del proveedor -->
+				<t t-set="addressName" t-value="'envio-'+item.strPMType"/>
+				<!-- t t-set="addressName" t-value="'envio-obu'"/ -->
+				<t t-set="specificDeliveryAddressFound" t-value="False"/>
+				<t t-set="generalDeliveryAddressFound" t-value="False"/>
+				<!-- t t-esc="addressName"/><br></br-->
+				<!-- buscamos la dirección de envío específica para el tipo de medio de pago -->
+				<t t-foreach="item.idProvider.child_ids" t-as="contact">
+					<t t-if="contact.type =='delivery' and contact.name == addressName and not specificDeliveryAddressFound">
+						<t t-set="specificDeliveryAddressFound" t-value="True"/>
+						<t t-call="setirOperations.pmAddress">
+							<t t-set="contact" t-value="contact"/>
+							<t t-raw="0"/>
+						</t>
+					</t>
+				</t>
+				<!-- buscamos la dirección de envío generica si la específica no se ha encontrada -->
+				<t t-foreach="item.idProvider.child_ids" t-as="contact">
+					<t t-if="contact.type =='delivery' and not specificDeliveryAddressFound and not generalDeliveryAddressFound">
+						<t t-set="generalDeliveryAddressFound" t-value="True"/>
+						<t t-call="setirOperations.pmAddress">
+							<t t-set="contact" t-value="contact"/>
+							<t t-raw="0"/>
+						</t>
+					</t>
+				</t>
+				<!-- no se ha encontrado nada, usamos la direccion por defecto -->
+				<t t-if="not specificDeliveryAddressFound and not generalDeliveryAddressFound">
+					<t t-call="setirOperations.pmAddress">
+						<t t-set="contact" t-value="item.idProvider"/>
+						<t t-raw="0"/>
+					</t>
+				</t>
+			</div>
+		</template>
+		<!-- BLOQUE DIRECCION FORMATEADA (en vez de widget que no funcion bien) -->
 		<template id="pmAddress">
+			<span t-esc="contact.name"/><br></br>
 			<t t-if="contact.street"><span t-esc="contact.street"/><br></br></t>
 			<t t-if="contact.street2"><span t-esc="contact.street2"/><br></br></t>
 			<t t-if="contact.zip or contact.city">
@@ -94,61 +522,55 @@
 			<t t-if="contact.state_id.name"><span t-esc="contact.state_id.name"/><br></br></t>
 			<t t-if="contact.country_id.name"><span t-esc="contact.country_id.name"/><br></br></t>
 		</template>
-		<!-- bloque de la lista de los medios de pago -->
+		<!-- LISTA DE LOS MEDIOS DE PAGO -->
 		<template id="pmItems">
 			<table class="table table-condensed">
 				<thead>
 					<tr>
-						<th class="text-left">Customer</th>
-						<th class="text-left">Customer code</th>
-						<th class="text-left">Product</th>
-						<th class="text-left">Product pack</th>
-						<th class="text-left">Type</th>
+						<th class="text-left">Cliente</th>
+						<th class="text-left">Código Cl</th>
+						<th class="text-left">Tipo</th>
 						<th class="text-left">PAN</th>
 						<th class="text-left">S/N</th>
-						<th class="text-left">Plate number</th>
-						<th class="text-left">Country</th>
-						<th class="text-left">State</th>
-						<th class="text-left">Unsubscribe reason</th>
+						<th class="text-left">Matrícula</th>
+						<th class="text-left">Estado</th>
+						<t t-if="current_state == 'Baja'">
+							<th class="text-left">Sustitución</th>
+						</t>
 					</tr>
 				</thead>
 				<tbody class="pm_unsubscribe_tbody">
-					<tr t-foreach="docs" t-as="doc">
+					<tr t-foreach="items" t-as="item">
 						<!-- t t-set="doc" t-value="doc.with_context({'lang':doc.partner_id.lang})"/ -->
-						<t t-if="doc.eRegisterState == current_state and doc.ePMType == current_type">
+						<t t-if="(current_state== '' or item.strPMState == current_state) and item.strPMType == current_type">
 							<td class="text-left">
-								<span t-esc="doc.idCustomer.name"/>
+								<span t-esc="item.idCustomer.name"/>
 							</td>
 							<td class="text-left">
-								<span t-esc="doc.idCustomer.ref"/>
+								<t t-foreach="item.idCustomer.idsProviderCode" t-as="providerCode">
+									<t t-if="providerCode.idProvider.id == item.idProvider.id">
+										<span t-esc="providerCode.strProviderCode"/>
+									</t>
+								</t>
 							</td>
 							<td class="text-left">
-								<span t-esc="doc.idProductPM.name"/>
-							</td>
-							<td class="text-left">
-								<span t-esc="doc.idAssocPackTmpl.name"/>
-							</td>
-							<td class="text-left">
-								<span t-esc="doc.ePMType"/>
+								<span t-esc="item.strPMType"/>
 							</td>
 							<td class="text-right">
-								<span t-esc="doc.strPAN"/>
+								<span t-esc="item.strPAN"/>
 							</td>
 							<td class="text-left">
-								<span t-esc="doc.strSN"/>
+								<span t-esc="item.strSN"/>
 							</td>
 							<td class="text-left">
-								<span t-esc="doc.strPN"/>
+								<span t-esc="item.strPN"/>
 							</td>
 							<td class="text-left">
-								<span t-esc="doc.idCountry.name"/>
+								<span t-esc="item.strPMState"/>
 							</td>
-							<td class="text-left">
-								<span t-esc="doc.eRegisterState"/>
-							</td>
-							<td class="text-left">
-								<span t-esc="doc.idUnsubscribeReason.name"/>
-							</td>
+							<t t-if="current_state == 'Baja'">
+								<td t-if="item.bReplace">Si</td>
+							</t>
 						</t>
 					</tr>
 				</tbody>

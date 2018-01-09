@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+	<data>
+		<record id="setirPMUnlinkForm" model="ir.ui.view">
+			<field name="name">setirPMUnlinkForm</field>
+			<field name="model">setir.unsubscribe.wizard.pm</field>
+			<field name="priority">2</field>
+			<field name="arch" type="xml">
+				<form string="Baja de medio de pago">
+					<sheet>
+						<group col= "4" colspan="2">
+							<group col= "2" colspan="2">
+								<!--  field name="name" invisible="1"/ -->
+								<field name="strPMType" readonly="1"  style="color:Purple;font-weight:bold;"/>
+								<field name="idCustomer" readonly="1"/>
+								<field name="idCustomerCode" readonly="1"/>
+							</group>
+							<group col= "2" colspan="2">
+								<field name="user_id" readonly="1"/>
+								<field name="idProvider" readonly="1"/>
+								<field name="strMailDestination" readonly="1"/>
+							</group>
+							<group col= "2" colspan="2">
+								<field name="eManagement" style="color:Purple;font-weight:bold;"/>
+							</group>
+							<group col= "2" colspan="2">
+								<field name="idUnsubscribeReason" options="{'no_create': True}" attrs="{'invisible': [('eManagement','!=', 'baja')]}"/>
+								<field name="idBlockReason" options="{'no_create': True}" attrs="{'invisible': [('eManagement','!=', 'bloqueo')]}"/>
+							</group>
+						</group>
+						<group col= "4" colspan="2">
+							<field name="eSender" attrs="{'invisible': [('eManagement','in', [False, 'baja', 'bloqueo', 'desbloqueo'])]}"/>
+							<field name="eReceiver" attrs="{'invisible': [('eManagement','in', [False, 'baja', 'bloqueo', 'desbloqueo'])]}"/>
+						</group>
+						<group>
+							<field name="idsPM2Manage" nolabel="1" widget="many2many" attrs="{'readonly': [('eManagement','!=', 'baja')]}">
+								<tree string="Medios de pago" editable="bottom">
+									<field name="strPAN" readonly="1"/>
+									<field name="strSN" invisible ="1"/>
+									<field name="strPN" readonly="1"/>
+									<field name="idCountry" invisible ="1"/>
+									<field name="idOperation" invisible ="1"/>
+									<field name="idCustomer" readonly="1"/>
+									<field name="strCustomer" invisible ="1"/>
+									<field name="idProvider" readonly="1"/>
+									<field name="strProvider" invisible ="1"/>
+									<field name="idProduct" readonly="1"/>
+									<field name="strPMType" readonly="1"/>
+									<field name="idAssocPackTmpl" readonly="1"/>
+									<field name="dtSignUp" invisible ="1"/>
+									<field name="dateExpiration" invisible ="1"/>	
+									<field name="eRegisterState" readonly="1"/>
+									<field name="dtUnsubscribe" invisible ="1"/>
+									<field name="idsPMState" readonly="1"/>
+									<field name="idsPMManagement" invisible ="1"/>
+									<field name="bReplace"/>
+								</tree>
+							</field>
+						</group>
+					</sheet>
+					<footer>
+	                    <button name="unsubscribePM" string="Baja" type="object" class="oe_highlight" attrs="{'invisible': [('eManagement','!=', 'baja')]}"/>
+	                    <button name="lockPM" string="Bloqueo" type="object" class="oe_highlight" attrs="{'invisible': [('eManagement','!=', 'bloqueo')]}"/>
+	                    <button name="unlockPM" string="Desbloqueo" type="object" class="oe_highlight" attrs="{'invisible': [('eManagement','!=', 'desbloqueo')]}"/>
+	                    <button name="sendPM" string="Envío" type="object" class="oe_highlight" attrs="{'invisible': [('eManagement','!=', 'envio')]}"/>
+	                    <button name="receivePM" string="Recepción" type="object" class="oe_highlight" attrs="{'invisible': [('eManagement','!=', 'recepcion')]}"/>
+	                    
+						<button name="setirOperations.btn_pmUnsubscribeWizardReport_action" type="action" string="Informe baja" class="oe_highlight" attrs="{'invisible': [('eManagement','!=', 'baja')]}"/>
+						<button name="setirOperations.btn_pmLockWizardReport_action" type="action" string="Informe bloqueo" class="oe_highlight" attrs="{'invisible': [('eManagement','!=', 'bloqueo')]}"/>
+						<button name="setirOperations.btn_pmUnlockWizardReport_action" type="action" string="Informe desbloqueo" class="oe_highlight" attrs="{'invisible': [('eManagement','!=', 'desbloqueo')]}"/>
+						<button name="setirOperations.btn_pmSendWizardReport_action" type="action" string="Informe envío" class="oe_highlight" attrs="{'invisible': [('eManagement','!=', 'envio')]}"/>
+						<button name="setirOperations.btn_pmReceiveWizardReport_action" type="action" string="Informe recepción" class="oe_highlight" attrs="{'invisible': [('eManagement','!=', 'recepcion')]}"/>
+
+	                    <button name="sendManagementMail" string="Enviar correo..." type="object" class="oe_highlight" attrs="{'invisible': [('eManagement','=', False)]}"/>
+						<button string="Cerrar" class="btn-default" special="cancel"/>
+					</footer>
+				</form>
+			</field>
+		</record>
+	</data>
+</openerp>

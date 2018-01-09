@@ -14,6 +14,7 @@ from setirDefinitions import *
 class setirProduct ( models.Model):
 	_inherit			= "product.template"
 	
+	#para sosociar varios peajes a un OBU
 	idsRelatedServices	=	fields.Many2many	(	string			= "Servicios asociados",
 													comodel_name	= "product.template",
 													relation		= "rel_pm_service",
@@ -22,7 +23,7 @@ class setirProduct ( models.Model):
 
 class setirPartnerOperation ( models.Model):
 	_inherit		= "res.partner"
-
+	
 	idInvoicingType				= fields.Many2one	(	string			= u"Tipo facturación",
 														comodel_name	= "setir.invoicing.type")
 	strInvoicngTypeDescription	= fields.Char		(	string			= u"Descripción",
@@ -31,7 +32,7 @@ class setirPartnerOperation ( models.Model):
 														comodel_name	= "setir.customer.provider.code",
 														inverse_name	= "idCustomer"
 													)
-	
+
 	#dict (DEF_ADDRESS_TYPE)["invoice"])])
 	@api.one	
 	def getAddress (self, strAddressType):
@@ -42,12 +43,12 @@ class setirPartnerOperation ( models.Model):
 			record	= self
 		
 		address = {}
-		
-		
 
 #codigos que dan los proveedores a los clientes    
 class setirPartnerCustomerCodes ( models.Model):
 	_name			= "setir.customer.provider.code"
+	
+	name			= fields.Char		(	string	 		= u"Código proveedor")
 	
 	idCustomer		= fields.Many2one	(	string			= "Cliente",
 											comodel_name	= "res.partner",
@@ -59,9 +60,10 @@ class setirPartnerCustomerCodes ( models.Model):
 											comodel_name	= "res.partner",
 											domain			= "[('is_company', '=', True), ('supplier', '=', True)]"
 										)
-	strProvider		= fields.Char		(	related			= "idProvider.name")
+	strProvider		= fields.Char		(	string			= "Proveedor",
+											related			= "idProvider.name")
 	
-	strProviderCode	= fields.Char		(	string	 		= u"Código proveedor")
+	strProviderCode	= fields.Char		(	related	 		= "name")
 
 class setirInvocingType ( models.Model):
 	_name	= "setir.invoicing.type"
@@ -112,7 +114,7 @@ class setirSaleOrderOperation ( models.Model):
 			vals = {}
 			vals['bActive']			= True
 			vals['idOperation']		= operation.id
-			vals['idProvider']		= self.x_eProvider
+			vals['idProvider']		= self.idProvider.id #zz
 			vals['idProduct']		= orderLine.product_id.id
 			vals['strPackTemplate']	= self.template_id.name
 			vals['idAssocPackTmpl']	= self.template_id.id
@@ -129,14 +131,14 @@ class setirSaleOrderOperation ( models.Model):
 			supplierInfo = self.env["product.supplierinfo"].search ([
 																	'&',
 																	('product_tmpl_id', '=', orderLine.product_id.product_tmpl_id.id),
-																	('name', '=', int ( self.x_eProvider))
+																	('name', '=', self.idProvider.id) #zz
 																	])
 
 			
 			if supplierInfo:
 				vals['strSupplierProductName'] = supplierInfo.product_name
-			else:
-				vals['strSupplierProductName'] = "ERR: proveedor no definido" 
+			#else:
+			#	vals['strSupplierProductName'] = "ERR: proveedor no definido" 
 			
 			operationLine	= self.env["setir.operation.line"].create ( vals)
 
@@ -198,7 +200,7 @@ class setirOperationLine ( models.Model):
 											string			= "Pack peaje asociado",
 											comodel_name	= "sale.quote.template"
 										)
-	strSupplierProductName	= fields.Char (	string		= "NPP")
+	strSupplierProductName	= fields.Char (	string		= "SPN")
 
 	idProductUOM	= fields.Many2one ( string			= "UOM",
 										comodel_name	= "product.uom")
@@ -245,61 +247,57 @@ class setirOperation ( models.Model):
 											comodel_name	= "setir.pm.unsubscribe.reason"
 											)
 
-	idsOrder			= fields.Many2many (
-											comodel_name	= "sale.order",
-											relation		= "rel_operation_sale_order",
-											column1			= "operation_id",
-											column2			= "order_id",
-											string			= "Pedidos de venta"
-											)
+	idsOrder			= fields.Many2many (	comodel_name	= "sale.order",
+												relation		= "rel_operation_sale_order",
+												column1			= "operation_id",
+												column2			= "order_id",
+												string			= "Pedidos de venta")
 
-	idsProvider			= fields.Many2many (
-												comodel_name	= "res.partner",
+	idsProvider			= fields.Many2many (	comodel_name	= "res.partner",
 												relation		= "rel_operation_partner",
 												column1			= "operation_id",
 												column2			= "partner_id",
-												string			= "Proveedores"
-											)
+												string			= "Proveedores")
 
-	strComment			= fields.Text 		( 	string = 'Notas internas')
+	strComment			= fields.Text 		( 	string			= 'Notas internas')
 	
 	idsLineToll			= fields.Many2many (	string			= "Peajes",
 												comodel_name	= "setir.operation.line", 
 												relation		= "rel_operation_toll",
 												column1			= "operation_id",
 												column2			= "line_id",
-												domain			= "[('idOperation','=', id),('strCategory', '=', 'peaje')]"
-											)
+												domain			= "[('idOperation','=', id),('strCategory', '=', 'peaje')]")
 
-	idsLinePM			= fields.Many2many (	string			= "Medios de pago",
+	idsLinePM			= fields.Many2many	(	string			= "Medios de pago",
 												comodel_name	= "setir.operation.line",
-												relation		= "rel_operation_pm",
-												column1			= "operation_id",
-												column2			= "line_id",
-												domain			= "[('idOperation','=', id),('strCategory', '=', 'medio de pago')]"
-											)
+												domain			= "[('idOperation','=', id), ('strCategory', 'in', ['obu', 'tarjeta','activacion'])]")
 	idsLineTax			= fields.Many2many (	string			= "Impuestos",
 												comodel_name	= "setir.operation.line",
 												relation		= "rel_operation_tax",
 												column1			= "operation_id",
 												column2			= "line_id",
-												domain			= "[('idOperation','=', id),('strCategory', '=', 'impuesto')]"
-											)
+												domain			= "[('idOperation','=', id),('strCategory', '=', 'impuesto')]")
 	idsLineFuel			= fields.Many2many (	string			= "Combustible",
 												comodel_name	= "setir.operation.line",
 												relation		= "rel_operation_fuel",
 												column1			= "operation_id",
 												column2			= "line_id",
-												domain			= "[('idOperation','=', id),('strCategory', '=', 'combustible')]"
-											)
-	idsLineOther			= fields.Many2many (	string			= "Otros",
-													comodel_name	= "setir.operation.line",
-													relation		= "rel_operation_other",
-													column1			= "operation_id",
-													column2			= "line_id",
-													domain			= "[('idOperation','=', id),('strCategory', 'not in',\
-																		 ['peaje','medio de pago','impuesto', 'combustible'])]"
-												)
+												domain			= "[('idOperation','=', id),('strCategory', '=', 'combustible')]")
+	idsLineOther		= fields.Many2many (	string			= "Otros",
+												comodel_name	= "setir.operation.line",
+												relation		= "rel_operation_other",
+												column1			= "operation_id",
+												column2			= "line_id",
+												domain			= "[('idOperation','=', id),('strCategory', 'not in',\
+																	 ['peaje','medio de pago','impuesto', 'combustible'])]")
+
+	#se seobreescribe el metodo para eliminar tambien las limeas de operacion
+	@api.multi
+	def unlink(self):
+		for operation in self:
+			self.env["setir.operation.line"].search([(('idOperation','=', operation.id))]).unlink()
+
+		return super( setirOperation, self).unlink()
 
 	@api.onchange ('idCustomer')
 	def fillOrdersProviders ( self):
@@ -311,7 +309,7 @@ class setirOperation ( models.Model):
 		for order in orders:
 			if order.state == "done":
 				listOrders.append ( order.id)
-				provider_id 	= int (order.x_eProvider)
+				provider_id 	= order.idProvider.id
 				if provider_id and provider_id not in listProviders:
 					listProviders.append ( provider_id)
 

@@ -115,7 +115,6 @@ class setirProductImportMap ( models.Model):
 	def clearNonCorrespondence (self):
 		self.env["setir.product.import.line"].search ([('idImportMap', '=', self.id), ('idFieldBase', '=', False)]).unlink()
 
-
 class setirImportMap ( models.Model):
 	_name			= "setir.import.map"
 	_inherit		= ['mail.thread', 'ir.needaction_mixin']
@@ -194,9 +193,24 @@ class setirImportHistory ( models.Model):
 	strFileImported		= fields.Char 		(	string			= "Archivo importado")
 	strImportInfo		= fields.Text		(	string			= u"Información resultados")
 
+class setirPM2Import ( models.Model):
+	_name			= "setir.pm.2import"
+	_inherit		= "setir.pm"
+	_description	= "Medio de pago import temp"
+	#_order			= 'idCustomer desc, dtSignUp desc'
+	
+	b2Import		= fields.Boolean	(	string			= "Importar")
+	eImportAction	= fields.Selection	(	string			= u"Acción",
+											selection		= IMPORT_ACTION)
+	nID2Update		= fields.Integer	(	string			= "ID2U")
+	idWizardPM		= fields.Many2one 	(	string			= "Wizard",
+											comodel_name	= "setir.import")
+	#strInfo			= fields.Text		(	string			= u"Información de importación")
+
+
 class setirImport ( models.Model):
 	_name				= "setir.import"
-	_inherit			= ["mail.thread", "ir.needaction_mixin"]
+	_inherit			= ['mail.thread', 'ir.needaction_mixin']
 	_description		= u"Importación"
 	_order				= "dtLastImport desc"
 
@@ -209,9 +223,15 @@ class setirImport ( models.Model):
 												comodel_name	= "res.partner",
 												domain			= "[('supplier','=', True), ('is_company', '=', True)]",
 												required		= True)
+	eYear				= fields.Selection	(	string			= u"Año de importación",
+												selection		= YEARS,
+												required		= True)
 	eMonth				= fields.Selection	(	string			= u"Mes de importación",
 												selection		= MONTHS,
 												required		= True)
+	bDirs				= fields.Boolean	(	string			= "Carpetas importación",
+												default			= True)
+	
 	dtLastImport		= fields.Datetime	(	string			= u"Fecha última importación",
 												readonly		= True)
 	idsImportHistory	= fields.One2many	(	comodel_name	= "setir.import.history",
@@ -223,10 +243,73 @@ class setirImport ( models.Model):
 		if vals.get('name', _('New')) == _('New'):
 			vals['name'] = self.env['ir.sequence'].next_by_code('setir.import.sequence') or _('New')
 
-		result = super ( setirImport, self).create(vals)
+		vals["eYear"]	= "{}".format(date.today().year)
+		vals["eMonth"]	= "{}".format(date.today().month)
+		vals["bDirs"]	= False 
+
+		result			= super ( setirImport, self).create(vals)
 
 		return result
 	
+	@api.multi
+	def checkDirs (self):
+		strPathBase		= self.env["ir.config_parameter"].search([("key","=", PATH_ROOT)])[0].value
+		strPathProvider = self.env["res.partner"].search([("id","=", self.idProvider.id)])[0].ref
+		strPathYear		= str ( self.eYear) 
+		strPathMonth	= str ( self.eMonth)
+
+		strPath			= strPathBase + "/" + strPathProvider + "/" + strPathYear + "/" + strPathMonth   
+
+		if ( not os.path.exists (strPath)):
+			strERR	= "Ruta NO existe [" + strPath + "], crear"
+			_logger.error ( strERR)
+			self.message_post ( strERR)
+			self.bDirs	= False
+			return False
+		else:
+			strERR	= "Ruta EXISTE [" + strPath + "]"
+			self.message_post ( strERR)
+			self.bDirs	= True
+			return True
+	
+	@api.multi
+	def makeDirs (self):
+		strPathBase			= self.env["ir.config_parameter"].search([("key","=", PATH_ROOT)])[0].value
+		strPathInvoicing	= self.env["ir.config_parameter"].search([("key","=", PATH_INVOICING)])[0].value
+		strPathInvoices		= self.env["ir.config_parameter"].search([("key","=", PATH_INVOICES)])[0].value
+		strPathConsumptions	= self.env["ir.config_parameter"].search([("key","=", PATH_CONSUPTIONS)])[0].value
+		strPathPM			= self.env["ir.config_parameter"].search([("key","=", PATH_PM)])[0].value
+
+		strPathProvider		= self.env["res.partner"].search([("id","=", self.idProvider.id)])[0].ref
+		strPathYear			= str ( self.eYear) 
+
+		strYear				= strPathBase + "/" + strPathProvider + "/" + strPathYear + "/"
+		os.makedirs ( strYear)
+		os.chmod ( strYear, 0o777)
+
+		for i in range (12):
+			strMonth	= strYear + "{:02d}".format ( ( i +1 ))
+			os.makedirs ( strMonth)
+			os.chmod ( strMonth, 0o777)
+			
+			strDir		= strMonth + "/" + strPathInvoicing
+			os.makedirs ( strDir)
+			os.chmod ( strDir, 0o777)
+			
+			strDir		= strMonth + "/" + strPathInvoices
+			os.makedirs ( strDir)
+			os.chmod ( strDir, 0o777)
+
+			strDir		= strMonth + "/" + strPathConsumptions
+			os.makedirs ( strDir)
+			os.chmod ( strDir, 0o777)
+
+			strDir		= strMonth + "/" + strPathPM
+			os.makedirs ( strDir)
+			os.chmod ( strDir, 0o777)
+		
+		self.bDirs	= True
+
 class setirImportWizard ( models.TransientModel):
 	_name			= "setir.import.wizard"
 	_description	= u"Wizard de importación"

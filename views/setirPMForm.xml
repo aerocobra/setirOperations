@@ -2,11 +2,74 @@
 <openerp>
 	<!-- MEDIO DE PAGO -->
 	<data>
+		<record id="setirPMKanban" model="ir.ui.view">
+			<field name="name">setirPMKanban</field>
+			<field name="model">setir.pm</field>
+			<field name="arch" type="xml">
+				<kanban>
+					<field name="strPAN"/>
+					<field name="idCustomer"/>
+					<field name="idProvider"/>
+					<templates>
+						<t t-name="kanban-box">
+							<div class="oe_kanban_card">
+								<field name="strPAN"/>
+								<field name="idCustomer"/>
+								<field name="idProvider"/>
+							</div>
+						</t>
+					</templates>
+				</kanban>
+			</field>
+		</record>
+		<record id="setirPMGraph" model="ir.ui.view">
+			<field name="name">setirPMGraph</field>
+			<field name="model">setir.pm</field>
+			<field name="arch" type="xml">
+				<graph>
+					<field name="idCustomer" type="row"/>
+					<field name="idProvider" type="col"/>
+				</graph>
+			</field>
+		</record>
+		<record id="setirPMPivot" model="ir.ui.view">
+			<field name="model">setir.pm</field>
+			<field name="arch" type="xml">
+				<pivot>
+					<field name="idCustomer" type="row"/>
+					<field name="idProvider" type="col"/>
+				</pivot>
+			</field>
+		</record>
+		<record model="ir.ui.view" id="setirPMSearch">
+			<field name="name">setirPMSearch</field>
+			<field name="model">setir.pm</field>
+			<field name="arch" type="xml">
+				<search>
+					<field name="strPN"/>
+					<field name="idCustomer" filter_domain="[('idCustomer', 'child_of', self)]"/>
+					<field name="idProvider" filter_domain="[('idProvider', 'child_of', self)]"/>
+					<field name="strPAN"/>
+					<field name="name"/>
+					<filter name="filter_obu" string="OBU" domain="[('strPMType', '=','obu')]"/>
+					<filter name="filter_tarjeta" string="Tarjeta" domain="[('strPMType', '=', 'tarjeta')]"/>
+					<filter name="filter_activo" string="Activo" domain="[('strPMState', '=', 'Activo')]"/>
+					<filter name="filter_lock" string="Bloqueados" domain="[('strPMState', '=', 'Bloqueado')]"/>
+					<filter name="filter_baja" string="Baja" domain="[('strPMState', '=', 'Baja')]"/>
+					<separator/>
+					<group expand="1" string="Group BB...">
+						<filter name="idCustomer" string="Clientes" context="{'group_by' : 'idCustomer'}"/>
+					</group>
+				</search>
+			</field>
+		</record>
+	</data>
+	<data>
 		<!-- tree -->
 		<record id="setirPMTree" model="ir.ui.view">
 			<field name="name">setirPMTree</field>
 			<field name="model">setir.pm</field>
-			<field name="priority">2</field>
+			<field name="search_view_id">setirPMSearch</field>
 			<field name="arch" type="xml">
 				<tree string="Medios de pago" decoration-muted="eRegisterState == 'baja'">
 					<field name="name"/>
@@ -16,7 +79,7 @@
 					<field name="strPN"/>
 					<field name="idCountry"/>
 					<field name="idOperation" invisible ="1"/>
-					<field name="idCustomer"/>
+					<field name="idCustomer" widget="selection"/>
 					<field name="idProvider"/>
 					<field name="idProduct"/>
 					<field name="idAssocPackTmpl"/>
@@ -35,7 +98,6 @@
 		<record id="setirPMForm" model="ir.ui.view">
 			<field name="name">setirPMForm</field>
 			<field name="model">setir.pm</field>
-			<field name="priority">4</field>
 			<field name="arch" type="xml">
 				<form string="Medio de pago">
 					<sheet>
@@ -49,6 +111,7 @@
 								<field name="dateExpiration"/>
 								<field name="dtUnsubscribe" attrs="{'invisible': [('eRegisterState','=', 'alta')]}" style="color:Purple;font-weight:bold;"/>
 								<field name="idUnsubscribeReason"  options="{'no_create': True}" attrs="{'invisible': [('eRegisterState','=', 'alta')]}"/>
+								<field name="bReplace" attrs="{'invisible': [('eRegisterState','=', 'alta')]}"/>
 							</group>
 							<group>	
 								<field name="strPAN"/>
@@ -95,64 +158,5 @@
 				</form>
 			</field>
 		</record>
-	</data>
-	<!-- WIZARD BAJA MEDIO DE PAGO -->
-	<data>
-		<record id="setirPMUnlinkForm" model="ir.ui.view">
-			<field name="name">setirPMUnlinkForm</field>
-			<field name="model">setir.unsubscribe.wizard.pm</field>
-			<field name="priority">2</field>
-			<field name="arch" type="xml">
-				<form string="Baja de medio de pago">
-					<sheet>
-						<group col= "4" colspan="2">
-							<field name="name"/>
-							<field name="idUnsubscribeReason"/>
-						</group>
-						<group>
-							<field name="idsPM2Unsubscribe" nolabel="1" widget="many2many">
-								<tree string="Medios de pago">
-									<field name="strPAN"/>
-									<field name="strSN" invisible ="1"/>
-									<field name="strPN"/>
-									<field name="idCountry"/>
-									<field name="idOperation" invisible ="1"/>
-									<field name="idCustomer"/>
-									<field name="idProvider"/>
-									<field name="idProduct"/>
-									<field name="strPMType"/>
-									<field name="idAssocPackTmpl"/>
-									<field name="dtSignUp" invisible ="1"/>
-									<field name="dateExpiration" invisible ="1"/>	
-									<field name="eRegisterState"/>
-									<field name="dtUnsubscribe" invisible ="1"/>
-									<field name="idsPMState"/>
-									<field name="idsPMManagement" invisible ="1"/>
-								</tree>
-							</field>
-						</group>
-					</sheet>
-					<footer>
-	                    <button name="unsubscribePM" string="Baja" type="object" class="oe_highlight"/>
-	                    <button name="sendUnsubscribeMail" string="Mail" type="object" class="oe_highlight"/>
-						<button name="setirOperations.btn_action_send_mail_window" type="action" string="Enviar correo" class="oe_highlight"/>
-	                    <button name="printUnsubscribeReport" string="Envío" type="object" class="oe_highlight"/>
-						<button string="Cerrar" class="btn-default" special="cancel"/>
-					</footer>
-				</form>
-			</field>
-		</record>
-	</data>
-	<!-- ACCIONES ENVIO CORREOS -->
-	<data>
-		<!--  action -->
-		<record model="ir.actions.act_window" id="btn_action_send_mail_window">
-			<field name="name">Enviar correo ...</field>
-			<field name="src_model">setir.unsubscribe.wizard.pm</field>
-			<field name="res_model">mail.compose.message</field>
-			<field name="view_mode">form</field>
-			<field name="target">new</field>
-			<field name="key2"></field>
-		</record>		
 	</data>
 </openerp>

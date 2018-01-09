@@ -36,6 +36,14 @@
 						<field name="idInvoicingType" widget="Many2one" options="{'no_create': True}"/>
 						<field name="strInvoicngTypeDescription" readonly="1"/>
 					</group>
+					<group col="4" colspan="4">
+						<field name="idsProviderCode" widget="Many2one" domain="{[('idCustomer', '=', id)]}">
+							<tree string="Tipos facturación">
+								<field name="strProvider"/>
+								<field name="name"/>
+							</tree>
+						</field>
+					</group>
 				</group>
 			</field>
 		</record>
@@ -101,22 +109,16 @@
 									<tree string="Pedidos de venta" limit="5">
 										<field name="id" invisible="1"/>
 										<field name="name"/>
+										<field name="idProvider"/>
+										<field name="template_id"/>
 										<field name="state" invisible="1"/>
-									</tree>
-								</field>
-		                    </group>
-		                    <group string="Proveedores">
-								<field name="idsProvider" options="{'no_create': True}" nolabel="1" readonly="0">
-									<tree string="Proveedores" limit="5">
-										<field name="id" invisible="1"/>
-										<field name="name"/>
 									</tree>
 								</field>
 		                    </group>
 	                    </group>
 						<notebook>
 							<page string="Peaje">
-								<field name="idsLineToll" options="{'no_create': True}" nolabel="1" readonly="0">
+								<field name="idsLineToll" options="{'no_create': False}" nolabel="1" readonly="0">
 									<tree string="Peajes contartados" limit="5">
 										<field name="idAssocPackTmpl"/>
 										<field name="strSupplierProductName"/>
@@ -134,7 +136,7 @@
 							</page>
 							<page string="Medios de pago">
 								<!--  button name="createPM" string="crear PM" type="object"/ -->
-								<field name="idsLinePM" options="{'no_create': True}" nolabel="1" readonly="0">
+								<field name="idsLinePM" options="{'no_create': False}" nolabel="1" readonly="0">
 									<tree string="Peajes contartados" limit="5">
 										<field name="idAssocPackTmpl"/>
 										<field name="idOperation"/>
