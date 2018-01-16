@@ -58,7 +58,9 @@
 					<filter name="filter_baja" string="Baja" domain="[('strPMState', '=', 'Baja')]"/>
 					<separator/>
 					<group expand="1" string="Group BB...">
-						<filter name="idCustomer" string="Clientes" context="{'group_by' : 'idCustomer'}"/>
+						<filter name="idCustomer" string="Cliente" context="{'group_by' : 'idCustomer'}"/>
+						<filter name="idProvider" string="Proveedor" context="{'group_by' : 'idProvider'}"/>
+						<filter name="strPMType" string="Tipo" context="{'group_by' : 'strPMType'}"/>
 					</group>
 				</search>
 			</field>

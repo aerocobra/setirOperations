@@ -10,6 +10,7 @@ from openerp.exceptions import UserError
 from openerp.tools import float_is_zero, float_compare, DEFAULT_SERVER_DATETIME_FORMAT
 from openerp import exceptions
 from setirDefinitions import *
+from itertools import groupby
 
 class setirPM ( models.Model):
 	_name				= "setir.pm"
@@ -26,20 +27,23 @@ class setirPM ( models.Model):
 
 	idCustomer			= fields.Many2one	(	string			= "Cliente",
 												comodel_name	= "res.partner",
-												domain			= "[('customer', '=', True)]",
-												index			= True)
+												domain			= "[('customer', '=', True)]")
+
 	strCustomer			= fields.Char		(	string			= "Cliente",
 												related			= "idCustomer.name")
+
 	idProvider			= fields.Many2one	(	string			= "Proveedor",
 												comodel_name	= "res.partner",
 												domain			= "[('supplier', '=', True)]")
+
 	strProvider			= fields.Char		(	string			= "Proveedor",
 												related			= "idProvider.name")
 	
 	idProduct			= fields.Many2one	(	string			= "Producto",
 												comodel_name	= "product.product")
 	strPMType			= fields.Char		(	string			= "Tipo",
-												related			= "idProduct.categ_id.name")
+												related			= "idProduct.categ_id.name",
+												store			= True)
 
 	idAssocPackTmpl		= fields.Many2one	(	string			= "Pack peaje asociado",
 												comodel_name	= "sale.quote.template")
@@ -93,6 +97,11 @@ class setirPM ( models.Model):
 												inverse_name	= "idPM",
 												string			= "Historial gestiones medio de pago",
 												readonly		= True)
+
+
+	@api.model
+	def read_group(self, domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True):
+		return super(setirPM, self).read_group(domain, fields, groupby, offset=offset, limit=limit, orderby=orderby, lazy=False)
 
 	@api.one
 	def addPMManagementHistory (self, idMangement, eSender, eReceiver):
