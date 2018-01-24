@@ -98,6 +98,9 @@ class setirPM ( models.Model):
 												string			= "Historial gestiones medio de pago",
 												readonly		= True)
 
+	@api.model
+	def webPP (self):
+		return 'ZZ33'
 
 	@api.model
 	def read_group(self, domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True):
